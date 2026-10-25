@@ -1,0 +1,237 @@
+{
+  "@@locale": "en",
+  "appTitle": "myDex",
+  "navDex": "Dex",
+  "navCollection": "Collection",
+  "navTeams": "Teams",
+  "navMore": "More",
+  "searchHint": "Search name or number",
+  "searchShortcutHint": "Press / or Ctrl+F to search",
+  "selectGame": "Game",
+  "noResults": "No results for “{query}”.",
+  "@noResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "statusOffline": "Available offline",
+  "statusRevision": "Data: {revision}",
+  "@statusRevision": {
+    "placeholders": {
+      "revision": {
+        "type": "String"
+      }
+    }
+  },
+  "statusGame": "Game: {game}",
+  "@statusGame": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "typeName": "{type, select, normal{Normal} fire{Fire} water{Water} electric{Electric} grass{Grass} ice{Ice} fighting{Fighting} poison{Poison} ground{Ground} flying{Flying} psychic{Psychic} bug{Bug} rock{Rock} ghost{Ghost} dragon{Dragon} dark{Dark} steel{Steel} fairy{Fairy} other{?}}",
+  "@typeName": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "statHp": "HP",
+  "statAttack": "Attack",
+  "statDefense": "Defense",
+  "statSpAtk": "Sp. Atk",
+  "statSpDef": "Sp. Def",
+  "statSpeed": "Speed",
+  "statSpecial": "Special",
+  "statTotal": "Total",
+  "sectionTypes": "Types",
+  "sectionStats": "Base stats",
+  "sectionAbilities": "Abilities",
+  "sectionEvolution": "Evolution",
+  "sectionForms": "Other forms",
+  "abilityHidden": "Hidden ability",
+  "abilitiesNotApplicable": "Abilities do not exist in this generation.",
+  "availabilityConfirmedUnavailable": "{name} is not in {game}.",
+  "@availabilityConfirmedUnavailable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilityNotApplicable": "Not applicable for {game}.",
+  "@availabilityNotApplicable": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilityNotResearched": "Data for {game} has not been researched yet. This does not mean the Pokémon is missing from the game.",
+  "@availabilityNotResearched": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilityUnknown": "It is unknown whether this Pokémon is in {game}.",
+  "@availabilityUnknown": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "dataGap": "Data gap",
+  "translationMissing": "Translation missing – shown in {language}",
+  "@translationMissing": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "evoLevel": "from level {level}",
+  "@evoLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "evoUseItem": "use {item}",
+  "@evoUseItem": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "evoHoldItem": "while holding {item}",
+  "@evoHoldItem": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "evoTimeOfDay": "{time, select, morning{in the morning} day{during the day} evening{in the evening} night{at night} other{?}}",
+  "@evoTimeOfDay": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "evoLocation": "at {location}",
+  "@evoLocation": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "evoRegion": "in the {region, select, kanto{Kanto} johto{Johto} hoenn{Hoenn} sinnoh{Sinnoh} unova{Unova} kalos{Kalos} alola{Alola} galar{Galar} hisui{Hisui} paldea{Paldea} other{{region}}} region",
+  "@evoRegion": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "evoFriendship": "with friendship ≥ {value}",
+  "@evoFriendship": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "evoKnowsMove": "knowing {move}",
+  "@evoKnowsMove": {
+    "placeholders": {
+      "move": {
+        "type": "String"
+      }
+    }
+  },
+  "evoTrade": "by trade",
+  "evoGender": "{gender, select, male{male only} female{female only} other{?}}",
+  "@evoGender": {
+    "placeholders": {
+      "gender": {
+        "type": "String"
+      }
+    }
+  },
+  "evoSpecial": "special condition",
+  "evoAnd": " and ",
+  "evoOr": " or ",
+  "noEvolution": "Does not evolve in this game.",
+  "caught": "Caught",
+  "seen": "Seen",
+  "shiny": "Shiny",
+  "markCaught": "Mark as caught",
+  "markSeen": "Mark as seen",
+  "collectionProgress": "{caught} of {total} caught",
+  "@collectionProgress": {
+    "placeholders": {
+      "caught": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "collectionSeen": "{seen} seen",
+  "@collectionSeen": {
+    "placeholders": {
+      "seen": {
+        "type": "int"
+      }
+    }
+  },
+  "scopeThisGame": "This game",
+  "scopeGlobal": "All games",
+  "collectionShinyToggle": "Shiny collection",
+  "teamsTitle": "Teams",
+  "teamsComingBody": "The team builder with type analysis follows in phase 3. The analysis rules (weaknesses, resistances, immunities, coverage) are already implemented and tested.",
+  "detailEmpty": "Select a Pokémon from the list.",
+  "settingsTheme": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsDataLanguage": "Data language",
+  "followUiLanguage": "Same as app language",
+  "aboutData": "Data",
+  "aboutCatalog": "Catalog revision {revision}",
+  "@aboutCatalog": {
+    "placeholders": {
+      "revision": {
+        "type": "String"
+      }
+    }
+  },
+  "disclaimer": "Unofficial fan project. Pokémon and related names are trademarks of their respective owners. Not affiliated with Nintendo, Game Freak or The Pokémon Company.",
+  "loadError": "The catalog could not be loaded.",
+  "retry": "Retry",
+  "storageRecovered": "Your collection file was damaged. A copy was kept at {path}.",
+  "@storageRecovered": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "back": "Back"
+}

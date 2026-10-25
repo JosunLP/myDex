@@ -1,0 +1,34 @@
+name: mydex_app
+description: Offline-first Pokémon-Enzyklopädie.
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.0.0
+  go_router: ^16.0.0
+  intl: any
+  path_provider: ^2.1.0
+  mydex_application: any
+  mydex_catalog_store: any
+  mydex_domain: any
+  mydex_game_rules: any
+  mydex_user_store: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/catalog/catalog.json

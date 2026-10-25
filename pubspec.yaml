@@ -1,0 +1,13 @@
+name: mydex_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+workspace:
+  - packages/domain
+  - packages/game_rules
+  - packages/application
+  - packages/catalog_store
+  - packages/user_store
+  - apps/pokedex
