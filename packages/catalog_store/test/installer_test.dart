@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:test/test.dart';
 
 import 'fixture.dart';
@@ -89,6 +90,26 @@ void main() {
   });
 
   test('ohne vorherige Version wird der Fehler gemeldet', () async {
+    await expectLater(
+      CatalogInstaller(
+        dir,
+      ).ensureInstalled(manifest(sha: 'f' * 64), fixturePack),
+      throwsA(isA<CatalogInstallException>()),
+    );
+  });
+
+  test('kein Rückfall auf eine Vorversion mit inkompatiblem Schema', () async {
+    // Vorversion mit altem Schema simulieren.
+    final old = File('${dir.path}/catalog-alt.sqlite');
+    final db = sqlite3.open(old.path);
+    db.execute('CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)');
+    db.execute(
+      "INSERT INTO meta VALUES ('schemaVersion', '1'), ('revision', 'alt')",
+    );
+    db.close();
+    File(
+      '${dir.path}/active.json',
+    ).writeAsStringSync(jsonEncode({'revision': 'alt', 'path': old.path}));
     await expectLater(
       CatalogInstaller(
         dir,

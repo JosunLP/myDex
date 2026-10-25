@@ -18,10 +18,25 @@ identisches Paket.
 - **Regelwerke:** Let's Go und Legends: Arceus ohne Fähigkeiten und getragene Items.
 
 ## Verfügbarkeit einer Form in einer Spielgruppe (ADR 0005)
-1. Erlernbarkeitsdaten für die Form in der Spielgruppe → **bestätigt verfügbar**.
+1. Erlernbarkeits- oder Begegnungsdaten für die Form in der Spielgruppe → **bestätigt verfügbar**.
 2. Art oder Form erst später eingeführt → **bestätigt nicht verfügbar**.
 3. Sonst → **noch nicht recherchiert** (Datenlücke). Fehlende Daten werden nie als
    „nicht im Spiel“ dargestellt.
+
+## Fundorte
+- Begegnungen werden je Form, Version, Gebiet, Methode und Bedingungen zusammengefasst:
+  niedrigstes/höchstes Level, Summe der Slot-Wahrscheinlichkeiten (höchstens 100 %).
+- Versionsexklusive Pokémon ergeben sich direkt aus den Versionsdaten (z. B. Rettan nur in Rot).
+- Hat eine Version **keine** Begegnungsdaten, zeigt die App „keine Fundortdaten“ – nie
+  „nicht fangbar“. Fehlt nur eine einzelne Form, heißt es „in den Fundortdaten nicht enthalten“.
+
+## Zucht
+- Regelwerke mit Zucht: Gen 2–9, ohne Let's Go, Legends: Arceus, Colosseum/XD,
+  Legends: Z-A/Mega Dimension und Champions.
+- Eine Art gilt als schlüpfbar, wenn ein Mitglied ihrer Entwicklungsfamilie Eier legen kann
+  (nicht nur „unbekannt“/Ditto). Die App nennt Zucht nur für Standardformen mit bestätigter
+  Verfügbarkeit; das Ei schlüpft als Grundform der Familie. Rauch-/Inzens-Sonderfälle
+  (z. B. Azurill) sind nicht modelliert – die App macht dazu keine Aussage.
 
 ## Entwicklungen
 - Gültig ab der in der Quelle genannten Spielgruppe und ab der Generation beider Arten.
@@ -31,7 +46,12 @@ identisches Paket.
 - Kanten zu oder von bestätigt nicht verfügbaren Formen werden ausgeblendet.
 
 ## Bekannte Lücken (im Datenstand sichtbar)
-- Fundorte, Pokédex- und Effekttexte sind noch nicht importiert.
+- Pokédex- und Effekttexte sind noch nicht importiert.
+- Die Quelle hat keine Begegnungsdaten u. a. für Strahlender Diamant/Leuchtende Perle,
+  Legends: Arceus, Karmesin/Purpur (inkl. DLC), Legends: Z-A, Mega Dimension und Champions.
+- Event-Verteilungen und Tausch zwischen Spielen sind nicht enthalten.
+- Viele Methoden- und Bedingungsnamen gibt es in der Quelle nur auf Englisch; die App zeigt
+  dann den englischen Namen.
 - Fluch hatte in Gen 2–4 den Typ „???“, der nicht modelliert ist; dort fehlen seine Werte.
 - Schatten-Attacken (Colosseum/XD) sind ausgelassen.
 - Regelwerke von Legends: Z-A, Mega Dimension und Champions sind noch nicht geprüft und

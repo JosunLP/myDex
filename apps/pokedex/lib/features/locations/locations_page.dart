@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mydex_application/mydex_application.dart';
+import 'package:mydex_domain/mydex_domain.dart';
+
+import '../../app/providers.dart';
+import '../../app/theme.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/game_context_selector.dart';
+
+/// Orte mit Begegnungen im gewählten Spiel, nach Region gruppiert.
+class LocationsPage extends ConsumerStatefulWidget {
+  const LocationsPage({super.key});
+
+  @override
+  ConsumerState<LocationsPage> createState() => _LocationsPageState();
+}
+
+class _LocationsPageState extends ConsumerState<LocationsPage> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final ctx = ref.watch(gameContextProvider);
+    final catalog = ref.watch(readyCatalogProvider);
+    final details = ref.watch(catalogDetailsProvider);
+    final lang = dataLanguageOf(context, ref);
+    final gameName = ctx.version.name(lang);
+    final q = normalizeSearchText(_query);
+
+    final locations = [
+      for (final id in details.locationsWithEncounters(ctx.versionId))
+        if (catalog.locations[id] case final location?)
+          if (q.isEmpty || normalizeSearchText(location.name(lang)).contains(q))
+            location,
+    ];
+    final byRegion = <RegionId?, List<Location>>{};
+    for (final l in locations) {
+      byRegion.putIfAbsent(l.region, () => []).add(l);
+    }
+    for (final list in byRegion.values) {
+      list.sort((a, b) => a.name(lang).compareTo(b.name(lang)));
+    }
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.navLocations),
+        actions: const [
+          GameContextSelector(),
+          SizedBox(width: Space.s),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Space.l,
+              Space.s,
+              Space.l,
+              Space.s,
+            ),
+            child: SearchBar(
+              hintText: l10n.locationSearchHint,
+              leading: const Icon(Icons.search),
+              elevation: const WidgetStatePropertyAll(0),
+              onChanged: (v) => setState(() => _query = v),
+            ),
+          ),
+          Expanded(
+            child: !details.hasEncounterData(ctx.versionId)
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(Space.xl),
+                      child: Text(
+                        l10n.noLocationData(gameName),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                : locations.isEmpty
+                ? Center(child: Text(l10n.noResults(_query)))
+                : ListView(
+                    children: [
+                      for (final MapEntry(key: region, value: list)
+                          in byRegion.entries) ...[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            Space.l,
+                            Space.l,
+                            Space.l,
+                            Space.xs,
+                          ),
+                          child: Semantics(
+                            header: true,
+                            child: Text(
+                              region == null
+                                  ? l10n.otherRegion
+                                  : catalog.regionNames[region]?.call(lang) ??
+                                        region.value,
+                              style: textTheme.titleSmall,
+                            ),
+                          ),
+                        ),
+                        for (final location in list)
+                          ListTile(
+                            leading: const Icon(Icons.place_outlined),
+                            title: Text(location.name(lang)),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => context.go(
+                              '/locations/${Uri.encodeComponent(location.id.value)}',
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}

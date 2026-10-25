@@ -16,6 +16,11 @@ class CatalogSnapshot {
     List<Move> moves = const [],
     required this.itemNames,
     this.locationNames = const {},
+    this.locations = const {},
+    this.locationAreas = const {},
+    this.encounterMethods = const {},
+    this.encounterConditionNames = const {},
+    this.regionNames = const {},
     required this.evolutions,
   }) : rulesets = {for (final r in rulesets) r.id: r},
        versionGroups = {for (final g in versionGroups) g.id: g},
@@ -48,6 +53,11 @@ class CatalogSnapshot {
   final Map<MoveId, Move> moves;
   final Map<ItemId, LocalizedText> itemNames;
   final Map<LocationId, LocalizedText> locationNames;
+  final Map<LocationId, Location> locations;
+  final Map<LocationAreaId, LocationArea> locationAreas;
+  final Map<EncounterMethodId, EncounterMethod> encounterMethods;
+  final Map<EncounterConditionId, LocalizedText> encounterConditionNames;
+  final Map<RegionId, LocalizedText> regionNames;
   final List<EvolutionEdge> evolutions;
 
   GameContext contextFor(GameVersionId id) {

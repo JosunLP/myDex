@@ -94,7 +94,7 @@ Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen
 |---|---|
 | 0 | Referenzanalyse, Paritätsmatrix, Rechteinventar, Plattform-Spikes |
 | 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
-| 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (laufend); 2b Fundorte |
+| 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (laufend) |
 | 3 | Sammlung und Teams |
 | 4 | Vollständige Referenzparität (Galerie, TTS, Sprachen, Sync) |
 | 5 | Stabilisierung und Veröffentlichung |

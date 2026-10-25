@@ -95,10 +95,6 @@ Future<void> _search(WidgetTester tester, String query) async {
   await tester.pumpAndSettle();
 }
 
-Finder _listScrollable() => find
-    .descendant(of: find.byType(ListView), matching: find.byType(Scrollable))
-    .first;
-
 void main() {
   setUpAll(() async {
     _tmp = Directory.systemTemp.createTempSync('mydex_app_catalog');
@@ -243,12 +239,8 @@ void main() {
     expect(find.text('Offline verfügbar'), findsOneWidget);
     expect(find.text('Wähle ein Pokémon aus der Liste.'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.text('Evoli'),
-      300,
-      scrollable: _listScrollable(),
-    );
-    await tester.tap(find.text('Evoli'));
+    await _search(tester, 'Evoli');
+    await tester.tap(find.widgetWithText(ListTile, 'Evoli'));
     await tester.pumpAndSettle();
     expect(
       find.text('Entwicklung'),
@@ -267,5 +259,52 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('PokéAPI'), findsOneWidget);
     expect(find.textContaining('bestätigt'), findsWidgets);
+  });
+
+  testWidgets('Fundorte auf der Pokémon-Seite und als eigener Bereich', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1600));
+    await _selectGame(tester, 'Rot');
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+
+    final scrollable = find
+        .descendant(
+          of: find.byType(ListView).last,
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(
+      find.text('Vertania-Wald'),
+      300,
+      scrollable: scrollable,
+    );
+    expect(find.text('Fundorte und Beschaffung'), findsOneWidget);
+    await tester.tap(find.text('Vertania-Wald'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kanto'), findsOneWidget);
+    expect(find.text('Pikachu'), findsWidgets);
+
+    // Eigener Navigationsbereich mit allen Orten der Version.
+    await tester.tap(find.text('Fundorte').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(SearchBar).last, 'vertania');
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(ListTile, 'Vertania-Wald'), findsOneWidget);
+  });
+
+  testWidgets('Ohne Fundortdaten erscheint ein Hinweis statt „nicht fangbar“', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1200));
+    await _selectGame(tester, 'Karmesin');
+    await tester.tap(find.text('Fundorte').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Für Karmesin liegen noch keine Fundortdaten vor.'),
+      findsOneWidget,
+    );
   });
 }

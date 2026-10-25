@@ -7,6 +7,8 @@ import '../features/dex/ability_page.dart';
 import '../features/dex/dex_page.dart';
 import '../features/dex/move_page.dart';
 import '../features/dex/pokemon_detail_page.dart';
+import '../features/locations/location_page.dart';
+import '../features/locations/locations_page.dart';
 import '../features/more/data_page.dart';
 import '../features/more/more_page.dart';
 import '../features/teams/teams_page.dart';
@@ -40,10 +42,33 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
                   builder: (context, state) =>
                       MovePage(moveId: MoveId(state.pathParameters['moveId']!)),
                 ),
+                // Ort aus der Pokémon-Ansicht heraus, ohne den Bereich zu wechseln.
+                GoRoute(
+                  path: 'location/:locationId',
+                  builder: (context, state) => LocationPage(
+                    locationId: LocationId(state.pathParameters['locationId']!),
+                  ),
+                ),
                 GoRoute(
                   path: 'ability/:abilityId',
                   builder: (context, state) => AbilityPage(
                     abilityId: AbilityId(state.pathParameters['abilityId']!),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/locations',
+              builder: (_, _) => const LocationsPage(),
+              routes: [
+                GoRoute(
+                  path: ':locationId',
+                  builder: (context, state) => LocationPage(
+                    locationId: LocationId(state.pathParameters['locationId']!),
                   ),
                 ),
               ],

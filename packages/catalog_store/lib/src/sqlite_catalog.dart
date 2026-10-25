@@ -75,6 +75,7 @@ class _SnapshotLoader {
           hasHeldItems: r['has_held_items'] == 1,
           hasNatures: r['has_natures'] == 1,
           unifiedSpecial: r['unified_special'] == 1,
+          hasBreeding: r['has_breeding'] == 1,
         ),
     ];
 
@@ -107,6 +108,7 @@ class _SnapshotLoader {
           id: speciesIds[r['rid'] as int] = SpeciesId(r['id'] as String),
           nationalNumber: r['national'] as int,
           name: _name('species', r['rid'] as int),
+          hatchable: r['hatchable'] == 1,
         ),
     ];
 
@@ -133,9 +135,47 @@ class _SnapshotLoader {
         ItemId(r['id'] as String): _name('item', r['rid'] as int),
     };
 
-    final locationNames = {
-      for (final r in db.select('SELECT rid, id FROM location'))
-        LocationId(r['id'] as String): _name('location', r['rid'] as int),
+    final regionIds = <int, RegionId>{};
+    final regionNames = {
+      for (final r in db.select('SELECT rid, id FROM region'))
+        regionIds[r['rid'] as int] = RegionId(r['id'] as String): _name(
+          'region',
+          r['rid'] as int,
+        ),
+    };
+    final locationIds = <int, LocationId>{};
+    final locations = <LocationId, Location>{};
+    for (final r in db.select('SELECT rid, id, region FROM location')) {
+      final id = locationIds[r['rid'] as int] = LocationId(r['id'] as String);
+      locations[id] = Location(
+        id: id,
+        name: _name('location', r['rid'] as int),
+        region: regionIds[r['region'] as int?],
+      );
+    }
+    final locationNames = {for (final l in locations.values) l.id: l.name};
+    final locationAreas = {
+      for (final r in db.select('SELECT rid, id, location FROM location_area'))
+        LocationAreaId(r['id'] as String): LocationArea(
+          id: LocationAreaId(r['id'] as String),
+          location: locationIds[r['location'] as int]!,
+          name: _name('location_area', r['rid'] as int),
+        ),
+    };
+    final encounterMethods = {
+      for (final r in db.select('SELECT rid, id, sort FROM encounter_method'))
+        EncounterMethodId(r['id'] as String): EncounterMethod(
+          id: EncounterMethodId(r['id'] as String),
+          name: _name('encounter_method', r['rid'] as int),
+          order: r['sort'] as int,
+        ),
+    };
+    final encounterConditionNames = {
+      for (final r in db.select('SELECT rid, id FROM encounter_condition'))
+        EncounterConditionId(r['id'] as String): _name(
+          'encounter_condition',
+          r['rid'] as int,
+        ),
     };
 
     final profiles = <int, Map<VersionGroupId, FormGameProfile>>{};
@@ -188,6 +228,11 @@ class _SnapshotLoader {
       moves: moves,
       itemNames: itemNames,
       locationNames: locationNames,
+      locations: locations,
+      locationAreas: locationAreas,
+      encounterMethods: encounterMethods,
+      encounterConditionNames: encounterConditionNames,
+      regionNames: regionNames,
       evolutions: evolutions,
     );
   }
@@ -271,6 +316,19 @@ class SqliteCatalogDetails implements CatalogDetails {
     for (final r in _db.select('SELECT rid, id FROM move')) {
       _moveRid[r['id'] as String] = r['rid'] as int;
     }
+    for (final r in _db.select('SELECT rid, id FROM version')) {
+      _versionRid[r['id'] as String] = r['rid'] as int;
+    }
+    for (final r in _db.select('SELECT rid, id FROM location')) {
+      _locationRid[r['id'] as String] = r['rid'] as int;
+      _locationId[r['rid'] as int] = r['id'] as String;
+    }
+    for (final r in _db.select('SELECT rid, id FROM location_area')) {
+      _areaId[r['rid'] as int] = r['id'] as String;
+    }
+    for (final r in _db.select('SELECT rid, id FROM encounter_method')) {
+      _methodId[r['rid'] as int] = r['id'] as String;
+    }
   }
 
   factory SqliteCatalogDetails.open(String path) {
@@ -301,6 +359,11 @@ class SqliteCatalogDetails implements CatalogDetails {
   final _groupRid = <String, int>{};
   final _groupId = <int, String>{};
   final _moveRid = <String, int>{};
+  final _versionRid = <String, int>{};
+  final _locationRid = <String, int>{};
+  final _locationId = <int, String>{};
+  final _areaId = <int, String>{};
+  final _methodId = <int, String>{};
 
   @override
   List<LearnsetEntry> learnset(FormId form, VersionGroupId group) {
@@ -399,6 +462,75 @@ class SqliteCatalogDetails implements CatalogDetails {
     ];
   }
 
+  Encounter _encounter(Row r) => Encounter(
+    form: FormId(_formId[r['form'] as int]!),
+    area: LocationAreaId(_areaId[r['area'] as int]!),
+    method: EncounterMethodId(_methodId[r['method'] as int]!),
+    minLevel: r['min_level'] as int,
+    maxLevel: r['max_level'] as int,
+    chance: r['chance'] as int,
+    conditions: [
+      for (final c in (r['conditions'] as String).split(','))
+        if (c.isNotEmpty) EncounterConditionId(c),
+    ],
+  );
+
+  @override
+  List<Encounter> encountersOf(FormId form, GameVersionId version) {
+    final f = _formRid[form.value];
+    final v = _versionRid[version.value];
+    if (f == null || v == null) return const [];
+    return [
+      for (final r in _db.select(
+        '''SELECT e.* FROM encounter e JOIN encounter_method m ON m.rid = e.method
+           WHERE e.form = ? AND e.version = ? ORDER BY e.area, m.sort, e.conditions''',
+        [f, v],
+      ))
+        _encounter(r),
+    ];
+  }
+
+  @override
+  List<Encounter> encountersAt(LocationId location, GameVersionId version) {
+    final l = _locationRid[location.value];
+    final v = _versionRid[version.value];
+    if (l == null || v == null) return const [];
+    return [
+      for (final r in _db.select(
+        '''SELECT e.* FROM encounter e
+           JOIN location_area a ON a.rid = e.area
+           JOIN encounter_method m ON m.rid = e.method
+           WHERE e.version = ? AND a.location = ?
+           ORDER BY e.area, m.sort, e.chance DESC, e.form''',
+        [v, l],
+      ))
+        _encounter(r),
+    ];
+  }
+
+  @override
+  List<LocationId> locationsWithEncounters(GameVersionId version) {
+    final v = _versionRid[version.value];
+    if (v == null) return const [];
+    return [
+      for (final r in _db.select(
+        '''SELECT DISTINCT a.location FROM encounter e
+           JOIN location_area a ON a.rid = e.area WHERE e.version = ?''',
+        [v],
+      ))
+        LocationId(_locationId[r['location'] as int]!),
+    ];
+  }
+
+  @override
+  bool hasEncounterData(GameVersionId version) {
+    final v = _versionRid[version.value];
+    if (v == null) return false;
+    return _db.select('SELECT 1 FROM encounter WHERE version = ? LIMIT 1', [
+      v,
+    ]).isNotEmpty;
+  }
+
   @override
   List<EntityHit> searchEntities(String query, {int limit = 30}) {
     final normalized = normalizeSearchText(query).replaceAll('"', '');
@@ -436,6 +568,7 @@ class SqliteCatalogDetails implements CatalogDetails {
         formsUnavailable: r['forms_unavailable'] as int,
         formsGaps: r['forms_gaps'] as int,
         learnsetEntries: r['learnset_entries'] as int,
+        encounterEntries: r['encounter_entries'] as int,
       ),
   ];
 

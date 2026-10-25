@@ -324,7 +324,7 @@
       }
     }
   },
-  "coverageExplanation": "Per game: forms confirmed in the game, confirmed absent, and not yet researched (data gaps). Locations and Pokédex texts are not included yet.",
+  "coverageExplanation": "Per game: forms confirmed in the game, confirmed absent, and not yet researched (data gaps), plus move and encounter entries. Pokédex texts are not included yet.",
   "coverageRow": "{confirmed} confirmed · {unavailable} absent · {gaps} gaps",
   "@coverageRow": {
     "placeholders": {
@@ -364,5 +364,89 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navLocations": "Locations",
+  "sectionAcquisition": "Locations and how to obtain",
+  "encounterLine": "{method} · Lv. {levels} · {chance} %",
+  "@encounterLine": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "levels": {
+        "type": "String"
+      },
+      "chance": {
+        "type": "int"
+      }
+    }
+  },
+  "noEncounterData": "No location data for {game} yet. This does not mean the Pokémon cannot be found there.",
+  "@noEncounterData": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "noEncountersForForm": "Not listed in the location data of {game} – see other ways below.",
+  "@noEncountersForForm": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "acquireByEvolution": "By evolving {name}",
+  "@acquireByEvolution": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acquireByHatching": "Hatches from an Egg (breeding)",
+  "acquireByBreedingFamily": "Breed {root} and evolve it",
+  "@acquireByBreedingFamily": {
+    "placeholders": {
+      "root": {
+        "type": "String"
+      }
+    }
+  },
+  "locationsTitle": "Locations in {game}",
+  "@locationsTitle": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "locationSearchHint": "Search locations",
+  "noLocationData": "No location data for {game} yet.",
+  "@noLocationData": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "noEncountersHere": "No encounters at this location in {game}.",
+  "@noEncountersHere": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "otherRegion": "Other",
+  "coverageEncounters": "{count} encounters",
+  "@coverageEncounters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coverageNoEncounters": "no location data"
 }
