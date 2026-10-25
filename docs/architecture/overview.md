@@ -1,0 +1,90 @@
+# Architekturüberblick
+
+Kurzfassung des Gesamtentwurfs. Verbindliche Einzelentscheidungen stehen in `docs/decisions/`.
+
+## Produktvision
+
+Eine schnelle, datenschutzfreundliche Pokémon-Enzyklopädie für Smartphone und Desktop, ohne
+Konto nutzbar, mit vollständig offline verfügbaren Kernfunktionen. Funktionsumfang mindestens auf
+dem Niveau der in `docs/parity/` eingefrorenen Referenzversion.
+
+Zielplattformen: Android, GrapheneOS ohne Play Services (Testziel, kein eigener Port), iOS,
+Windows, macOS, Linux.
+
+## Leitentscheidungen
+
+1. Flutter/Dart für eine gemeinsame Client-Codebase (ADR 0001).
+2. Lokaler modularer Monolith; kein Backend fürs Nachschlagen (ADR 0002).
+3. Öffentlicher Katalog und persönliche Daten in getrennten Speichern (ADR 0003).
+4. Spielkontext wird explizit durch jede regelabhängige Abfrage gereicht (ADR 0004).
+5. Fehlende Daten sind nie „nicht verfügbar“ – fünf unterscheidbare Zustände (ADR 0005).
+6. Entwicklungsbedingungen sind deklarative Daten, nie Skripte (ADR 0006).
+
+## Schichten
+
+| Schicht | Paket | Inhalt |
+|---|---|---|
+| Presentation | `apps/pokedex` | Widgets, Navigation, Darstellungszustände |
+| Application | `packages/application` | Anwendungsfälle, Repository-Schnittstellen, Suche |
+| Domain | `packages/domain`, `packages/game_rules` | Modelle, Regelwerke, Berechnungen |
+| Infrastructure | `packages/catalog_store`, `packages/user_store` | Katalogpaket, Nutzerdaten |
+
+Regel: innere Schichten kennen keine äußeren. Infrastruktur implementiert Schnittstellen aus
+`application`.
+
+## Datenmodell (Kern)
+
+- `Species` – Art mit nationaler Nummer.
+- `Variety` / `Form` – spielmechanisch relevante Erscheinungsform; eigene stabile ID.
+  Nationaldex-Nummern sind keine Primärschlüssel für Formen.
+- `GameVersion`, `VersionGroup`, `Ruleset` – Spiel, Spielgruppe, mechanische Regeln.
+- `FormGameProfile` – Typen, Basiswerte, Fähigkeiten und Verfügbarkeit einer Form in einer
+  Spielgruppe. Beispiel: Piepi ist bis Gen 5 Normal, ab Gen 6 Fee.
+- `EvolutionEdge` mit strukturierter `EvolutionCondition` (UND/ODER, Level, Item, …).
+- Nutzerdaten: `CollectionEntry` je Umfang (Spiel oder global), Form und Shiny-Flag.
+  Shiny ist eine Eigenschaft, keine Form.
+
+## Offline und Updates
+
+Der Kernkatalog wird mit der App ausgeliefert, damit der erste Start ohne Netz funktioniert.
+Updates: signiertes Manifest → temporärer Download → Hash-/Integritätsprüfung → atomare
+Aktivierung → letzte Version für Rollback behalten. App-Version, Katalogversion und
+Nutzerdatenschema sind drei getrennte Versionen.
+
+Aktueller Stand: Der Katalog ist ein gebündeltes, validiertes JSON-Paket. SQLite/Drift mit FTS5
+ersetzt es hinter derselben `CatalogRepository`-Schnittstelle.
+
+## Suche
+
+Sprachübergreifend über Namen, Aliase und Nummern. Ranking: exakte Nummer/exakter Name →
+exakter Alias → Präfix → Teilstring → kontrollierte Tippfehlertoleranz. Normalisierung entfernt
+Diakritika und vereinheitlicht ß, ♀/♂ und Satzzeichen.
+
+## Team-Analyse
+
+Drei getrennte Stufen: Basistypen-Analyse (implementiert), kontextabhängige Analyse
+(Fähigkeiten, Items, Wetter) und Legalitätsprüfung. Ergebnisse der Legalitätsprüfung sind
+`gültig`, `ungültig`, `teilweise geprüft` oder `Datenlage unzureichend` – nie eine
+ungedeckte Garantie.
+
+## Sync (geplant)
+
+Optional. Outbox-basiert und revisionskontrolliert, Tombstones für Löschungen,
+Konfliktkopien statt stillem Überschreiben. TLS und verschlüsselte Datenträger; keine
+Ende-zu-Ende-Verschlüsselung, sofern nicht vor Implementierung anders entschieden.
+
+## GrapheneOS
+
+Abnahmekriterium: Betrieb ohne Google Play Services. Kein Google-Login-, Play-Integrity- oder
+Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen.
+
+## Phasen
+
+| Phase | Inhalt |
+|---|---|
+| 0 | Referenzanalyse, Paritätsmatrix, Rechteinventar, Plattform-Spikes |
+| 1 | Fundament, vertikaler Durchstich (laufend) |
+| 2 | Vollständiger Wissenskatalog (Attacken, Fähigkeiten, Items, Fundorte, Historie) |
+| 3 | Sammlung und Teams |
+| 4 | Vollständige Referenzparität (Galerie, TTS, Sprachen, Sync) |
+| 5 | Stabilisierung und Veröffentlichung |

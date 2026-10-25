@@ -1,0 +1,1439 @@
+{
+ "schemaVersion": 1,
+ "revision": "fixture-2026.10.0",
+ "rulesets": [
+  {
+   "id": "gen1",
+   "generation": 1,
+   "typeChartEra": "gen1",
+   "statFormula": "gen1_2",
+   "partySize": 6,
+   "hasAbilities": false,
+   "hasHeldItems": false,
+   "hasNatures": false,
+   "unifiedSpecial": true
+  },
+  {
+   "id": "gen6",
+   "generation": 6,
+   "typeChartEra": "gen6plus",
+   "statFormula": "modern",
+   "partySize": 6,
+   "hasAbilities": true,
+   "hasHeldItems": true,
+   "hasNatures": true,
+   "unifiedSpecial": false
+  },
+  {
+   "id": "gen7",
+   "generation": 7,
+   "typeChartEra": "gen6plus",
+   "statFormula": "modern",
+   "partySize": 6,
+   "hasAbilities": true,
+   "hasHeldItems": true,
+   "hasNatures": true,
+   "unifiedSpecial": false
+  },
+  {
+   "id": "gen9",
+   "generation": 9,
+   "typeChartEra": "gen6plus",
+   "statFormula": "modern",
+   "partySize": 6,
+   "hasAbilities": true,
+   "hasHeldItems": true,
+   "hasNatures": true,
+   "unifiedSpecial": false
+  }
+ ],
+ "versionGroups": [
+  {
+   "id": "red-blue",
+   "generation": 1,
+   "ruleset": "gen1",
+   "order": 1,
+   "name": {
+    "de": "Rot / Blau",
+    "en": "Red / Blue"
+   }
+  },
+  {
+   "id": "x-y",
+   "generation": 6,
+   "ruleset": "gen6",
+   "order": 6,
+   "name": {
+    "de": "X / Y",
+    "en": "X / Y"
+   }
+  },
+  {
+   "id": "sun-moon",
+   "generation": 7,
+   "ruleset": "gen7",
+   "order": 7,
+   "name": {
+    "de": "Sonne / Mond",
+    "en": "Sun / Moon"
+   }
+  },
+  {
+   "id": "scarlet-violet",
+   "generation": 9,
+   "ruleset": "gen9",
+   "order": 9,
+   "name": {
+    "de": "Karmesin / Purpur",
+    "en": "Scarlet / Violet"
+   }
+  }
+ ],
+ "versions": [
+  {
+   "id": "red",
+   "versionGroup": "red-blue",
+   "name": {
+    "de": "Rot",
+    "en": "Red"
+   }
+  },
+  {
+   "id": "blue",
+   "versionGroup": "red-blue",
+   "name": {
+    "de": "Blau",
+    "en": "Blue"
+   }
+  },
+  {
+   "id": "x",
+   "versionGroup": "x-y",
+   "name": {
+    "de": "X",
+    "en": "X"
+   }
+  },
+  {
+   "id": "y",
+   "versionGroup": "x-y",
+   "name": {
+    "de": "Y",
+    "en": "Y"
+   }
+  },
+  {
+   "id": "sun",
+   "versionGroup": "sun-moon",
+   "name": {
+    "de": "Sonne",
+    "en": "Sun"
+   }
+  },
+  {
+   "id": "moon",
+   "versionGroup": "sun-moon",
+   "name": {
+    "de": "Mond",
+    "en": "Moon"
+   }
+  },
+  {
+   "id": "scarlet",
+   "versionGroup": "scarlet-violet",
+   "name": {
+    "de": "Karmesin",
+    "en": "Scarlet"
+   }
+  },
+  {
+   "id": "violet",
+   "versionGroup": "scarlet-violet",
+   "name": {
+    "de": "Purpur",
+    "en": "Violet"
+   }
+  }
+ ],
+ "abilities": [
+  {
+   "id": "overgrow",
+   "name": {
+    "de": "Notdünger",
+    "en": "Overgrow"
+   }
+  },
+  {
+   "id": "chlorophyll",
+   "name": {
+    "de": "Chlorophyll",
+    "en": "Chlorophyll"
+   }
+  },
+  {
+   "id": "blaze",
+   "name": {
+    "de": "Großbrand",
+    "en": "Blaze"
+   }
+  },
+  {
+   "id": "solar-power",
+   "name": {
+    "de": "Solarkraft",
+    "en": "Solar Power"
+   }
+  },
+  {
+   "id": "torrent",
+   "name": {
+    "de": "Sturzbach",
+    "en": "Torrent"
+   }
+  },
+  {
+   "id": "rain-dish",
+   "name": {
+    "de": "Regengenuss",
+    "en": "Rain Dish"
+   }
+  },
+  {
+   "id": "static",
+   "name": {
+    "de": "Statik",
+    "en": "Static"
+   }
+  },
+  {
+   "id": "lightning-rod",
+   "name": {
+    "de": "Blitzfänger",
+    "en": "Lightning Rod"
+   }
+  },
+  {
+   "id": "surge-surfer",
+   "name": {
+    "de": "Surfschwanz",
+    "en": "Surge Surfer"
+   }
+  },
+  {
+   "id": "cute-charm",
+   "name": {
+    "de": "Charmebolzen",
+    "en": "Cute Charm"
+   }
+  },
+  {
+   "id": "magic-guard",
+   "name": {
+    "de": "Magieschild",
+    "en": "Magic Guard"
+   }
+  },
+  {
+   "id": "friend-guard",
+   "name": {
+    "de": "Freundeshut",
+    "en": "Friend Guard"
+   }
+  },
+  {
+   "id": "unaware",
+   "name": {
+    "de": "Unkenntnis",
+    "en": "Unaware"
+   }
+  },
+  {
+   "id": "run-away",
+   "name": {
+    "de": "Angsthase",
+    "en": "Run Away"
+   }
+  },
+  {
+   "id": "adaptability",
+   "name": {
+    "de": "Anpassung",
+    "en": "Adaptability"
+   }
+  },
+  {
+   "id": "anticipation",
+   "name": {
+    "de": "Vorahnung",
+    "en": "Anticipation"
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "thunder-stone",
+   "name": {
+    "de": "Donnerstein",
+    "en": "Thunder Stone"
+   }
+  },
+  {
+   "id": "moon-stone",
+   "name": {
+    "de": "Mondstein",
+    "en": "Moon Stone"
+   }
+  }
+ ],
+ "species": [
+  {
+   "id": "bulbasaur",
+   "national": 1,
+   "name": {
+    "de": "Bisasam",
+    "en": "Bulbasaur"
+   }
+  },
+  {
+   "id": "ivysaur",
+   "national": 2,
+   "name": {
+    "de": "Bisaknosp",
+    "en": "Ivysaur"
+   }
+  },
+  {
+   "id": "venusaur",
+   "national": 3,
+   "name": {
+    "de": "Bisaflor",
+    "en": "Venusaur"
+   }
+  },
+  {
+   "id": "charmander",
+   "national": 4,
+   "name": {
+    "de": "Glumanda",
+    "en": "Charmander"
+   }
+  },
+  {
+   "id": "charmeleon",
+   "national": 5,
+   "name": {
+    "de": "Glutexo",
+    "en": "Charmeleon"
+   }
+  },
+  {
+   "id": "charizard",
+   "national": 6,
+   "name": {
+    "de": "Glurak",
+    "en": "Charizard"
+   }
+  },
+  {
+   "id": "squirtle",
+   "national": 7,
+   "name": {
+    "de": "Schiggy",
+    "en": "Squirtle"
+   }
+  },
+  {
+   "id": "wartortle",
+   "national": 8,
+   "name": {
+    "de": "Schillok",
+    "en": "Wartortle"
+   }
+  },
+  {
+   "id": "blastoise",
+   "national": 9,
+   "name": {
+    "de": "Turtok",
+    "en": "Blastoise"
+   }
+  },
+  {
+   "id": "pikachu",
+   "national": 25,
+   "name": {
+    "de": "Pikachu",
+    "en": "Pikachu"
+   }
+  },
+  {
+   "id": "raichu",
+   "national": 26,
+   "name": {
+    "de": "Raichu",
+    "en": "Raichu"
+   }
+  },
+  {
+   "id": "clefairy",
+   "national": 35,
+   "name": {
+    "de": "Piepi",
+    "en": "Clefairy"
+   }
+  },
+  {
+   "id": "clefable",
+   "national": 36,
+   "name": {
+    "de": "Pixi",
+    "en": "Clefable"
+   }
+  },
+  {
+   "id": "eevee",
+   "national": 133,
+   "name": {
+    "de": "Evoli",
+    "en": "Eevee"
+   }
+  }
+ ],
+ "forms": [
+  {
+   "id": "bulbasaur",
+   "species": "bulbasaur",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "grass",
+      "poison"
+     ],
+     "stats": {
+      "hp": 45,
+      "atk": 49,
+      "def": 49,
+      "special": 65,
+      "spe": 45
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "grass",
+      "poison"
+     ],
+     "stats": {
+      "hp": 45,
+      "atk": 49,
+      "def": 49,
+      "spa": 65,
+      "spd": 65,
+      "spe": 45
+     },
+     "abilities": [
+      {
+       "id": "overgrow"
+      },
+      {
+       "id": "chlorophyll",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "ivysaur",
+   "species": "ivysaur",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "grass",
+      "poison"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 62,
+      "def": 63,
+      "special": 80,
+      "spe": 60
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "grass",
+      "poison"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 62,
+      "def": 63,
+      "spa": 80,
+      "spd": 80,
+      "spe": 60
+     },
+     "abilities": [
+      {
+       "id": "overgrow"
+      },
+      {
+       "id": "chlorophyll",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "venusaur",
+   "species": "venusaur",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "grass",
+      "poison"
+     ],
+     "stats": {
+      "hp": 80,
+      "atk": 82,
+      "def": 83,
+      "special": 100,
+      "spe": 80
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "grass",
+      "poison"
+     ],
+     "stats": {
+      "hp": 80,
+      "atk": 82,
+      "def": 83,
+      "spa": 100,
+      "spd": 100,
+      "spe": 80
+     },
+     "abilities": [
+      {
+       "id": "overgrow"
+      },
+      {
+       "id": "chlorophyll",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "charmander",
+   "species": "charmander",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "fire"
+     ],
+     "stats": {
+      "hp": 39,
+      "atk": 52,
+      "def": 43,
+      "special": 50,
+      "spe": 65
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "fire"
+     ],
+     "stats": {
+      "hp": 39,
+      "atk": 52,
+      "def": 43,
+      "spa": 60,
+      "spd": 50,
+      "spe": 65
+     },
+     "abilities": [
+      {
+       "id": "blaze"
+      },
+      {
+       "id": "solar-power",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "charmeleon",
+   "species": "charmeleon",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "fire"
+     ],
+     "stats": {
+      "hp": 58,
+      "atk": 64,
+      "def": 58,
+      "special": 65,
+      "spe": 80
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "fire"
+     ],
+     "stats": {
+      "hp": 58,
+      "atk": 64,
+      "def": 58,
+      "spa": 80,
+      "spd": 65,
+      "spe": 80
+     },
+     "abilities": [
+      {
+       "id": "blaze"
+      },
+      {
+       "id": "solar-power",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "charizard",
+   "species": "charizard",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "fire",
+      "flying"
+     ],
+     "stats": {
+      "hp": 78,
+      "atk": 84,
+      "def": 78,
+      "special": 85,
+      "spe": 100
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "fire",
+      "flying"
+     ],
+     "stats": {
+      "hp": 78,
+      "atk": 84,
+      "def": 78,
+      "spa": 109,
+      "spd": 85,
+      "spe": 100
+     },
+     "abilities": [
+      {
+       "id": "blaze"
+      },
+      {
+       "id": "solar-power",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "squirtle",
+   "species": "squirtle",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "water"
+     ],
+     "stats": {
+      "hp": 44,
+      "atk": 48,
+      "def": 65,
+      "special": 50,
+      "spe": 43
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "water"
+     ],
+     "stats": {
+      "hp": 44,
+      "atk": 48,
+      "def": 65,
+      "spa": 50,
+      "spd": 64,
+      "spe": 43
+     },
+     "abilities": [
+      {
+       "id": "torrent"
+      },
+      {
+       "id": "rain-dish",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "wartortle",
+   "species": "wartortle",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "water"
+     ],
+     "stats": {
+      "hp": 59,
+      "atk": 63,
+      "def": 80,
+      "special": 65,
+      "spe": 58
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "water"
+     ],
+     "stats": {
+      "hp": 59,
+      "atk": 63,
+      "def": 80,
+      "spa": 65,
+      "spd": 80,
+      "spe": 58
+     },
+     "abilities": [
+      {
+       "id": "torrent"
+      },
+      {
+       "id": "rain-dish",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "blastoise",
+   "species": "blastoise",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "water"
+     ],
+     "stats": {
+      "hp": 79,
+      "atk": 83,
+      "def": 100,
+      "special": 85,
+      "spe": 78
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "water"
+     ],
+     "stats": {
+      "hp": 79,
+      "atk": 83,
+      "def": 100,
+      "spa": 85,
+      "spd": 105,
+      "spe": 78
+     },
+     "abilities": [
+      {
+       "id": "torrent"
+      },
+      {
+       "id": "rain-dish",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "not_researched"
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "pikachu",
+   "species": "pikachu",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 35,
+      "atk": 55,
+      "def": 30,
+      "special": 50,
+      "spe": 90
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 35,
+      "atk": 55,
+      "def": 40,
+      "spa": 50,
+      "spd": 50,
+      "spe": 90
+     },
+     "abilities": [
+      {
+       "id": "static"
+      },
+      {
+       "id": "lightning-rod",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 35,
+      "atk": 55,
+      "def": 40,
+      "spa": 50,
+      "spd": 50,
+      "spe": 90
+     },
+     "abilities": [
+      {
+       "id": "static"
+      },
+      {
+       "id": "lightning-rod",
+       "hidden": true
+      }
+     ]
+    },
+    "scarlet-violet": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 35,
+      "atk": 55,
+      "def": 40,
+      "spa": 50,
+      "spd": 50,
+      "spe": 90
+     },
+     "abilities": [
+      {
+       "id": "static"
+      },
+      {
+       "id": "lightning-rod",
+       "hidden": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "raichu",
+   "species": "raichu",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 90,
+      "def": 55,
+      "special": 90,
+      "spe": 100
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 90,
+      "def": 55,
+      "spa": 90,
+      "spd": 80,
+      "spe": 110
+     },
+     "abilities": [
+      {
+       "id": "static"
+      },
+      {
+       "id": "lightning-rod",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 90,
+      "def": 55,
+      "spa": 90,
+      "spd": 80,
+      "spe": 110
+     },
+     "abilities": [
+      {
+       "id": "static"
+      },
+      {
+       "id": "lightning-rod",
+       "hidden": true
+      }
+     ]
+    },
+    "scarlet-violet": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 90,
+      "def": 55,
+      "spa": 90,
+      "spd": 80,
+      "spe": 110
+     },
+     "abilities": [
+      {
+       "id": "static"
+      },
+      {
+       "id": "lightning-rod",
+       "hidden": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "raichu-alola",
+   "species": "raichu",
+   "default": false,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_unavailable"
+    },
+    "x-y": {
+     "availability": "confirmed_unavailable"
+    },
+    "sun-moon": {
+     "availability": "confirmed_available",
+     "types": [
+      "electric",
+      "psychic"
+     ],
+     "stats": {
+      "hp": 60,
+      "atk": 85,
+      "def": 50,
+      "spa": 95,
+      "spd": 85,
+      "spe": 110
+     },
+     "abilities": [
+      {
+       "id": "surge-surfer"
+      }
+     ]
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   },
+   "name": {
+    "de": "Alola-Raichu",
+    "en": "Alolan Raichu"
+   }
+  },
+  {
+   "id": "clefairy",
+   "species": "clefairy",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "normal"
+     ],
+     "stats": {
+      "hp": 70,
+      "atk": 45,
+      "def": 48,
+      "special": 60,
+      "spe": 35
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "fairy"
+     ],
+     "stats": {
+      "hp": 70,
+      "atk": 45,
+      "def": 48,
+      "spa": 60,
+      "spd": 65,
+      "spe": 35
+     },
+     "abilities": [
+      {
+       "id": "cute-charm"
+      },
+      {
+       "id": "magic-guard"
+      },
+      {
+       "id": "friend-guard",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "confirmed_available",
+     "types": [
+      "fairy"
+     ],
+     "stats": {
+      "hp": 70,
+      "atk": 45,
+      "def": 48,
+      "spa": 60,
+      "spd": 65,
+      "spe": 35
+     },
+     "abilities": [
+      {
+       "id": "cute-charm"
+      },
+      {
+       "id": "magic-guard"
+      },
+      {
+       "id": "friend-guard",
+       "hidden": true
+      }
+     ]
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "clefable",
+   "species": "clefable",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "normal"
+     ],
+     "stats": {
+      "hp": 95,
+      "atk": 70,
+      "def": 73,
+      "special": 85,
+      "spe": 60
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "fairy"
+     ],
+     "stats": {
+      "hp": 95,
+      "atk": 70,
+      "def": 73,
+      "spa": 85,
+      "spd": 90,
+      "spe": 60
+     },
+     "abilities": [
+      {
+       "id": "cute-charm"
+      },
+      {
+       "id": "magic-guard"
+      },
+      {
+       "id": "unaware",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "confirmed_available",
+     "types": [
+      "fairy"
+     ],
+     "stats": {
+      "hp": 95,
+      "atk": 70,
+      "def": 73,
+      "spa": 95,
+      "spd": 90,
+      "spe": 60
+     },
+     "abilities": [
+      {
+       "id": "cute-charm"
+      },
+      {
+       "id": "magic-guard"
+      },
+      {
+       "id": "unaware",
+       "hidden": true
+      }
+     ]
+    },
+    "scarlet-violet": {
+     "availability": "not_researched"
+    }
+   }
+  },
+  {
+   "id": "eevee",
+   "species": "eevee",
+   "default": true,
+   "profiles": {
+    "red-blue": {
+     "availability": "confirmed_available",
+     "types": [
+      "normal"
+     ],
+     "stats": {
+      "hp": 55,
+      "atk": 55,
+      "def": 50,
+      "special": 65,
+      "spe": 55
+     }
+    },
+    "x-y": {
+     "availability": "confirmed_available",
+     "types": [
+      "normal"
+     ],
+     "stats": {
+      "hp": 55,
+      "atk": 55,
+      "def": 50,
+      "spa": 45,
+      "spd": 65,
+      "spe": 55
+     },
+     "abilities": [
+      {
+       "id": "run-away"
+      },
+      {
+       "id": "adaptability"
+      },
+      {
+       "id": "anticipation",
+       "hidden": true
+      }
+     ]
+    },
+    "sun-moon": {
+     "availability": "confirmed_available",
+     "types": [
+      "normal"
+     ],
+     "stats": {
+      "hp": 55,
+      "atk": 55,
+      "def": 50,
+      "spa": 45,
+      "spd": 65,
+      "spe": 55
+     },
+     "abilities": [
+      {
+       "id": "run-away"
+      },
+      {
+       "id": "adaptability"
+      },
+      {
+       "id": "anticipation",
+       "hidden": true
+      }
+     ]
+    },
+    "scarlet-violet": {
+     "availability": "confirmed_available",
+     "types": [
+      "normal"
+     ],
+     "stats": {
+      "hp": 55,
+      "atk": 55,
+      "def": 50,
+      "spa": 45,
+      "spd": 65,
+      "spe": 55
+     },
+     "abilities": [
+      {
+       "id": "run-away"
+      },
+      {
+       "id": "adaptability"
+      },
+      {
+       "id": "anticipation",
+       "hidden": true
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "evolutions": [
+  {
+   "from": "bulbasaur",
+   "to": "ivysaur",
+   "condition": {
+    "kind": "minLevel",
+    "level": 16
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y"
+   ]
+  },
+  {
+   "from": "ivysaur",
+   "to": "venusaur",
+   "condition": {
+    "kind": "minLevel",
+    "level": 32
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y"
+   ]
+  },
+  {
+   "from": "charmander",
+   "to": "charmeleon",
+   "condition": {
+    "kind": "minLevel",
+    "level": 16
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y"
+   ]
+  },
+  {
+   "from": "charmeleon",
+   "to": "charizard",
+   "condition": {
+    "kind": "minLevel",
+    "level": 36
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y"
+   ]
+  },
+  {
+   "from": "squirtle",
+   "to": "wartortle",
+   "condition": {
+    "kind": "minLevel",
+    "level": 16
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y"
+   ]
+  },
+  {
+   "from": "wartortle",
+   "to": "blastoise",
+   "condition": {
+    "kind": "minLevel",
+    "level": 36
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y"
+   ]
+  },
+  {
+   "from": "pikachu",
+   "to": "raichu",
+   "condition": {
+    "kind": "useItem",
+    "item": "thunder-stone"
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y",
+    "scarlet-violet"
+   ]
+  },
+  {
+   "from": "pikachu",
+   "to": "raichu-alola",
+   "condition": {
+    "kind": "allOf",
+    "of": [
+     {
+      "kind": "useItem",
+      "item": "thunder-stone"
+     },
+     {
+      "kind": "region",
+      "region": "alola"
+     }
+    ]
+   },
+   "versionGroups": [
+    "sun-moon"
+   ]
+  },
+  {
+   "from": "clefairy",
+   "to": "clefable",
+   "condition": {
+    "kind": "useItem",
+    "item": "moon-stone"
+   },
+   "versionGroups": [
+    "red-blue",
+    "x-y",
+    "sun-moon"
+   ]
+  }
+ ]
+}

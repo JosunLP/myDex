@@ -1,0 +1,16 @@
+name: mydex_user_store
+description: Persönliche Nutzerdaten (Sammlung), getrennt vom Katalog.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  mydex_application: any
+  mydex_domain: any
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0
