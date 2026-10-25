@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
@@ -12,6 +13,7 @@ import '../../widgets/evolution_text.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/stat_bars.dart';
 import '../../widgets/type_badge.dart';
+import 'learnset_section.dart';
 
 /// Eigenständige Detailseite für schmale Fenster.
 class PokemonDetailPage extends StatelessWidget {
@@ -130,6 +132,10 @@ class PokemonDetailView extends ConsumerWidget {
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           dense: true,
+                          onTap: () => context.push(
+                            '/dex/ability/${Uri.encodeComponent(a.ability.id.value)}',
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
                           leading: Icon(
                             a.hidden
                                 ? Icons.visibility_off_outlined
@@ -176,6 +182,8 @@ class PokemonDetailView extends ConsumerWidget {
                   ],
                 ),
         ),
+        if (profile.availability != DataAvailability.confirmedUnavailable)
+          section(l10n.sectionMoves, LearnsetSection(form: d.form.id)),
         if (d.otherForms.isNotEmpty)
           section(
             l10n.sectionForms,

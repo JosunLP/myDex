@@ -31,4 +31,6 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/catalog/catalog.json
+    - assets/catalog/catalog.manifest.json
+    - assets/catalog/catalog.sqlite.gz
+    - assets/licenses/pokeapi.txt

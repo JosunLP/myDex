@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 import 'package:mydex_game_rules/mydex_game_rules.dart';
@@ -11,66 +9,7 @@ class CatalogValidationException implements Exception {
 
   @override
   String toString() =>
-      'Ungültiges Katalogpaket (${problems.length} Probleme):\n- ${problems.join('\n- ')}';
-}
-
-/// Unterstützte Schemaversionen des Katalogformats.
-const supportedCatalogSchemas = {1};
-
-/// Parst ein JSON-Katalogpaket und prüft alle Referenzen, bevor es aktiviert
-/// werden darf. Ein ungültiges Paket wird vollständig abgelehnt.
-CatalogSnapshot parseCatalogJson(String source) {
-  final Object? decoded;
-  try {
-    decoded = jsonDecode(source);
-  } on FormatException catch (e) {
-    throw CatalogValidationException(['Kein gültiges JSON: ${e.message}']);
-  }
-  if (decoded is! Map<String, Object?>) {
-    throw CatalogValidationException(['Wurzel muss ein Objekt sein']);
-  }
-  final schema = decoded['schemaVersion'];
-  if (!supportedCatalogSchemas.contains(schema)) {
-    throw CatalogValidationException([
-      'Nicht unterstützte Schemaversion: $schema',
-    ]);
-  }
-
-  List<T> list<T>(String key, T Function(Map<String, Object?>) parse) => [
-    for (final e in (decoded as Map<String, Object?>)[key]! as List<Object?>)
-      parse(e! as Map<String, Object?>),
-  ];
-
-  final CatalogSnapshot snapshot;
-  try {
-    snapshot = CatalogSnapshot(
-      revision: decoded['revision']! as String,
-      schemaVersion: schema! as int,
-      rulesets: list('rulesets', Ruleset.fromJson),
-      versionGroups: list('versionGroups', VersionGroup.fromJson),
-      versions: list('versions', GameVersion.fromJson),
-      species: list('species', Species.fromJson),
-      forms: list('forms', PokemonForm.fromJson),
-      abilities: list('abilities', Ability.fromJson),
-      itemNames: {
-        for (final i in list('items', (j) => j))
-          ItemId(i['id']! as String): LocalizedText.fromJson(
-            i['name']! as Map<String, Object?>,
-          ),
-      },
-      evolutions: list('evolutions', EvolutionEdge.fromJson),
-    );
-  } on FormatException catch (e) {
-    throw CatalogValidationException([e.message]);
-  } on TypeError catch (e) {
-    throw CatalogValidationException(['Feld fehlt oder hat falschen Typ: $e']);
-  } on StateError catch (e) {
-    throw CatalogValidationException([e.message]);
-  }
-
-  final problems = validateCatalog(snapshot);
-  if (problems.isNotEmpty) throw CatalogValidationException(problems);
-  return snapshot;
+      'Ungültiges Katalogpaket (${problems.length} Probleme):\n- ${problems.take(50).join('\n- ')}';
 }
 
 /// Referenz- und Plausibilitätsprüfungen.
@@ -147,24 +86,4 @@ List<String> validateCatalog(CatalogSnapshot c) {
     }
   }
   return p.toSet().toList();
-}
-
-/// Katalog aus einer beliebigen Quelle (Asset, Datei), z. B. das gebündelte Paket.
-class JsonCatalogRepository implements CatalogRepository {
-  JsonCatalogRepository(this._read);
-
-  final Future<String> Function() _read;
-  Future<CatalogSnapshot>? _cached;
-
-  @override
-  Future<CatalogSnapshot> load() => _cached ??= _loadOnce();
-
-  Future<CatalogSnapshot> _loadOnce() async {
-    try {
-      return parseCatalogJson(await _read());
-    } catch (_) {
-      _cached = null; // beim nächsten Aufruf erneut versuchen
-      rethrow;
-    }
-  }
 }

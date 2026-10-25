@@ -147,4 +147,20 @@ void main() {
     expect(s.specialAttack, s.specialDefense);
     expect(s.total(unifiedSpecial: true), 425);
   });
+
+  test('Entwicklungsbedingungen: JSON-Rundreise inkl. Sonderbedingungen', () {
+    const c = AllOf([
+      MinLevel(25),
+      TimeOfDayCondition(TimeOfDay.dusk),
+      SpecialCondition('party-type', value: 'dark'),
+      SpecialCondition('overworld-rain'),
+    ]);
+    final back = EvolutionCondition.fromJson(c.toJson()) as AllOf;
+    expect(back.conditions, hasLength(4));
+    expect((back.conditions[1] as TimeOfDayCondition).time, TimeOfDay.dusk);
+    final special = back.conditions[2] as SpecialCondition;
+    expect(special.explanationKey, 'party-type');
+    expect(special.value, 'dark');
+    expect((back.conditions[3] as SpecialCondition).value, isNull);
+  });
 }

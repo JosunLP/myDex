@@ -13,7 +13,9 @@ class CatalogSnapshot {
     required List<Species> species,
     required List<PokemonForm> forms,
     required List<Ability> abilities,
+    List<Move> moves = const [],
     required this.itemNames,
+    this.locationNames = const {},
     required this.evolutions,
   }) : rulesets = {for (final r in rulesets) r.id: r},
        versionGroups = {for (final g in versionGroups) g.id: g},
@@ -27,7 +29,8 @@ class CatalogSnapshot {
        ),
        species = {for (final s in species) s.id: s},
        forms = {for (final f in forms) f.id: f},
-       abilities = {for (final a in abilities) a.id: a};
+       abilities = {for (final a in abilities) a.id: a},
+       moves = {for (final m in moves) m.id: m};
 
   static int _groupOrder(List<VersionGroup> groups, VersionGroupId id) =>
       groups.firstWhere((g) => g.id == id).order;
@@ -42,7 +45,9 @@ class CatalogSnapshot {
   final Map<SpeciesId, Species> species;
   final Map<FormId, PokemonForm> forms;
   final Map<AbilityId, Ability> abilities;
+  final Map<MoveId, Move> moves;
   final Map<ItemId, LocalizedText> itemNames;
+  final Map<LocationId, LocalizedText> locationNames;
   final List<EvolutionEdge> evolutions;
 
   GameContext contextFor(GameVersionId id) {
@@ -59,7 +64,8 @@ class CatalogSnapshot {
     );
   }
 
-  /// Neueste Spielversion als Standardkontext.
+  /// Das chronologisch neueste Spiel ist immer der Standardkontext –
+  /// auch wenn dafür noch Daten fehlen (Lücken werden dann angezeigt).
   GameContext get defaultContext => contextFor(versions.last.id);
 
   LocalizedText displayName(PokemonForm form) =>

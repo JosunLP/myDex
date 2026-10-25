@@ -1,0 +1,20 @@
+name: mydex_data_pipeline
+description: Erzeugt den SQLite-Katalog aus einem festgehaltenen Quellstand.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  crypto: ^3.0.0
+  mydex_application: any
+  mydex_catalog_store: any
+  mydex_domain: any
+  mydex_game_rules: any
+  sqlite3: ^3.8.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0

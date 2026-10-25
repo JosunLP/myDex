@@ -14,6 +14,36 @@ class GameContextSelector extends ConsumerWidget {
     final catalog = ref.watch(readyCatalogProvider);
     final ctx = ref.watch(gameContextProvider);
     final lang = dataLanguageOf(context, ref);
+    final items = <PopupMenuEntry<String>>[];
+    int? lastGen;
+    // Neueste Spiele zuerst, nach Generation gruppiert.
+    for (final v in catalog.versions.reversed) {
+      final group = catalog.versionGroups[v.versionGroupId]!;
+      if (group.generation != lastGen) {
+        if (lastGen != null) items.add(const PopupMenuDivider());
+        items.add(
+          PopupMenuItem<String>(
+            enabled: false,
+            height: 32,
+            child: Text(
+              l10n.generationLabel(group.generation),
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+        );
+        lastGen = group.generation;
+      }
+      items.add(
+        PopupMenuItem(
+          value: v.id.value,
+          child: Text(
+            group.hasData
+                ? v.name(lang)
+                : '${v.name(lang)} (${l10n.noGameData})',
+          ),
+        ),
+      );
+    }
     return PopupMenuButton<String>(
       tooltip: l10n.selectGame,
       initialValue: ctx.versionId.value,
@@ -22,15 +52,7 @@ class GameContextSelector extends ConsumerWidget {
           .setGameVersion(
             catalog.versions.firstWhere((v) => v.id.value == id).id,
           ),
-      itemBuilder: (_) => [
-        for (final v in catalog.versions)
-          PopupMenuItem(
-            value: v.id.value,
-            child: Text(
-              '${v.name(lang)}  ·  Gen ${catalog.versionGroups[v.versionGroupId]!.generation}',
-            ),
-          ),
-      ],
+      itemBuilder: (_) => items,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
@@ -38,9 +60,15 @@ class GameContextSelector extends ConsumerWidget {
           children: [
             const Icon(Icons.videogame_asset_outlined, size: 20),
             const SizedBox(width: 6),
-            Semantics(
-              label: l10n.selectGame,
-              child: Text(ctx.version.name(lang)),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 180),
+              child: Semantics(
+                label: l10n.selectGame,
+                child: Text(
+                  ctx.version.name(lang),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
             const Icon(Icons.arrow_drop_down),
           ],

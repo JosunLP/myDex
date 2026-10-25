@@ -10,20 +10,28 @@ spielversionsabhängige Daten und optionaler Sync.
 
 ## Stand
 
-Phase 1 – Fundament und vertikaler Durchstich:
+Phase 1 – Fundament und vertikaler Durchstich (abgeschlossen):
 
 - [x] Monorepo-Struktur und Dart-Workspace
 - [x] Domänenmodell: Art / Variante / Form, Spielkontext, Verfügbarkeitszustände
 - [x] Regelwerk: historische Typentabellen (Gen 1, Gen 2–5, ab Gen 6), Statuswertformeln, Basistypen-Teamanalyse
 - [x] Deklarative, validierte Entwicklungsbedingungen
 - [x] Lokale, sprachübergreifende Suche mit Ranking und Tippfehlertoleranz
-- [x] Katalog als gebündeltes Datenpaket (Fixture) – funktioniert beim ersten Start offline
 - [x] Lokale Sammlung (gesehen / gefangen / Shiny) mit atomarem Speichern
 - [x] Adaptive Flutter-App (Bottom Navigation / Rail / Sidebar), Deutsch und Englisch
 - [x] CI: Formatierung, Analyse, Tests; Builds für Linux, Android, Windows, macOS, iOS
 - [x] Android-Release ohne Internet-Berechtigung und ohne Google-Dienste
-- [ ] SQLite/Drift-Katalog mit FTS5 (ersetzt das JSON-Paket hinter derselben Schnittstelle)
-- [ ] Datenpipeline (`tools/data_pipeline`) und signierte Katalogupdates
+
+Phase 2a – Wissenskatalog (dieser Stand):
+
+- [x] Reproduzierbare Datenpipeline (`tools/data_pipeline`) aus einem festgehaltenen PokéAPI-Stand
+- [x] SQLite-Katalog mit allen Spielen, 1351 Formen, Attacken, Fähigkeiten, Items, Erlernbarkeit
+      und Entwicklungen; Namen in 11 Sprachen; FTS5-Suche
+- [x] Historische Werte: Typen, Basiswerte, Fähigkeiten und Attackenwerte je Spiel
+- [x] Sichere Katalog-Installation: Prüfsumme, Integritätstest, atomarer Wechsel, Rückfall
+- [x] App: Attacken je Spiel, Attacken- und Fähigkeitsseiten, Suche, Datenstand und Abdeckung
+- [ ] Fundorte und Beschaffungswege (Phase 2b)
+- [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
 
 ## Struktur
@@ -33,9 +41,11 @@ apps/pokedex/           Flutter-App (Presentation)
 packages/domain/        Fachmodelle, IDs, Spielkontext – reines Dart
 packages/game_rules/    Typentabellen, Statuswerte, Teamanalyse – reines Dart
 packages/application/   Anwendungsfälle, Repository-Schnittstellen, Suche
-packages/catalog_store/ Lesen des Katalogpakets (Validierung, Mapping)
+packages/catalog_store/ SQLite-Katalog: Schema, Lesen, Prüfen, Installieren
 packages/user_store/    Persönliche Daten (Sammlung), getrennt vom Katalog
-data/fixtures/          Kleiner, geprüfter Beispielkatalog
+tools/data_pipeline/    Quellstand laden, normalisieren, prüfen, Katalog bauen
+data/source_manifests/  Festgehaltener Quellstand mit Prüfsummen
+data/fixtures/          Kleiner Testkatalog (von der Pipeline erzeugt)
 docs/                   Architektur, Entscheidungen (ADRs), Paritätsmatrix
 ```
 
@@ -52,7 +62,16 @@ cd apps/pokedex && flutter test
 cd apps/pokedex && flutter run -d linux   # oder android, ios, macos, windows
 ```
 
-Beispielkatalog ändern: `tools/fixture_gen/generate_fixture.py` anpassen, ausführen und
-`data/fixtures/catalog.json` nach `apps/pokedex/assets/catalog/` kopieren (CI prüft beides).
+Katalog neu bauen (lädt den festgehaltenen Quellstand einmalig nach `.dart_tool/`):
+
+```sh
+dart run tools/data_pipeline/bin/data_pipeline.dart build
+```
+
+Das erzeugt `apps/pokedex/assets/catalog/catalog.sqlite.gz` (+ Manifest) und den Testkatalog in
+`data/fixtures/`. Der Build ist deterministisch; die CI baut neu und prüft, dass die
+eingecheckten Pakete exakt übereinstimmen. Regeln und bekannte Lücken: ADR 0008.
+
+Datenquelle: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), Lizenzhinweis in der App.
 
 Siehe `docs/architecture/overview.md`, `docs/decisions/` und `docs/parity/`.
