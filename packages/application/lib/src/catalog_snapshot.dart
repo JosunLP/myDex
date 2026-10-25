@@ -64,13 +64,9 @@ class CatalogSnapshot {
     );
   }
 
-  /// Neueste Spielversion mit Kerndaten als Standardkontext.
-  GameContext get defaultContext {
-    final withData = versions.where(
-      (v) => versionGroups[v.versionGroupId]!.hasData,
-    );
-    return contextFor((withData.isEmpty ? versions : withData).last.id);
-  }
+  /// Das chronologisch neueste Spiel ist immer der Standardkontext –
+  /// auch wenn dafür noch Daten fehlen (Lücken werden dann angezeigt).
+  GameContext get defaultContext => contextFor(versions.last.id);
 
   LocalizedText displayName(PokemonForm form) =>
       form.name ?? species[form.speciesId]!.name;

@@ -112,7 +112,7 @@ class VersionGroup {
   final int order;
 
   /// Ob der Katalog für diese Spielgruppe Kerndaten (z. B. Erlernbarkeit) enthält.
-  /// Spielgruppen ohne Daten werden nicht als Standardkontext gewählt.
+  /// Wird in der Spielauswahl als „keine Daten“ gekennzeichnet.
   final bool hasData;
 }
 

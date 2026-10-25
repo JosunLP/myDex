@@ -43,14 +43,13 @@ void main() {
       expect(details.source.source, 'PokéAPI');
     });
 
-    test('Standardkontext ist das neueste Spiel mit Daten', () {
+    test('Standardkontext ist immer das neueste Spiel', () {
       final group =
           catalog.versionGroups[catalog.defaultContext.versionGroupId]!;
-      expect(group.hasData, isTrue);
-      final later = catalog.versionGroups.values.where(
-        (g) => g.order > group.order,
+      expect(
+        catalog.versionGroups.values.every((g) => g.order <= group.order),
+        isTrue,
       );
-      expect(later.every((g) => !g.hasData), isTrue);
     });
 
     test('Namen in allen Kernsprachen', () {
