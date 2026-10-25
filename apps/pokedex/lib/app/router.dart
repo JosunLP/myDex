@@ -3,8 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../features/collection/collection_page.dart';
+import '../features/dex/ability_page.dart';
 import '../features/dex/dex_page.dart';
+import '../features/dex/move_page.dart';
 import '../features/dex/pokemon_detail_page.dart';
+import '../features/more/data_page.dart';
 import '../features/more/more_page.dart';
 import '../features/teams/teams_page.dart';
 import 'shell.dart';
@@ -32,6 +35,17 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
                     formId: FormId(state.pathParameters['formId']!),
                   ),
                 ),
+                GoRoute(
+                  path: 'move/:moveId',
+                  builder: (context, state) =>
+                      MovePage(moveId: MoveId(state.pathParameters['moveId']!)),
+                ),
+                GoRoute(
+                  path: 'ability/:abilityId',
+                  builder: (context, state) => AbilityPage(
+                    abilityId: AbilityId(state.pathParameters['abilityId']!),
+                  ),
+                ),
               ],
             ),
           ],
@@ -50,7 +64,15 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
           ],
         ),
         StatefulShellBranch(
-          routes: [GoRoute(path: '/more', builder: (_, _) => const MorePage())],
+          routes: [
+            GoRoute(
+              path: '/more',
+              builder: (_, _) => const MorePage(),
+              routes: [
+                GoRoute(path: 'data', builder: (_, _) => const DataPage()),
+              ],
+            ),
+          ],
         ),
       ],
     ),

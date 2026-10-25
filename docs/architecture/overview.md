@@ -19,6 +19,8 @@ Windows, macOS, Linux.
 4. Spielkontext wird explizit durch jede regelabhängige Abfrage gereicht (ADR 0004).
 5. Fehlende Daten sind nie „nicht verfügbar“ – fünf unterscheidbare Zustände (ADR 0005).
 6. Entwicklungsbedingungen sind deklarative Daten, nie Skripte (ADR 0006).
+7. Katalog als nur lesbares SQLite-Paket über `sqlite3` (ADR 0007).
+8. Festgehaltene Datenquelle und dokumentierte Ableitungsregeln (ADR 0008).
 
 ## Schichten
 
@@ -51,8 +53,16 @@ Updates: signiertes Manifest → temporärer Download → Hash-/Integritätsprü
 Aktivierung → letzte Version für Rollback behalten. App-Version, Katalogversion und
 Nutzerdatenschema sind drei getrennte Versionen.
 
-Aktueller Stand: Der Katalog ist ein gebündeltes, validiertes JSON-Paket. SQLite/Drift mit FTS5
-ersetzt es hinter derselben `CatalogRepository`-Schnittstelle.
+Aktueller Stand: Das Katalogpaket (gzip-komprimierte SQLite-Datei + Manifest mit SHA-256) wird
+mit der App ausgeliefert und beim ersten Start bzw. nach App-Updates von `CatalogInstaller`
+installiert. Netz-Updates mit signiertem Manifest nutzen später denselben Installer.
+
+## Datenpipeline
+
+`tools/data_pipeline` lädt die benötigten PokéAPI-CSV-Tabellen eines festgehaltenen Commits,
+prüft sie gegen `data/source_manifests/pokeapi.json`, leitet Spielprofile ab (ADR 0008), baut
+den Katalog, validiert ihn über denselben Leser wie die App und verpackt ihn deterministisch.
+Abdeckung je Spiel wird mitgeliefert und in der App unter „Datenstand und Abdeckung“ gezeigt.
 
 ## Suche
 
@@ -83,8 +93,8 @@ Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen
 | Phase | Inhalt |
 |---|---|
 | 0 | Referenzanalyse, Paritätsmatrix, Rechteinventar, Plattform-Spikes |
-| 1 | Fundament, vertikaler Durchstich (laufend) |
-| 2 | Vollständiger Wissenskatalog (Attacken, Fähigkeiten, Items, Fundorte, Historie) |
+| 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
+| 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (laufend); 2b Fundorte |
 | 3 | Sammlung und Teams |
 | 4 | Vollständige Referenzparität (Galerie, TTS, Sprachen, Sync) |
 | 5 | Stabilisierung und Veröffentlichung |

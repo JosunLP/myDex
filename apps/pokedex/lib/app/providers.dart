@@ -1,13 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mydex_application/mydex_application.dart';
-import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
+import 'catalog_loader.dart';
 import 'settings.dart';
 
 /// Ablageort der persönlichen Daten.
@@ -18,12 +17,20 @@ class AppStorage {
       ),
       preferences = JsonPreferencesRepository(
         File('${dir.path}/preferences.json'),
-      );
+      ),
+      catalogDirectory = Directory('${dir.path}/catalog');
 
-  AppStorage.custom({required this.collection, required this.preferences});
+  AppStorage.custom({
+    required this.collection,
+    required this.preferences,
+    required this.catalogDirectory,
+  });
 
   final CollectionRepository collection;
   final JsonPreferencesRepository preferences;
+
+  /// Getrennt von den Nutzerdaten (ADR 0003).
+  final Directory catalogDirectory;
 }
 
 final appStorageProvider = Provider<AppStorage>(
@@ -37,19 +44,24 @@ final initialSettingsProvider = Provider<AppSettings>(
 
 /// Der gebündelte Katalog: Die App funktioniert ab dem ersten Start offline.
 final catalogRepositoryProvider = Provider<CatalogRepository>(
-  (ref) => JsonCatalogRepository(
-    () => rootBundle.loadString('assets/catalog/catalog.json'),
-  ),
+  (ref) =>
+      BundledCatalogRepository(ref.watch(appStorageProvider).catalogDirectory),
 );
 
-final catalogProvider = FutureProvider<CatalogSnapshot>(
-  (ref) => ref.watch(catalogRepositoryProvider).load(),
-  retry: (_, _) => null,
-);
+final catalogProvider = FutureProvider<LoadedCatalog>((ref) async {
+  final loaded = await ref.watch(catalogRepositoryProvider).load();
+  ref.onDispose(loaded.details.close);
+  return loaded;
+}, retry: (_, _) => null);
 
 /// Nur innerhalb von [CatalogGate] verwenden, wo der Katalog geladen ist.
 final readyCatalogProvider = Provider<CatalogSnapshot>(
-  (ref) => ref.watch(catalogProvider).requireValue,
+  (ref) => ref.watch(catalogProvider).requireValue.snapshot,
+);
+
+/// Abfragen auf große Tabellen (Erlernbarkeit, Attacken, Suche).
+final catalogDetailsProvider = Provider<CatalogDetails>(
+  (ref) => ref.watch(catalogProvider).requireValue.details,
 );
 
 final queriesProvider = Provider<PokemonQueries>(

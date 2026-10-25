@@ -1,4 +1,7 @@
-/// Lesen und Validieren von Katalogpaketen.
+/// SQLite-Katalog: Schema, Lesen, Prüfen und Installation.
 library;
 
-export 'src/json_catalog.dart';
+export 'src/catalog_installer.dart';
+export 'src/schema.dart';
+export 'src/sqlite_catalog.dart';
+export 'src/validation.dart';

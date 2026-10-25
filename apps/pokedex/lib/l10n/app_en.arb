@@ -124,7 +124,7 @@
       }
     }
   },
-  "evoTimeOfDay": "{time, select, morning{in the morning} day{during the day} evening{in the evening} night{at night} other{?}}",
+  "evoTimeOfDay": "{time, select, morning{in the morning} day{during the day} evening{in the evening} dusk{at dusk} night{at night} other{?}}",
   "@evoTimeOfDay": {
     "placeholders": {
       "time": {
@@ -173,7 +173,7 @@
       }
     }
   },
-  "evoSpecial": "special condition",
+  "evoSpecial": "{key, select, overworld_rain{while it rains in the overworld} upside_down{with the device upside down} multiplayer{in multiplayer} special_rock{near a special rock} nature{depending on nature} personality_value{depending on personality value} shed{empty party slot and a Poké Ball} spin{spinning the character} level_up{on level-up} known_move_type{knowing a move of a certain type} min_beauty{with high beauty} min_affection{with high affection} physical_stats{depending on Attack vs. Defense} party_species{with a certain Pokémon in the party} party_type{with a certain type in the party} trade_species{traded for a certain Pokémon} used_move{after using a certain move} move_count{after using a move several times} steps{after walking a number of steps} damage_taken{after taking damage} chance{with a certain chance} special_time{at a certain time} three_critical_hits{after three critical hits in one battle} take_damage{after taking damage} recoil_damage{after taking recoil damage} tower_of_darkness{Tower of Darkness} tower_of_waters{Tower of Waters} agile_style_move{using an agile style move} strong_style_move{using a strong style move} use_move{using a certain move} three_defeated_bisharp{after defeating three Bisharp leaders} gimmighoul_coins{with Gimmighoul coins} meltan_candies{with Meltan candy} in_battle_level_up{leveling up in battle} unclassified{special condition} other{special condition}}",
   "evoAnd": " and ",
   "evoOr": " or ",
   "noEvolution": "Does not evolve in this game.",
@@ -233,5 +233,136 @@
       }
     }
   },
-  "back": "Back"
+  "back": "Back",
+  "@evoSpecial": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "evoSpecialValue": "{condition} ({value})",
+  "@evoSpecialValue": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionMoves": "Moves",
+  "learnLevelUp": "Level-up",
+  "learnMachine": "Machines",
+  "learnEgg": "Egg moves",
+  "learnTutor": "Move tutor",
+  "learnLevel": "Lv. {level}",
+  "@learnLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "learnLevelEvolve": "Evo.",
+  "noLearnset": "No move data for this game yet.",
+  "damageClass": "{cls, select, physical{Physical} special{Special} status{Status} other{?}}",
+  "@damageClass": {
+    "placeholders": {
+      "cls": {
+        "type": "String"
+      }
+    }
+  },
+  "movePower": "Power",
+  "moveAccuracy": "Accuracy",
+  "movePp": "PP",
+  "movePriority": "Priority",
+  "moveCategory": "Category",
+  "moveType": "Type",
+  "valueNone": "—",
+  "moveNotInGame": "This move does not exist in {game}.",
+  "@moveNotInGame": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "moveHistory": "Changes across games",
+  "moveLearners": "Pokémon that learn it in {game}",
+  "@moveLearners": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "noLearners": "No Pokémon learns this move here.",
+  "abilityHolders": "Pokémon with this ability in {game}",
+  "@abilityHolders": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "noHolders": "No Pokémon has this ability in this game.",
+  "searchMoves": "Moves",
+  "searchAbilities": "Abilities",
+  "searchPokemon": "Pokémon",
+  "dataSources": "Data and coverage",
+  "dataSourceLine": "Source: {source} · {revision}",
+  "@dataSourceLine": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "revision": {
+        "type": "String"
+      }
+    }
+  },
+  "coverageExplanation": "Per game: forms confirmed in the game, confirmed absent, and not yet researched (data gaps). Locations and Pokédex texts are not included yet.",
+  "coverageRow": "{confirmed} confirmed · {unavailable} absent · {gaps} gaps",
+  "@coverageRow": {
+    "placeholders": {
+      "confirmed": {
+        "type": "int"
+      },
+      "unavailable": {
+        "type": "int"
+      },
+      "gaps": {
+        "type": "int"
+      }
+    }
+  },
+  "coverageLearnsets": "{count} move entries",
+  "@coverageLearnsets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noGameData": "no data",
+  "generationLabel": "Generation {gen}",
+  "@generationLabel": {
+    "placeholders": {
+      "gen": {
+        "type": "int"
+      }
+    }
+  },
+  "installFallback": "The new catalog could not be installed; the previous version is used.",
+  "learnOtherMethod": "{key, select, train{Trainable} form_change{Form change} light_ball_egg{Egg (Light Ball)} zygarde_cube{Zygarde Cube} xd_purification{Purification (XD)} colosseum_purification{Purification (Colosseum)} xd_shadow{Shadow move (XD)} stadium_surfing_pikachu{Stadium (Surfing Pikachu)} other{Other}}",
+  "@learnOtherMethod": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  }
 }

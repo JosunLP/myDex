@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
@@ -23,6 +24,17 @@ class DexQuery extends Notifier<String> {
 
 /// Suchtext der Dex-Liste; bleibt bei Auswahl und Navigation erhalten.
 final dexQueryProvider = NotifierProvider<DexQuery, String>(DexQuery.new);
+
+/// Attacken und Fähigkeiten zur Suchanfrage (Volltextindex im Katalog).
+final entityResultsProvider = Provider<List<EntityHit>>((ref) {
+  final query = ref.watch(dexQueryProvider).trim();
+  if (query.isEmpty) return const [];
+  return [
+    for (final hit
+        in ref.watch(catalogDetailsProvider).searchEntities(query, limit: 20))
+      if (hit.kind != EntityKind.item) hit,
+  ];
+});
 
 /// Ergebnisliste im aktuellen Spielkontext, gefiltert durch die Suche.
 final dexResultsProvider = Provider<List<PokemonListItem>>((ref) {
@@ -159,42 +171,89 @@ class _DexList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final items = ref.watch(dexResultsProvider);
+    final entities = ref.watch(entityResultsProvider);
     final query = ref.watch(dexQueryProvider);
     final catalog = ref.watch(readyCatalogProvider);
     final lang = dataLanguageOf(context, ref);
-    if (items.isEmpty) {
+    if (items.isEmpty && entities.isEmpty) {
       return Center(child: Text(l10n.noResults(query)));
     }
+    final textTheme = Theme.of(context).textTheme;
+    Widget header(String text) => Padding(
+      padding: const EdgeInsets.fromLTRB(Space.l, Space.l, Space.l, Space.xs),
+      child: Semantics(
+        header: true,
+        child: Text(text, style: textTheme.titleSmall),
+      ),
+    );
+    final moves = entities.where((e) => e.kind == EntityKind.move).toList();
+    final abilities = entities
+        .where((e) => e.kind == EntityKind.ability)
+        .toList();
+    final showHeaders = entities.isNotEmpty;
+
+    // Flache Liste aus Zeilenbauern: Pokémon, dann Attacken, dann Fähigkeiten.
+    final rows = <Widget Function()>[
+      if (showHeaders && items.isNotEmpty) () => header(l10n.searchPokemon),
+      for (final item in items)
+        () => _pokemonTile(context, item, catalog, lang),
+      if (moves.isNotEmpty) () => header(l10n.searchMoves),
+      for (final m in moves)
+        () => ListTile(
+          leading: const Icon(Icons.flash_on_outlined),
+          title: Text(catalog.moves[MoveId(m.id)]?.name(lang) ?? m.id),
+          onTap: () => context.push('/dex/move/${Uri.encodeComponent(m.id)}'),
+        ),
+      if (abilities.isNotEmpty) () => header(l10n.searchAbilities),
+      for (final a in abilities)
+        () => ListTile(
+          leading: const Icon(Icons.bolt),
+          title: Text(catalog.abilities[AbilityId(a.id)]?.name(lang) ?? a.id),
+          onTap: () =>
+              context.push('/dex/ability/${Uri.encodeComponent(a.id)}'),
+        ),
+    ];
     return ListView.builder(
-      itemCount: items.length,
-      itemBuilder: (context, i) {
-        final item = items[i];
-        final name = catalog.displayName(item.form).resolve(lang);
-        return ListTile(
-          selected: item.form.id == selected,
-          onTap: () => onOpen(item.form.id),
-          leading: SizedBox(
-            width: 52,
-            child: Text(
-              '#${item.species.nationalNumber.toString().padLeft(4, '0')}',
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(fontFeatures: tabularFigures),
-            ),
-          ),
-          title: Text(name.text),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: Space.xs),
-            child: item.profile.availability.isGap
-                ? const Align(
-                    alignment: Alignment.centerLeft,
-                    child: DataGapChip(),
-                  )
-                : TypeBadges(item.profile.types, dense: true),
-          ),
-          trailing: CaughtButton(form: item.form.id),
-        );
-      },
+      itemCount: rows.length,
+      itemBuilder: (context, i) => rows[i](),
+    );
+  }
+
+  Widget _pokemonTile(
+    BuildContext context,
+    PokemonListItem item,
+    CatalogSnapshot catalog,
+    String lang,
+  ) {
+    final name = catalog.displayName(item.form).resolve(lang);
+    return ListTile(
+      selected: item.form.id == selected,
+      onTap: () => onOpen(item.form.id),
+      leading: SizedBox(
+        width: 52,
+        child: Text(
+          '#${item.species.nationalNumber.toString().padLeft(4, '0')}',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontFeatures: tabularFigures),
+        ),
+      ),
+      title: Text(name.text),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: Space.xs),
+        child: item.profile.types.isEmpty
+            ? const Align(alignment: Alignment.centerLeft, child: DataGapChip())
+            : Wrap(
+                spacing: Space.s,
+                runSpacing: Space.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  TypeBadges(item.profile.types, dense: true),
+                  if (item.profile.availability.isGap) const DataGapChip(),
+                ],
+              ),
+      ),
+      trailing: CaughtButton(form: item.form.id),
     );
   }
 }

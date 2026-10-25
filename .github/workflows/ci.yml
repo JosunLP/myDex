@@ -26,25 +26,41 @@ jobs:
       - name: Abhängigkeiten
         run: flutter pub get
       - name: Formatierung
-        run: dart format --output=none --set-exit-if-changed packages apps/pokedex/lib apps/pokedex/test
-      - name: Fixture ist aktuell
-        run: |
-          python3 tools/fixture_gen/generate_fixture.py
-          cp data/fixtures/catalog.json apps/pokedex/assets/catalog/catalog.json
-          git diff --exit-code -- data/fixtures apps/pokedex/assets
+        run: dart format --output=none --set-exit-if-changed packages tools apps/pokedex/lib apps/pokedex/test
       - name: Analyse (Pakete)
-        run: dart analyze --fatal-infos packages
+        run: dart analyze --fatal-infos packages tools
       - name: Analyse (App)
         working-directory: apps/pokedex
         run: flutter analyze --fatal-infos
       - name: Tests (Pakete)
         run: |
-          for p in domain game_rules application catalog_store user_store; do
-            (cd packages/$p && dart test)
+          for p in packages/domain packages/game_rules packages/application packages/catalog_store packages/user_store tools/data_pipeline; do
+            (cd $p && dart test)
           done
       - name: Tests (App)
         working-directory: apps/pokedex
         run: flutter test
+
+  catalog:
+    name: Katalog reproduzierbar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Quellstand-Cache
+        uses: actions/cache@v4
+        with:
+          path: .dart_tool/pokeapi
+          key: pokeapi-${{ hashFiles('data/source_manifests/pokeapi.json') }}
+      - run: flutter pub get
+      - name: Katalog neu bauen
+        run: dart run tools/data_pipeline/bin/data_pipeline.dart build
+      - name: Eingecheckte Pakete stimmen überein
+        run: git diff --exit-code -- apps/pokedex/assets/catalog data/fixtures
 
   build:
     name: Build ${{ matrix.target }}

@@ -91,6 +91,7 @@ class VersionGroup {
     required this.rulesetId,
     required this.name,
     required this.order,
+    this.hasData = true,
   });
 
   factory VersionGroup.fromJson(Map<String, Object?> j) => VersionGroup(
@@ -99,6 +100,7 @@ class VersionGroup {
     rulesetId: RulesetId(j['ruleset']! as String),
     name: LocalizedText.fromJson(j['name']! as Map<String, Object?>),
     order: j['order']! as int,
+    hasData: (j['hasData'] as bool?) ?? true,
   );
 
   final VersionGroupId id;
@@ -108,6 +110,10 @@ class VersionGroup {
 
   /// Chronologische Reihenfolge.
   final int order;
+
+  /// Ob der Katalog für diese Spielgruppe Kerndaten (z. B. Erlernbarkeit) enthält.
+  /// Spielgruppen ohne Daten werden nicht als Standardkontext gewählt.
+  final bool hasData;
 }
 
 /// Einzelne Edition (z. B. Rot).

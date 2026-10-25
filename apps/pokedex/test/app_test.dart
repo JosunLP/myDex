@@ -1,31 +1,54 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mydex_app/app/app.dart';
+import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
+import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
-final _fixture = File('../../data/fixtures/catalog.json').readAsStringSync();
+const _fixtureDir = '../../data/fixtures';
+late String _catalogPath;
+late Directory _tmp;
+
+/// Liefert den Testkatalog aus, als wäre er ein App-Asset.
+class _FixtureBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async {
+    final file = switch (key) {
+      'assets/catalog/catalog.manifest.json' =>
+        '$_fixtureDir/catalog_test.manifest.json',
+      'assets/catalog/catalog.sqlite.gz' =>
+        '$_fixtureDir/catalog_test.sqlite.gz',
+      _ => throw StateError('Unbekanntes Asset $key'),
+    };
+    return ByteData.sublistView(File(file).readAsBytesSync());
+  }
+}
+
+class _FixtureRepository implements CatalogRepository {
+  @override
+  Future<LoadedCatalog> load() async => openLoadedCatalog(_catalogPath);
+}
 
 class _Harness {
   final collection = MemoryCollectionRepository();
-  final prefsDir = Directory.systemTemp.createTempSync('mydex_app_test');
+  final dir = Directory.systemTemp.createTempSync('mydex_app_test');
 
   Widget build() => ProviderScope(
     overrides: [
-      catalogRepositoryProvider.overrideWithValue(
-        JsonCatalogRepository(() => Future.value(_fixture)),
-      ),
+      catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
       appStorageProvider.overrideWithValue(
         AppStorage.custom(
           collection: collection,
-          preferences: JsonPreferencesRepository(
-            File('${prefsDir.path}/p.json'),
-          ),
+          preferences: JsonPreferencesRepository(File('${dir.path}/p.json')),
+          catalogDirectory: Directory('${dir.path}/catalog'),
         ),
       ),
     ],
@@ -40,7 +63,7 @@ Future<_Harness> _pump(WidgetTester tester, Size size) async {
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final h = _Harness();
-  addTearDown(() => h.prefsDir.deleteSync(recursive: true));
+  addTearDown(() => h.dir.deleteSync(recursive: true));
   await tester.pumpWidget(h.build());
   await tester.pumpAndSettle();
   return h;
@@ -49,72 +72,169 @@ Future<_Harness> _pump(WidgetTester tester, Size size) async {
 Future<void> _selectGame(WidgetTester tester, String name) async {
   await tester.tap(find.byTooltip('Spiel').first);
   await tester.pumpAndSettle();
-  await tester.tap(find.textContaining(name).last);
+  // Das Menü ist lang (neueste Spiele oben) und muss ggf. gescrollt werden.
+  // Neueste zuerst: bei gleichnamigen Versionen (z. B. japanische Fassungen)
+  // ist der erste Treffer die gemeinte.
+  final entry = find
+      .descendant(
+        of: find.byWidgetPredicate((w) => w is PopupMenuItem<String>),
+        matching: find.text(name),
+      )
+      .first;
+  await tester.scrollUntilVisible(
+    entry,
+    300,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.tap(entry);
   await tester.pumpAndSettle();
 }
 
+Future<void> _search(WidgetTester tester, String query) async {
+  await tester.enterText(find.byType(SearchBar), query);
+  await tester.pumpAndSettle();
+}
+
+Finder _listScrollable() => find
+    .descendant(of: find.byType(ListView), matching: find.byType(Scrollable))
+    .first;
+
 void main() {
-  test('gebündeltes Katalog-Asset entspricht dem Fixture', () {
-    expect(File('assets/catalog/catalog.json').readAsStringSync(), _fixture);
+  setUpAll(() async {
+    _tmp = Directory.systemTemp.createTempSync('mydex_app_catalog');
+    final manifest = CatalogPackManifest.fromJson(
+      jsonDecode(
+            File('$_fixtureDir/catalog_test.manifest.json').readAsStringSync(),
+          )
+          as Map<String, Object?>,
+    );
+    _catalogPath = (await CatalogInstaller(_tmp).install(
+      manifest,
+      File('$_fixtureDir/catalog_test.sqlite.gz').readAsBytesSync(),
+    )).path;
   });
+  tearDownAll(() => _tmp.deleteSync(recursive: true));
+
+  test(
+    'mitgeliefertes Paket wird beim ersten Start installiert und geladen',
+    () async {
+      final dir = Directory.systemTemp.createTempSync('mydex_bundle');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final repo = BundledCatalogRepository(dir, bundle: _FixtureBundle());
+      final loaded = await repo.load();
+      expect(loaded.snapshot.forms, isNotEmpty);
+      expect(repo.installError, isNull);
+      loaded.details.close();
+      // Zweiter Start: bereits installiert, kein erneutes Entpacken nötig.
+      final again = await BundledCatalogRepository(
+        dir,
+        bundle: _FixtureBundle(),
+      ).load();
+      expect(again.snapshot.revision, loaded.snapshot.revision);
+      again.details.close();
+    },
+  );
 
   testWidgets('Smartphone: suchen, Detail öffnen, als gefangen markieren', (
     tester,
   ) async {
     final h = await _pump(tester, const Size(400, 860));
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Pikachu'), findsOneWidget);
 
-    await tester.enterText(find.byType(SearchBar), 'charizard');
-    await tester.pumpAndSettle();
+    await _search(tester, 'charizard');
     expect(find.text('Glurak'), findsOneWidget);
     expect(find.text('Pikachu'), findsNothing);
 
     await tester.tap(find.widgetWithText(ListTile, 'Glurak'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Basiswerte'),
-      findsNothing,
-      reason: 'Glurak ist in Karmesin noch nicht recherchiert',
-    );
-    expect(find.textContaining('noch nicht recherchiert'), findsOneWidget);
-
     await tester.tap(find.widgetWithText(FilterChip, 'Gefangen'));
     await tester.pumpAndSettle();
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    final version = container.read(gameContextProvider).versionId;
     final entries = await h.collection.loadAll();
-    const key = CollectionKey(
-      scope: GameScope(GameVersionId('violet')),
-      form: FormId('charizard'),
+    final key = CollectionKey(
+      scope: GameScope(version),
+      form: const FormId('charizard'),
     );
     expect(entries[key]?.caught, isTrue);
     expect(entries[key]?.seen, isTrue);
   });
 
-  testWidgets('Spielwechsel ändert Typ und Werte konsistent', (tester) async {
-    await _pump(tester, const Size(400, 1400));
-    await tester.enterText(find.byType(SearchBar), 'Piepi');
-    await tester.pumpAndSettle();
+  testWidgets('Spielwechsel ändert Typ, Werte und Fähigkeiten konsistent', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1600));
+    await _search(tester, 'Piepi');
     await tester.tap(find.widgetWithText(ListTile, 'Piepi'));
     await tester.pumpAndSettle();
 
     await _selectGame(tester, 'Rot');
-    expect(find.text('Normal'), findsOneWidget);
+    expect(find.text('Normal'), findsWidgets);
     expect(find.text('Spezial'), findsOneWidget);
     expect(
       find.text('In dieser Generation gibt es keine Fähigkeiten.'),
       findsOneWidget,
     );
 
-    await _selectGame(tester, 'X  ·');
-    expect(find.text('Fee'), findsOneWidget);
+    await _selectGame(tester, 'X');
+    expect(find.text('Fee'), findsWidgets);
     expect(find.text('Sp.-Ang.'), findsOneWidget);
     expect(find.text('Magieschild'), findsOneWidget);
+  });
+
+  testWidgets('Attacken: Erlernbarkeit, Attackenseite und Historie', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await _selectGame(tester, 'Rot');
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+
+    final scrollable = find
+        .descendant(
+          of: find.byType(ListView).last,
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(
+      find.text('Donnerschock'),
+      300,
+      scrollable: scrollable,
+    );
+    expect(find.textContaining('Levelaufstieg'), findsOneWidget);
+    await tester.tap(find.text('Donnerschock'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Stärke'), findsOneWidget);
+    expect(
+      find.text('Speziell'),
+      findsOneWidget,
+      reason: 'Elektro war bis Gen 3 speziell',
+    );
+    expect(find.widgetWithText(ActionChip, 'Raichu'), findsOneWidget);
+  });
+
+  testWidgets('Suche findet Attacken und zeigt deren Änderungen', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await _search(tester, 'Donnerblitz');
+    expect(find.text('Attacken'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ListTile, 'Donnerblitz'));
+    await tester.pumpAndSettle();
+    expect(find.text('Änderungen zwischen den Spielen'), findsOneWidget);
+    expect(find.textContaining('Stärke 95'), findsOneWidget);
+    expect(find.textContaining('Stärke 90'), findsOneWidget);
   });
 
   testWidgets('Desktop: Sidebar, Liste und Detail nebeneinander', (
     tester,
   ) async {
-    await _pump(tester, const Size(1280, 860));
+    await _pump(tester, const Size(1280, 900));
     expect(find.byType(NavigationBar), findsNothing);
     expect(
       tester.widget<NavigationRail>(find.byType(NavigationRail)).extended,
@@ -125,34 +245,27 @@ void main() {
 
     await tester.scrollUntilVisible(
       find.text('Evoli'),
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView),
-            matching: find.byType(Scrollable),
-          )
-          .first,
+      300,
+      scrollable: _listScrollable(),
     );
     await tester.tap(find.text('Evoli'));
     await tester.pumpAndSettle();
     expect(
-      find.text('Evoli'),
-      findsNWidgets(2),
-      reason: 'Liste und Detail sichtbar',
+      find.text('Entwicklung'),
+      findsOneWidget,
+      reason: 'Detail neben der Liste',
     );
-    expect(find.text('Anpassung'), findsOneWidget);
+    expect(find.text('Evoli'), findsAtLeastNWidgets(2));
     expect(find.byType(SearchBar), findsOneWidget);
   });
 
-  testWidgets('Alola-Raichu: Entwicklung nur in Alola', (tester) async {
-    await _pump(tester, const Size(1280, 1000));
-    await _selectGame(tester, 'Sonne');
-    await tester.tap(find.text('Alola-Raichu'));
+  testWidgets('Datenstand zeigt Quelle und Abdeckung', (tester) async {
+    await _pump(tester, const Size(500, 1200));
+    await tester.tap(find.text('Mehr'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('(Donnerstein verwenden und in der Region Alola)'),
-      findsOneWidget,
-    );
-    expect(find.text('Psycho'), findsWidgets);
+    await tester.tap(find.text('Datenstand und Abdeckung'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('PokéAPI'), findsOneWidget);
+    expect(find.textContaining('bestätigt'), findsWidgets);
   });
 }

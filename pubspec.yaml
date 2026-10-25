@@ -11,3 +11,4 @@ workspace:
   - packages/catalog_store
   - packages/user_store
   - apps/pokedex
+  - tools/data_pipeline

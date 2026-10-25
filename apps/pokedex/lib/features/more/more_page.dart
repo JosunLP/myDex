@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
@@ -70,8 +71,10 @@ class MorePage extends ConsumerWidget {
           heading(l10n.aboutData),
           ListTile(
             leading: const Icon(Icons.offline_pin_outlined),
-            title: Text(l10n.statusOffline),
+            title: Text(l10n.dataSources),
             subtitle: Text(l10n.aboutCatalog(catalog.revision)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/more/data'),
           ),
           ListTile(
             leading: const Icon(Icons.description_outlined),

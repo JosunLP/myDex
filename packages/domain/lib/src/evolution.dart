@@ -52,7 +52,10 @@ sealed class EvolutionCondition {
       'knowsMove' => KnowsMove(MoveId(req<String>('move'))),
       'trade' => const Trade(),
       'gender' => GenderCondition(Gender.parse(req<String>('gender'))),
-      'special' => SpecialCondition(req<String>('explanationKey')),
+      'special' => SpecialCondition(
+        req<String>('explanationKey'),
+        value: j['value'] as String?,
+      ),
       _ => throw FormatException('Unbekannte Entwicklungsbedingung: $kind'),
     };
   }
@@ -63,6 +66,36 @@ sealed class EvolutionCondition {
     }
     return v;
   }
+
+  /// Serialisierung für Katalogpakete (Gegenstück zu [EvolutionCondition.fromJson]).
+  Map<String, Object?> toJson() => switch (this) {
+    AllOf(:final conditions) => {
+      'kind': 'allOf',
+      'of': [for (final c in conditions) c.toJson()],
+    },
+    AnyOf(:final conditions) => {
+      'kind': 'anyOf',
+      'of': [for (final c in conditions) c.toJson()],
+    },
+    MinLevel(:final level) => {'kind': 'minLevel', 'level': level},
+    UseItem(:final item) => {'kind': 'useItem', 'item': item.value},
+    HoldItem(:final item) => {'kind': 'holdItem', 'item': item.value},
+    TimeOfDayCondition(:final time) => {'kind': 'timeOfDay', 'time': time.name},
+    AtLocation(:final location) => {
+      'kind': 'location',
+      'location': location.value,
+    },
+    InRegion(:final region) => {'kind': 'region', 'region': region},
+    MinFriendship(:final value) => {'kind': 'minFriendship', 'value': value},
+    KnowsMove(:final move) => {'kind': 'knowsMove', 'move': move.value},
+    Trade() => {'kind': 'trade'},
+    GenderCondition(:final gender) => {'kind': 'gender', 'gender': gender.name},
+    SpecialCondition(:final explanationKey, :final value) => {
+      'kind': 'special',
+      'explanationKey': explanationKey,
+      'value': ?value,
+    },
+  };
 
   /// Alle Item-IDs, auf die der Baum verweist (für Referenzprüfungen).
   Iterable<ItemId> get referencedItems => switch (this) {
@@ -102,6 +135,7 @@ enum TimeOfDay {
   morning,
   day,
   evening,
+  dusk,
   night;
 
   static TimeOfDay parse(String s) => values.firstWhere(
@@ -155,9 +189,11 @@ final class GenderCondition extends EvolutionCondition {
 }
 
 /// Seltene Sonderbedingung mit geprüftem, lokalisiertem Erklärungstext.
+/// [value] ist ein optionaler Parameter (z. B. eine Art-ID oder ein Typ).
 final class SpecialCondition extends EvolutionCondition {
-  const SpecialCondition(this.explanationKey);
+  const SpecialCondition(this.explanationKey, {this.value});
   final String explanationKey;
+  final String? value;
 }
 
 /// Kante im Entwicklungsgraphen, gültig für bestimmte Spielgruppen.
