@@ -2,7 +2,7 @@
 /// der App nur gelesen. Änderungen erhöhen [catalogSchemaVersion].
 library;
 
-const catalogSchemaVersion = 3;
+const catalogSchemaVersion = 4;
 
 /// Lernmethoden-Codes in der Tabelle `learnset`.
 abstract final class LearnMethodCode {
@@ -36,7 +36,11 @@ const catalogSchemaSql = [
     own_name INTEGER NOT NULL, battle_only INTEGER NOT NULL, sort INTEGER NOT NULL)''',
   '''CREATE TABLE ability(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     generation INTEGER NOT NULL)''',
-  '''CREATE TABLE item(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',
+  // pocket: Taschenfach der Quelle; generations: Bitmaske (Bit n = Gen n).
+  '''CREATE TABLE item(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
+    pocket TEXT, generations INTEGER NOT NULL)''',
+  '''CREATE TABLE nature(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
+    increased TEXT, decreased TEXT)''',
   '''CREATE TABLE move(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     generation INTEGER NOT NULL)''',
   '''CREATE TABLE region(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',

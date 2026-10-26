@@ -21,6 +21,7 @@ Windows, macOS, Linux.
 6. Entwicklungsbedingungen sind deklarative Daten, nie Skripte (ADR 0006).
 7. Katalog als nur lesbares SQLite-Paket über `sqlite3` (ADR 0007).
 8. Festgehaltene Datenquelle und dokumentierte Ableitungsregeln (ADR 0008).
+9. Team-Prüfung mit vier Zuständen, ohne Legalitätsgarantie (ADR 0009).
 
 ## Schichten
 
@@ -94,7 +95,7 @@ Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen
 |---|---|
 | 0 | Referenzanalyse, Paritätsmatrix, Rechteinventar, Plattform-Spikes |
 | 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
-| 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (laufend) |
-| 3 | Sammlung und Teams |
+| 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (abgeschlossen) |
+| 3 | Sammlung und Teams: 3a Teams (laufend), 3b Sammlung, Export/Import |
 | 4 | Vollständige Referenzparität (Galerie, TTS, Sprachen, Sync) |
 | 5 | Stabilisierung und Veröffentlichung |

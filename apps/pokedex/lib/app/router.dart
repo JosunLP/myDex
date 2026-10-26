@@ -11,6 +11,8 @@ import '../features/locations/location_page.dart';
 import '../features/locations/locations_page.dart';
 import '../features/more/data_page.dart';
 import '../features/more/more_page.dart';
+import '../features/teams/member_editor_page.dart';
+import '../features/teams/team_editor_page.dart';
 import '../features/teams/teams_page.dart';
 import 'shell.dart';
 
@@ -85,7 +87,27 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: '/teams', builder: (_, _) => const TeamsPage()),
+            GoRoute(
+              path: '/teams',
+              builder: (_, _) => const TeamsPage(),
+              routes: [
+                GoRoute(
+                  path: ':teamId',
+                  builder: (context, state) =>
+                      TeamEditorPage(teamId: state.pathParameters['teamId']!),
+                  routes: [
+                    GoRoute(
+                      path: 'member/:index',
+                      builder: (context, state) => MemberEditorPage(
+                        teamId: state.pathParameters['teamId']!,
+                        index:
+                            int.tryParse(state.pathParameters['index']!) ?? -1,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
         StatefulShellBranch(

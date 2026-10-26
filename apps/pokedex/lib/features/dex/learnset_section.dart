@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
@@ -56,6 +57,20 @@ class LearnsetSection extends ConsumerWidget {
     for (final e in groups.entries) {
       if (e.key != 'level-up' && e.key != 'machine') e.value.sort(byName);
     }
+    // Attacken der Vorentwicklungen bleiben beim Entwickeln erhalten.
+    final own = {for (final e in entries) e.move};
+    final inherited = <MoveId, FormId>{};
+    for (final pre in preEvolutionsOf(catalog, form, ctx.versionGroupId)) {
+      for (final e in details.learnset(pre, ctx.versionGroupId)) {
+        if (!own.contains(e.move)) inherited.putIfAbsent(e.move, () => pre);
+      }
+    }
+    final inheritedSorted = inherited.entries.toList()
+      ..sort(
+        (a, b) => (catalog.moves[a.key]?.name(lang) ?? a.key.value).compareTo(
+          catalog.moves[b.key]?.name(lang) ?? b.key.value,
+        ),
+      );
     final first = groups.keys.first;
 
     return Column(
@@ -74,6 +89,25 @@ class LearnsetSection extends ConsumerWidget {
                   profile: details.moveProfile(e.move, ctx.versionGroupId),
                   onTap: () => context.push(
                     '/dex/move/${Uri.encodeComponent(e.move.value)}',
+                  ),
+                ),
+            ],
+          ),
+        if (inheritedSorted.isNotEmpty)
+          ExpansionTile(
+            key: const PageStorageKey('learnset-pre-evolution'),
+            tilePadding: EdgeInsets.zero,
+            title: Text(
+              '${l10n.learnPreEvolution} (${inheritedSorted.length})',
+            ),
+            children: [
+              for (final MapEntry(key: move, value: source) in inheritedSorted)
+                MoveRow(
+                  leading: catalog.displayName(catalog.forms[source]!)(lang),
+                  name: catalog.moves[move]?.name(lang) ?? move.value,
+                  profile: details.moveProfile(move, ctx.versionGroupId),
+                  onTap: () => context.push(
+                    '/dex/move/${Uri.encodeComponent(move.value)}',
                   ),
                 ),
             ],

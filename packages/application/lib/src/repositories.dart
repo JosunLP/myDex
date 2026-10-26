@@ -22,3 +22,12 @@ abstract interface class CollectionRepository {
   /// Speichert einen Eintrag; leere Einträge werden entfernt.
   Future<void> put(CollectionEntry entry);
 }
+
+/// Persönliche Teams, getrennt vom Katalog.
+abstract interface class TeamRepository {
+  Future<List<Team>> loadAll();
+
+  Future<void> save(Team team);
+
+  Future<void> delete(String id);
+}

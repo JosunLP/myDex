@@ -130,9 +130,35 @@ class _SnapshotLoader {
         ),
     ];
 
-    final itemNames = {
-      for (final r in db.select('SELECT rid, id FROM item'))
-        ItemId(r['id'] as String): _name('item', r['rid'] as int),
+    final items = {
+      for (final r in db.select(
+        'SELECT rid, id, pocket, generations FROM item',
+      ))
+        ItemId(r['id'] as String): ItemInfo(
+          id: ItemId(r['id'] as String),
+          name: _name('item', r['rid'] as int),
+          pocket: r['pocket'] as String?,
+          generations: {
+            for (var g = 1; g < 31; g++)
+              if (((r['generations'] as int) >> g) & 1 == 1) g,
+          },
+        ),
+    };
+    final itemNames = {for (final i in items.values) i.id: i.name};
+    final natures = {
+      for (final r in db.select(
+        'SELECT rid, id, increased, decreased FROM nature',
+      ))
+        NatureId(r['id'] as String): Nature(
+          id: NatureId(r['id'] as String),
+          name: _name('nature', r['rid'] as int),
+          increased: r['increased'] == null
+              ? null
+              : Stat.values.byName(r['increased'] as String),
+          decreased: r['decreased'] == null
+              ? null
+              : Stat.values.byName(r['decreased'] as String),
+        ),
     };
 
     final regionIds = <int, RegionId>{};
@@ -233,6 +259,8 @@ class _SnapshotLoader {
       encounterMethods: encounterMethods,
       encounterConditionNames: encounterConditionNames,
       regionNames: regionNames,
+      natures: natures,
+      items: items,
       evolutions: evolutions,
     );
   }

@@ -151,3 +151,23 @@ class PokemonQueries {
     return result;
   }
 }
+
+/// Vorentwicklungen einer Form im Spiel, nächste zuerst (z. B. Raichu → Pikachu, Pichu).
+/// Ihre Attacken bleiben beim Entwickeln erhalten.
+List<FormId> preEvolutionsOf(
+  CatalogSnapshot catalog,
+  FormId form,
+  VersionGroupId group,
+) {
+  final result = <FormId>[];
+  var current = form;
+  while (true) {
+    final edge = catalog.evolutions
+        .where((e) => e.to == current && e.versionGroups.contains(group))
+        .firstOrNull;
+    if (edge == null || edge.from == form || result.contains(edge.from)) break;
+    result.add(edge.from);
+    current = edge.from;
+  }
+  return result;
+}
