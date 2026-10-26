@@ -40,6 +40,21 @@ class FileCollectionRepository implements CollectionRepository {
     return write;
   }
 
+  @override
+  Future<void> replaceAll(Iterable<CollectionEntry> entries) async {
+    final current = await _load();
+    current
+      ..clear()
+      ..addAll({
+        for (final e in entries)
+          if (!e.isEmpty) e.key: e,
+      });
+    final snapshot = _encode(current);
+    final write = _writeQueue.then((_) => _writeAtomic(snapshot));
+    _writeQueue = write.catchError((Object _) {});
+    return write;
+  }
+
   Future<Map<CollectionKey, CollectionEntry>> _load() async {
     final cached = _entries;
     if (cached != null) return cached;

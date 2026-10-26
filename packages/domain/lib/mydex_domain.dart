@@ -3,6 +3,7 @@ library;
 
 export 'src/availability.dart';
 export 'src/collection.dart';
+export 'src/dex_filter.dart';
 export 'src/encounter.dart';
 export 'src/evolution.dart';
 export 'src/game.dart';

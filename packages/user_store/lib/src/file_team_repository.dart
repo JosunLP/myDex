@@ -60,6 +60,16 @@ class FileTeamRepository implements TeamRepository {
     await _persist(teams);
   }
 
+  @override
+  Future<void> replaceAll(Iterable<Team> teams) async {
+    final current = await _load();
+    current
+      ..clear()
+      ..addAll({for (final t in teams) t.id: t});
+    _unreadable.clear();
+    await _persist(current);
+  }
+
   Future<void> _persist(Map<String, Team> teams) {
     final sorted = teams.values.toList()..sort((a, b) => a.id.compareTo(b.id));
     return _store.write([for (final t in sorted) t.toJson(), ..._unreadable]);
@@ -80,4 +90,11 @@ class MemoryTeamRepository implements TeamRepository {
 
   @override
   Future<void> delete(String id) async => _teams.remove(id);
+
+  @override
+  Future<void> replaceAll(Iterable<Team> teams) async {
+    _teams
+      ..clear()
+      ..addAll({for (final t in teams) t.id: t});
+  }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mydex_app/app/app.dart';
+import 'package:mydex_app/app/backup_files.dart';
 import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
 import 'package:mydex_application/mydex_application.dart';
@@ -40,22 +41,39 @@ class _FixtureRepository implements CatalogRepository {
 class _Harness {
   final collection = MemoryCollectionRepository();
   final teams = MemoryTeamRepository();
+  final presets = MemoryFilterPresetRepository();
+  final files = _MemoryFiles();
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
 
   Widget build() => ProviderScope(
     overrides: [
       catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
+      backupFilesProvider.overrideWithValue(files),
       appStorageProvider.overrideWithValue(
         AppStorage.custom(
           collection: collection,
           preferences: JsonPreferencesRepository(File('${dir.path}/p.json')),
           catalogDirectory: Directory('${dir.path}/catalog'),
           teams: teams,
+          presets: presets,
         ),
       ),
     ],
     child: const MyDexApp(),
   );
+}
+
+class _MemoryFiles implements BackupFiles {
+  Uint8List? stored;
+
+  @override
+  Future<bool> save(Uint8List bytes, String fileName) async {
+    stored = bytes;
+    return true;
+  }
+
+  @override
+  Future<Uint8List?> open() async => stored;
 }
 
 Future<_Harness> _pump(WidgetTester tester, Size size) async {
@@ -389,5 +407,142 @@ void main() {
     expect(find.text('Getragenes Item'), findsOneWidget);
     expect(find.text('EVs'), findsOneWidget);
     expect(find.text('Summe 0 / 510'), findsOneWidget);
+  });
+
+  testWidgets('Filter kombinieren und als Vorlage speichern', (tester) async {
+    final h = await _pump(tester, const Size(500, 1400));
+    await tester.tap(find.text('Filter'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilterChip, 'Feuer'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Anwenden'));
+    await tester.tap(find.text('Anwenden'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Filter (1)'), findsOneWidget);
+    expect(find.widgetWithText(ListTile, 'Glumanda'), findsOneWidget);
+    expect(find.widgetWithText(ListTile, 'Pikachu'), findsNothing);
+
+    // Als Vorlage speichern.
+    await tester.tap(find.text('Filter (1)'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Als Vorlage speichern'));
+    await tester.tap(find.text('Als Vorlage speichern'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, 'Feuer');
+    await tester.tap(find.text('Speichern'));
+    await tester.pumpAndSettle();
+    expect((await h.presets.loadAll()).single.filter.types, {PokemonType.fire});
+
+    // Vorlage abwählen setzt den Filter zurück.
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Feuer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Filter'), findsOneWidget);
+    expect(find.widgetWithText(ListTile, 'Bisasam'), findsOneWidget);
+  });
+
+  testWidgets('Globale Checkliste fasst alle Spiele zusammen', (tester) async {
+    final h = await _pump(tester, const Size(500, 1400));
+    final at = DateTime.utc(2026, 1, 15);
+    await h.collection.put(
+      CollectionEntry(
+        key: const CollectionKey(
+          scope: GameScope(GameVersionId('red')),
+          form: FormId('bulbasaur'),
+        ),
+        updatedAt: at,
+      ).withCaught(true, at),
+    );
+    // Direkt in den Speicher geschrieben: Anzeige neu laden.
+    ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    ).invalidate(collectionProvider);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sammlung').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Alle Spiele zusammen'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Gefangen in: Rot'), findsOneWidget);
+    expect(find.textContaining('15.1.2026'), findsOneWidget);
+  });
+
+  testWidgets('Export und Import (Zusammenführen) über eine Datei', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(500, 1600));
+    final at = DateTime.utc(2026, 2, 1);
+    await h.collection.put(
+      CollectionEntry(
+        key: const CollectionKey(
+          scope: GameScope(GameVersionId('red')),
+          form: FormId('pikachu'),
+        ),
+        updatedAt: at,
+      ).withCaught(true, at),
+    );
+    await h.teams.save(
+      Team(
+        id: 't1',
+        name: 'Sicherung',
+        version: const GameVersionId('red'),
+        updatedAt: at,
+      ),
+    );
+
+    await tester.tap(find.text('Mehr'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Exportieren'));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await tester.tap(find.widgetWithText(FilledButton, 'Exportieren'));
+      // Hintergrundarbeit (Isolate) läuft in Echtzeit; Frames weiterschalten.
+      for (
+        var i = 0;
+        i < 100 && find.byType(SnackBar).evaluate().isEmpty;
+        i++
+      ) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await tester.pump();
+      }
+    });
+    await tester.pumpAndSettle();
+    expect(h.files.stored, isNotNull);
+    expect(find.text('Sicherung gespeichert.'), findsOneWidget);
+
+    // Daten verlieren, dann wiederherstellen.
+    await h.collection.replaceAll(const []);
+    await h.teams.replaceAll(const []);
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Importieren'));
+      for (
+        var i = 0;
+        i < 50 && find.text('Zusammenführen').evaluate().isEmpty;
+        i++
+      ) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        await tester.pump();
+      }
+    });
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Teams: 1 neu'), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.widgetWithText(FilledButton, 'Importieren'));
+      for (
+        var i = 0;
+        i < 50 && find.text('Sicherung importiert.').evaluate().isEmpty;
+        i++
+      ) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await tester.pump();
+      }
+    });
+    await tester.pumpAndSettle();
+    expect(find.text('Sicherung importiert.'), findsOneWidget);
+
+    expect((await h.teams.loadAll()).single.name, 'Sicherung');
+    expect(
+      (await h.collection.loadAll()).values.single.key.form,
+      const FormId('pikachu'),
+    );
   });
 }

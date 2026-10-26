@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'backup_section.dart';
 
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
@@ -68,6 +69,8 @@ class MorePage extends ConsumerWidget {
               ],
             ),
           ),
+          heading(l10n.backupTitle),
+          const BackupSection(),
           heading(l10n.aboutData),
           ListTile(
             leading: const Icon(Icons.offline_pin_outlined),
