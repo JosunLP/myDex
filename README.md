@@ -31,13 +31,22 @@ Phase 2a – Wissenskatalog (abgeschlossen):
 - [x] Sichere Katalog-Installation: Prüfsumme, Integritätstest, atomarer Wechsel, Rückfall
 - [x] App: Attacken je Spiel, Attacken- und Fähigkeitsseiten, Suche, Datenstand und Abdeckung
 
-Phase 2b – Fundorte und Beschaffung (dieser Stand):
+Phase 2b – Fundorte und Beschaffung (abgeschlossen):
 
 - [x] Begegnungen je Version: Ort, Gebiet, Methode, Level, Wahrscheinlichkeit, Bedingungen
 - [x] Eigener Bereich „Fundorte“ mit Orten nach Region und Ortsseiten
 - [x] Beschaffung auf der Pokémon-Seite: Fundorte, Entwicklung, Zucht
 - [x] Datenlücken statt „nicht fangbar“, wenn ein Spiel keine Fundortdaten hat
 - [ ] Event-Verteilungen und Tausch zwischen Spielen
+
+Phase 3a – Teams (dieser Stand):
+
+- [x] Teams je Spiel, lokal gespeichert (atomar, unlesbare Einträge bleiben erhalten)
+- [x] Mitglieder mit Spitzname, Level, Fähigkeit, Item, Wesen, vier Attacken, IVs/EVs (Gen 1–2: DVs/Status-EP)
+- [x] Berechnete Werte je Regelwerk
+- [x] Prüfung: gültig / teilweise geprüft / Datenlage unzureichend / ungültig (ADR 0009)
+- [x] Typanalyse mit gemeinsamen Schwächen, Abdeckungslücken und Attackenvorschlägen
+- [ ] Phase 3b: globale Checklisten, Filtervorlagen, Export/Import
 - [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
 

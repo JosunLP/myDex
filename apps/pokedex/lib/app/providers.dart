@@ -18,16 +18,19 @@ class AppStorage {
       preferences = JsonPreferencesRepository(
         File('${dir.path}/preferences.json'),
       ),
+      teams = FileTeamRepository(File('${dir.path}/teams.json')),
       catalogDirectory = Directory('${dir.path}/catalog');
 
   AppStorage.custom({
     required this.collection,
     required this.preferences,
     required this.catalogDirectory,
-  });
+    TeamRepository? teams,
+  }) : teams = teams ?? MemoryTeamRepository();
 
   final CollectionRepository collection;
   final JsonPreferencesRepository preferences;
+  final TeamRepository teams;
 
   /// Getrennt von den Nutzerdaten (ADR 0003).
   final Directory catalogDirectory;
@@ -150,3 +153,62 @@ final collectionProvider =
       CollectionController,
       Map<CollectionKey, CollectionEntry>
     >(CollectionController.new);
+
+class TeamsController extends AsyncNotifier<List<Team>> {
+  TeamRepository get _repo => ref.read(appStorageProvider).teams;
+
+  @override
+  Future<List<Team>> build() => _repo.loadAll();
+
+  Team? byId(String id) => state.value?.where((t) => t.id == id).firstOrNull;
+
+  /// Legt ein Team für das gewählte Spiel an.
+  Future<Team> create(String name, GameVersionId version) async {
+    final now = DateTime.now();
+    final team = Team(
+      id: '${now.microsecondsSinceEpoch.toRadixString(36)}-${(state.value?.length ?? 0)}',
+      name: name,
+      version: version,
+      updatedAt: now,
+    );
+    await save(team);
+    return team;
+  }
+
+  Future<void> save(Team team) async {
+    final previous = state;
+    final others = [...?state.value?.where((t) => t.id != team.id)];
+    state = AsyncData([team, ...others]);
+    try {
+      await _repo.save(team);
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
+  }
+
+  Future<void> delete(String id) async {
+    final previous = state;
+    state = AsyncData([...?state.value?.where((t) => t.id != id)]);
+    try {
+      await _repo.delete(id);
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
+  }
+}
+
+final teamsProvider = AsyncNotifierProvider<TeamsController, List<Team>>(
+  TeamsController.new,
+);
+
+/// Prüfung und Analyse im Kontext des Team-Spiels (nicht des globalen Spiels).
+TeamEvaluator evaluatorFor(WidgetRef ref, Team team) {
+  final catalog = ref.watch(readyCatalogProvider);
+  return TeamEvaluator(
+    catalog,
+    ref.watch(catalogDetailsProvider),
+    catalog.contextFor(team.version),
+  );
+}

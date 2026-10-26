@@ -6,3 +6,4 @@ export 'src/catalog_snapshot.dart';
 export 'src/pokemon_queries.dart';
 export 'src/repositories.dart';
 export 'src/search.dart';
+export 'src/team_evaluation.dart';

@@ -205,7 +205,6 @@
   "scopeGlobal": "All games",
   "collectionShinyToggle": "Shiny collection",
   "teamsTitle": "Teams",
-  "teamsComingBody": "The team builder with type analysis follows in phase 3. The analysis rules (weaknesses, resistances, immunities, coverage) are already implemented and tested.",
   "detailEmpty": "Select a Pokémon from the list.",
   "settingsTheme": "Appearance",
   "themeSystem": "System",
@@ -448,5 +447,165 @@
       }
     }
   },
-  "coverageNoEncounters": "no location data"
+  "coverageNoEncounters": "no location data",
+  "teamsEmpty": "No teams yet. Create one for the selected game.",
+  "newTeam": "New team",
+  "defaultTeamName": "Team {number}",
+  "@defaultTeamName": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "teamName": "Team name",
+  "teamGame": "Game: {game}",
+  "@teamGame": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "teamMembersCount": "{count} of {max} Pokémon",
+  "@teamMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "addMember": "Add Pokémon",
+  "removeMember": "Remove from team",
+  "deleteTeam": "Delete team",
+  "deleteTeamConfirm": "Delete “{name}”? This cannot be undone.",
+  "@deleteTeamConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "choosePokemon": "Choose Pokémon",
+  "chooseMove": "Choose move",
+  "chooseItem": "Choose item",
+  "nickname": "Nickname",
+  "level": "Level",
+  "ability": "Ability",
+  "heldItem": "Held item",
+  "nature": "Nature",
+  "none": "None",
+  "movesLabel": "Moves",
+  "emptyMoveSlot": "Empty slot",
+  "ivs": "IVs",
+  "evs": "EVs",
+  "dvs": "DVs",
+  "statExp": "Stat Exp.",
+  "evTotal": "Total {total} / 510",
+  "@evTotal": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "calculatedStats": "Calculated stats",
+  "hpDvDerived": "In Gen 1–2 the HP DV is derived from the other DVs.",
+  "statFormulaNote": "Let’s Go (AVs) and Legends: Arceus (Effort Levels) use different mechanics that are not modelled; values follow the modern formula.",
+  "checkStatus": "{status, select, valid{Valid} partial{Partly checked} insufficientData{Insufficient data} invalid{Invalid} other{?}}",
+  "@checkStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "checkScope": "Checked: availability, ability, item, nature, moves (level-up, machine, breeding, tutor, special), values. Not checked: events, transfers, combination restrictions.",
+  "issue": "{kind, select, formNotInGame{This Pokémon is not in this game.} formDataGap{No data on whether this Pokémon is in this game.} levelOutOfRange{Level must be 1–100.} abilityNotApplicable{There are no abilities in this game.} abilityNotAvailable{This ability is not available to this Pokémon here.} abilityDataGap{No ability data for this game.} heldItemsNotApplicable{Pokémon cannot hold items in this game.} itemNotHoldable{This item cannot be held in this game.} itemDataGap{No data on this item in this game.} naturesNotApplicable{There are no natures in this game.} tooManyMoves{At most four moves.} duplicateMove{Move chosen twice.} moveNotInGame{This move does not exist in this game.} moveNotInLearnset{Not learnable via the recorded ways in this game (events/transfers not checked).} learnsetDataGap{No move data for this game.} statValuesInvalid{IVs/EVs out of range.} teamTooLarge{Too many Pokémon for this game.} other{?}}",
+  "@issue": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "issueWithSubject": "{issue} ({subject})",
+  "@issueWithSubject": {
+    "placeholders": {
+      "issue": {
+        "type": "String"
+      },
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisTitle": "Type analysis",
+  "analysisBasicNote": "Based on types and chosen damaging moves. Abilities, items and weather are not included.",
+  "defenseRow": "{weak} weak · {resist} resist · {immune} immune",
+  "@defenseRow": {
+    "placeholders": {
+      "weak": {
+        "type": "int"
+      },
+      "resist": {
+        "type": "int"
+      },
+      "immune": {
+        "type": "int"
+      }
+    }
+  },
+  "sharedWeakness": "{count} team members are weak to {type}, and none resists it.",
+  "@sharedWeakness": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "coverageGaps": "No super-effective hits against: {types}",
+  "@coverageGaps": {
+    "placeholders": {
+      "types": {
+        "type": "String"
+      }
+    }
+  },
+  "noAttackMoves": "Choose damaging moves to see offensive coverage.",
+  "suggestion": "{member} can learn {move} here – super effective against {type}.",
+  "@suggestion": {
+    "placeholders": {
+      "member": {
+        "type": "String"
+      },
+      "move": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "noIssues": "No problems found.",
+  "defenseTitle": "Defense",
+  "offenseTitle": "Offense",
+  "suggestionsTitle": "Suggestions",
+  "learnPreEvolution": "Via pre-evolution",
+  "viaForm": "via {name}",
+  "@viaForm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

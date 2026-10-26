@@ -476,6 +476,19 @@ class CatalogBuilder {
   }
 
   void _items_() {
+    final pockets = {
+      for (final r in t['item_pockets']) r.integer('id'): r['identifier']!,
+    };
+    final categoryPocket = {
+      for (final r in t['item_categories'])
+        r.integer('id'): pockets[r.integer('pocket_id')],
+    };
+    final generations = <int, int>{};
+    for (final r in t['item_game_indices']) {
+      final id = r.integer('item_id');
+      generations[id] =
+          (generations[id] ?? 0) | (1 << r.integer('generation_id'));
+    }
     final seen = <String>{};
     for (final r in [
       ...t['items'],
@@ -487,9 +500,35 @@ class CatalogBuilder {
         ident = '$ident--${r['id']}';
       }
       _items[r.integer('id')] = ident;
-      _insert('item', [r.integer('id'), ident]);
+      _insert('item', [
+        r.integer('id'),
+        ident,
+        categoryPocket[r.optInt('category_id')],
+        generations[r.integer('id')] ?? 0,
+      ]);
     }
     _names('item', 'item_names', 'item_id');
+    const statKeys = {
+      2: 'attack',
+      3: 'defense',
+      4: 'specialAttack',
+      5: 'specialDefense',
+      6: 'speed',
+    };
+    for (final r in [
+      ...t['natures'],
+    ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
+      final up = r.integer('increased_stat_id');
+      final down = r.integer('decreased_stat_id');
+      // Neutrale Wesen erhöhen und senken denselben Wert – also keinen.
+      _insert('nature', [
+        r.integer('id'),
+        r['identifier'],
+        up == down ? null : statKeys[up],
+        up == down ? null : statKeys[down],
+      ]);
+    }
+    _names('nature', 'nature_names', 'nature_id');
   }
 
   void _moves() {

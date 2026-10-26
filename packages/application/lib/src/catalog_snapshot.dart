@@ -21,6 +21,8 @@ class CatalogSnapshot {
     this.encounterMethods = const {},
     this.encounterConditionNames = const {},
     this.regionNames = const {},
+    this.natures = const {},
+    this.items = const {},
     required this.evolutions,
   }) : rulesets = {for (final r in rulesets) r.id: r},
        versionGroups = {for (final g in versionGroups) g.id: g},
@@ -58,6 +60,8 @@ class CatalogSnapshot {
   final Map<EncounterMethodId, EncounterMethod> encounterMethods;
   final Map<EncounterConditionId, LocalizedText> encounterConditionNames;
   final Map<RegionId, LocalizedText> regionNames;
+  final Map<NatureId, Nature> natures;
+  final Map<ItemId, ItemInfo> items;
   final List<EvolutionEdge> evolutions;
 
   GameContext contextFor(GameVersionId id) {

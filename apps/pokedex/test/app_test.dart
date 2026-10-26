@@ -39,6 +39,7 @@ class _FixtureRepository implements CatalogRepository {
 
 class _Harness {
   final collection = MemoryCollectionRepository();
+  final teams = MemoryTeamRepository();
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
 
   Widget build() => ProviderScope(
@@ -49,6 +50,7 @@ class _Harness {
           collection: collection,
           preferences: JsonPreferencesRepository(File('${dir.path}/p.json')),
           catalogDirectory: Directory('${dir.path}/catalog'),
+          teams: teams,
         ),
       ),
     ],
@@ -306,5 +308,86 @@ void main() {
       find.text('Für Karmesin liegen noch keine Fundortdaten vor.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('Team anlegen, Pokémon hinzufügen, prüfen und analysieren', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(500, 1600));
+    await _selectGame(tester, 'Rot');
+    await tester.tap(find.text('Teams').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Noch keine Teams. Lege eins für das gewählte Spiel an.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Neues Team'));
+    await tester.pumpAndSettle();
+    expect(find.text('Spiel: Rot'), findsOneWidget);
+    expect(find.text('0 von 6 Pokémon'), findsOneWidget);
+
+    await tester.tap(find.text('Pokémon hinzufügen'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(SearchBar).last, 'Pikachu');
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 von 6 Pokémon'), findsOneWidget);
+    expect(find.text('Gültig'), findsOneWidget);
+    expect(find.text('Typanalyse'), findsOneWidget);
+    expect(find.textContaining('schwach'), findsWidgets);
+
+    final saved = (await h.teams.loadAll()).single;
+    expect(saved.version, const GameVersionId('red'));
+    final member = saved.members.single;
+    expect(member.form, const FormId('pikachu'));
+    expect(member.ability, isNull, reason: 'Gen 1 hat keine Fähigkeiten');
+    expect(
+      member.moves,
+      isNotEmpty,
+      reason: 'Level-Attacken bis Lv. 50 vorbelegt',
+    );
+    expect(member.moves.length, lessThanOrEqualTo(4));
+
+    // Mitglied öffnen: Gen 1 zeigt DVs und kein Wesen/Item/Fähigkeit.
+    await tester.tap(find.textContaining('Lv. 50').first);
+    await tester.pumpAndSettle();
+    expect(find.text('DVs'), findsOneWidget);
+    expect(find.text('Wesen'), findsNothing);
+    expect(find.text('Getragenes Item'), findsNothing);
+    expect(find.text('Berechnete Werte'), findsOneWidget);
+  });
+
+  testWidgets('Moderne Spiele: Fähigkeit, Wesen und Item im Editor', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(500, 2000));
+    await _selectGame(tester, 'X');
+    await tester.tap(find.text('Teams').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Neues Team'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pokémon hinzufügen'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(SearchBar).last, 'Glurak');
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'Glurak').first);
+    await tester.pumpAndSettle();
+
+    final member = (await h.teams.loadAll()).single.members.single;
+    expect(
+      member.ability,
+      const AbilityId('blaze'),
+      reason: 'erste reguläre Fähigkeit',
+    );
+
+    await tester.tap(find.textContaining('Lv. 50').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Wesen'), findsOneWidget);
+    expect(find.text('Getragenes Item'), findsOneWidget);
+    expect(find.text('EVs'), findsOneWidget);
+    expect(find.text('Summe 0 / 510'), findsOneWidget);
   });
 }

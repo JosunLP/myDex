@@ -27,3 +27,5 @@ extension type const EncounterMethodId(String value) {}
 extension type const EncounterConditionId(String value) {}
 
 extension type const RegionId(String value) {}
+
+extension type const NatureId(String value) {}
