@@ -713,5 +713,88 @@
   },
   "importDone": "Backup imported.",
   "collectionLabel": "Collection",
-  "working": "Working…"
+  "working": "Working…",
+  "speechIntro": "{name}, number {number}.",
+  "@speechIntro": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "speechTypes": "Type {types}.",
+  "@speechTypes": {
+    "placeholders": {
+      "types": {
+        "type": "String"
+      }
+    }
+  },
+  "speechAbilities": "Abilities: {abilities}.",
+  "@speechAbilities": {
+    "placeholders": {
+      "abilities": {
+        "type": "String"
+      }
+    }
+  },
+  "speechHiddenAbility": "{name} (hidden ability)",
+  "@speechHiddenAbility": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "speechEvolvesFrom": "Evolves from {name}: {condition}.",
+  "@speechEvolvesFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "speechEvolvesInto": "Evolves into {name}: {condition}.",
+  "@speechEvolvesInto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "speechRead": "Read aloud",
+  "speechStop": "Stop reading",
+  "speechUnavailable": "No speech output installed on this device",
+  "settingsLanguage": "Language",
+  "settingsUiLanguage": "App language",
+  "followSystemLanguage": "Like the system",
+  "helpTitle": "Help",
+  "helpSubtitle": "How myDex works – available offline",
+  "helpGameTitle": "Game selection",
+  "helpGameBody": "Almost everything depends on the selected game: types, base stats, abilities, moves, locations and team checks. Switch the game at the top of the Dex; the newest game is preselected. Example: Clefairy is Normal up to Generation 5 and Fairy from X/Y on.",
+  "helpAvailabilityTitle": "Data gaps and availability",
+  "helpAvailabilityBody": "myDex distinguishes \"confirmed not in the game\" from \"not researched yet\". A data gap never means a Pokémon is missing. \"Data & coverage\" shows how complete the data is for each game.",
+  "helpSearchTitle": "Search",
+  "helpSearchBody": "Search by name or number in any catalog language, for example \"charizard\" or \"6\". Small typos are tolerated. Moves and abilities appear in the results as well. Filters combine types, generations and your collection status; save frequently used filters as presets.",
+  "helpLocationsTitle": "Locations",
+  "helpLocationsBody": "Encounters are listed per game version with method, levels, chance and conditions. Gifts and in-game trades count as encounter methods. Evolution and breeding are shown as further ways to obtain a Pokémon. Events and trades between games are not covered yet.",
+  "helpCollectionTitle": "Collection",
+  "helpCollectionBody": "Mark Pokémon as seen, caught or shiny – per game or in your own cross-game list. \"All games combined\" shows in which games you caught a Pokémon and when.",
+  "helpTeamsTitle": "Teams",
+  "helpTeamsBody": "Teams belong to a game. The check shows valid, partially checked, insufficient data or invalid. It covers the data in the catalog; events, transfers and special restrictions are not checked, so \"valid\" is not a guarantee. The type analysis shows shared weaknesses, coverage gaps and moves the team can learn.",
+  "helpSpeechTitle": "Read aloud",
+  "helpSpeechBody": "The speaker button reads a summary of the Pokémon in the app language using the speech output of your device. Nothing is downloaded or sent. On Android without Google services, install a speech engine such as RHVoice or eSpeak NG; on Linux, Speech Dispatcher or eSpeak NG. In-game Pokédex texts are not included for rights reasons.",
+  "helpBackupTitle": "Backup",
+  "helpBackupBody": "Export your collection, teams, filter presets and settings as one file, optionally encrypted with a password. Before importing you see what changes, and you choose to merge or replace. Keep the password safe – it cannot be recovered.",
+  "helpPrivacyTitle": "Privacy and offline use",
+  "helpPrivacyBody": "myDex works without an account and without internet. The Android app does not even request internet permission. Your data stays on this device unless you export it yourself."
 }

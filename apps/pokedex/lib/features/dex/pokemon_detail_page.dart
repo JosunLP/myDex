@@ -15,6 +15,7 @@ import '../../widgets/stat_bars.dart';
 import '../../widgets/type_badge.dart';
 import 'acquisition_section.dart';
 import 'learnset_section.dart';
+import 'pokemon_speech.dart';
 
 /// Eigenständige Detailseite für schmale Fenster.
 class PokemonDetailPage extends StatelessWidget {
@@ -94,6 +95,16 @@ class PokemonDetailView extends ConsumerWidget {
                   child: const Icon(Icons.translate, size: 20),
                 ),
               ),
+            const SizedBox(width: Space.s),
+            SpeakButton(
+              id: 'pokemon:${d.form.id.value}:${ctx.version.id.value}',
+              text: () => pokemonSpeechText(
+                d,
+                l10n,
+                catalog,
+                Localizations.localeOf(context).languageCode,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: Space.m),

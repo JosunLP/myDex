@@ -23,6 +23,7 @@ Windows, macOS, Linux.
 8. Festgehaltene Datenquelle und dokumentierte Ableitungsregeln (ADR 0008).
 9. Team-Prüfung mit vier Zuständen, ohne Legalitätsgarantie (ADR 0009).
 10. Datensicherung als versionierte, optional verschlüsselte Datei (ADR 0010).
+11. Vorlesen über die System-Sprachausgabe, fünf Oberflächensprachen (ADR 0011).
 
 ## Schichten
 
@@ -97,6 +98,6 @@ Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen
 | 0 | Referenzanalyse, Paritätsmatrix, Rechteinventar, Plattform-Spikes |
 | 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
 | 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (abgeschlossen) |
-| 3 | Sammlung und Teams: 3a Teams (abgeschlossen), 3b Sammlung, Filter, Export/Import (laufend) |
-| 4 | Vollständige Referenzparität (Galerie, TTS, Sprachen, Sync) |
+| 3 | Sammlung und Teams: 3a Teams, 3b Sammlung, Filter, Export/Import (abgeschlossen) |
+| 4 | Referenzparität: 4a Sprachen, Hilfe, Vorlesen (laufend); 4b Sync; Galerie nach Rechteklärung |
 | 5 | Stabilisierung und Veröffentlichung |

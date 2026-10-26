@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,6 +10,7 @@ import 'package:mydex_app/app/app.dart';
 import 'package:mydex_app/app/backup_files.dart';
 import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
+import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_domain/mydex_domain.dart';
@@ -43,12 +45,14 @@ class _Harness {
   final teams = MemoryTeamRepository();
   final presets = MemoryFilterPresetRepository();
   final files = _MemoryFiles();
+  final speaker = _FakeSpeaker();
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
 
   Widget build() => ProviderScope(
     overrides: [
       catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
       backupFilesProvider.overrideWithValue(files),
+      speakerProvider.overrideWithValue(speaker),
       appStorageProvider.overrideWithValue(
         AppStorage.custom(
           collection: collection,
@@ -61,6 +65,30 @@ class _Harness {
     ],
     child: const MyDexApp(),
   );
+}
+
+/// Merkt sich Vorlesetexte; die Ausgabe läuft, bis [finish] oder `stop`.
+class _FakeSpeaker implements Speaker {
+  final spoken = <(String, String)>[];
+  Completer<void>? _running;
+
+  @override
+  Future<bool> isAvailable() async => true;
+
+  @override
+  Future<void> speak(String text, {required String language}) {
+    spoken.add((text, language));
+    return (_running = Completer<void>()).future;
+  }
+
+  void finish() => _running?.complete();
+
+  @override
+  Future<void> stop() async {
+    final running = _running;
+    _running = null;
+    if (running != null && !running.isCompleted) running.complete();
+  }
 }
 
 class _MemoryFiles implements BackupFiles {
@@ -544,5 +572,62 @@ void main() {
       (await h.collection.loadAll()).values.single.key.form,
       const FormId('pikachu'),
     );
+  });
+
+  testWidgets('Vorlesen: Zusammenfassung aus Katalogfakten, Stopp', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(400, 860));
+    await _search(tester, 'pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Vorlesen'));
+    await tester.pump();
+    final (text, language) = h.speaker.spoken.single;
+    expect(language, 'de');
+    expect(text, startsWith('Pikachu, Nummer 25.'));
+    expect(text, contains('Typ Elektro.'));
+    expect(text, contains('Entwickelt sich aus Pichu'));
+    expect(find.byTooltip('Vorlesen beenden'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Vorlesen beenden'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Vorlesen'), findsOneWidget);
+
+    // Endet die Ausgabe von selbst, wird der Knopf wieder zu „Vorlesen“.
+    await tester.tap(find.byTooltip('Vorlesen'));
+    await tester.pump();
+    h.speaker.finish();
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Vorlesen'), findsOneWidget);
+    expect(h.speaker.spoken, hasLength(2));
+  });
+
+  testWidgets('App-Sprache umstellen und Hilfe öffnen', (tester) async {
+    await _pump(tester, const Size(500, 1600));
+    await tester.tap(find.text('Mehr'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Hilfe').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Datenlücken und Verfügbarkeit'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('noch nicht recherchiert'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Wie System'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Français').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Équipes'), findsWidgets);
+    expect(find.text('Langue de l’app'), findsOneWidget);
+
+    // Die Datensprache folgt der App-Sprache.
+    await tester.tap(find.text('Dex'));
+    await tester.pumpAndSettle();
+    await _search(tester, 'glurak');
+    expect(find.text('Dracaufeu'), findsOneWidget);
   });
 }

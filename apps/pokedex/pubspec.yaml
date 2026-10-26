@@ -22,6 +22,7 @@ dependencies:
   mydex_domain: any
   mydex_game_rules: any
   mydex_user_store: any
+  flutter_tts: ^4.2.5
 
 dev_dependencies:
   flutter_test:
