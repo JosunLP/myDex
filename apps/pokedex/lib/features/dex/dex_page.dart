@@ -13,6 +13,7 @@ import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/type_badge.dart';
+import 'filter_sheet.dart';
 import 'pokemon_detail_page.dart';
 
 class DexQuery extends Notifier<String> {
@@ -39,7 +40,15 @@ final entityResultsProvider = Provider<List<EntityHit>>((ref) {
 /// Ergebnisliste im aktuellen Spielkontext, gefiltert durch die Suche.
 final dexResultsProvider = Provider<List<PokemonListItem>>((ref) {
   final ctx = ref.watch(gameContextProvider);
-  final items = ref.watch(queriesProvider).list(ctx);
+  final filter = ref.watch(dexFilterProvider);
+  final items = applyDexFilter(
+    ref.watch(queriesProvider).list(ctx),
+    filter,
+    collection: filter.collection == CollectionFilter.all
+        ? const {}
+        : ref.watch(collectionProvider).value ?? const {},
+    scope: GameScope(ctx.versionId),
+  );
   final query = ref.watch(dexQueryProvider).trim();
   if (query.isEmpty) return items;
   final byId = {for (final i in items) i.form.id: i};
@@ -115,6 +124,7 @@ class _DexPageState extends ConsumerState<DexPage> {
             elevation: const WidgetStatePropertyAll(0),
           ),
         ),
+        const FilterBar(),
         Expanded(child: list),
       ],
     );

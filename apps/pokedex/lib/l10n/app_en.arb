@@ -607,5 +607,111 @@
         "type": "String"
       }
     }
-  }
+  },
+  "filters": "Filters",
+  "filtersActive": "Filters ({count})",
+  "@filtersActive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterTypes": "Types",
+  "typeMatchAny": "Any of these",
+  "typeMatchAll": "All of these",
+  "filterGenerations": "Generation",
+  "filterCollection": "Collection (this game)",
+  "collectionFilterAll": "All",
+  "collectionFilterCaught": "Caught",
+  "collectionFilterMissing": "Missing",
+  "collectionFilterShinyMissing": "Shiny missing",
+  "defaultFormsOnly": "Default forms only",
+  "resetFilters": "Reset",
+  "apply": "Apply",
+  "savePreset": "Save as preset",
+  "presetName": "Preset name",
+  "save": "Save",
+  "presets": "Presets",
+  "deletePreset": "Delete preset",
+  "scopeAllGames": "All games combined",
+  "caughtOn": "Caught {date}",
+  "@caughtOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "caughtInGames": "Caught in: {games}",
+  "@caughtInGames": {
+    "placeholders": {
+      "games": {
+        "type": "String"
+      }
+    }
+  },
+  "ownChecklist": "own list",
+  "backupTitle": "Backup",
+  "backupExplanation": "Collection, teams, filter presets and settings as a file. The catalog is not included.",
+  "exportBackup": "Export",
+  "importBackup": "Import",
+  "backupPassword": "Password (optional)",
+  "backupPasswordRepeat": "Repeat password",
+  "passwordsDiffer": "Passwords do not match.",
+  "backupPasswordHint": "Without a password the file is readable by anyone who has it.",
+  "exportDone": "Backup saved.",
+  "importPasswordTitle": "This backup is encrypted",
+  "password": "Password",
+  "backupError": "{error, select, notABackup{This is not a myDex backup.} unsupportedVersion{This backup was made with a newer version.} passwordRequired{A password is required.} wrongPassword{Wrong password.} other{The backup could not be read.}}",
+  "@backupError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importPreviewTitle": "Import backup from {date}",
+  "@importPreviewTitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "importModeMerge": "Merge",
+  "importModeReplace": "Replace",
+  "importModeMergeHint": "Newer entries win, nothing is deleted. Settings stay as they are.",
+  "importModeReplaceHint": "Your personal data is replaced completely by the backup.",
+  "importCounts": "{label}: {added} new · {updated} updated · {kept} kept · {removed} removed",
+  "@importCounts": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "added": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "kept": {
+        "type": "int"
+      },
+      "removed": {
+        "type": "int"
+      }
+    }
+  },
+  "importSkipped": "{count} unreadable entries are skipped.",
+  "@importSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDone": "Backup imported.",
+  "collectionLabel": "Collection",
+  "working": "Working…"
 }

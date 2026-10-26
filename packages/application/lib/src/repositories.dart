@@ -21,6 +21,9 @@ abstract interface class CollectionRepository {
 
   /// Speichert einen Eintrag; leere Einträge werden entfernt.
   Future<void> put(CollectionEntry entry);
+
+  /// Ersetzt alle Einträge (Import).
+  Future<void> replaceAll(Iterable<CollectionEntry> entries);
 }
 
 /// Persönliche Teams, getrennt vom Katalog.
@@ -30,4 +33,18 @@ abstract interface class TeamRepository {
   Future<void> save(Team team);
 
   Future<void> delete(String id);
+
+  /// Ersetzt alle Teams (Import).
+  Future<void> replaceAll(Iterable<Team> teams);
+}
+
+/// Gespeicherte Filtervorlagen.
+abstract interface class FilterPresetRepository {
+  Future<List<FilterPreset>> loadAll();
+
+  Future<void> save(FilterPreset preset);
+
+  Future<void> delete(String id);
+
+  Future<void> replaceAll(Iterable<FilterPreset> presets);
 }

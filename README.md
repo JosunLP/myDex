@@ -39,14 +39,20 @@ Phase 2b – Fundorte und Beschaffung (abgeschlossen):
 - [x] Datenlücken statt „nicht fangbar“, wenn ein Spiel keine Fundortdaten hat
 - [ ] Event-Verteilungen und Tausch zwischen Spielen
 
-Phase 3a – Teams (dieser Stand):
+Phase 3a – Teams (abgeschlossen):
 
 - [x] Teams je Spiel, lokal gespeichert (atomar, unlesbare Einträge bleiben erhalten)
 - [x] Mitglieder mit Spitzname, Level, Fähigkeit, Item, Wesen, vier Attacken, IVs/EVs (Gen 1–2: DVs/Status-EP)
 - [x] Berechnete Werte je Regelwerk
 - [x] Prüfung: gültig / teilweise geprüft / Datenlage unzureichend / ungültig (ADR 0009)
 - [x] Typanalyse mit gemeinsamen Schwächen, Abdeckungslücken und Attackenvorschlägen
-- [ ] Phase 3b: globale Checklisten, Filtervorlagen, Export/Import
+
+Phase 3b – Sammlung und Datensicherung (dieser Stand):
+
+- [x] Kombinierbare Dex-Filter: Typen (einer/alle), Generation, Sammlungsstatus, nur Standardformen
+- [x] Filtervorlagen (versioniert gespeichert)
+- [x] Globale Checkliste: Fortschritt über alle Spiele mit Spielen und erstem Fangdatum
+- [x] Export/Import aller persönlichen Daten, optional verschlüsselt, mit Vorschau (ADR 0010)
 - [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
 
@@ -58,7 +64,7 @@ packages/domain/        Fachmodelle, IDs, Spielkontext – reines Dart
 packages/game_rules/    Typentabellen, Statuswerte, Teamanalyse – reines Dart
 packages/application/   Anwendungsfälle, Repository-Schnittstellen, Suche
 packages/catalog_store/ SQLite-Katalog: Schema, Lesen, Prüfen, Installieren
-packages/user_store/    Persönliche Daten (Sammlung), getrennt vom Katalog
+packages/user_store/    Persönliche Daten (Sammlung, Teams, Vorlagen, Sicherung)
 tools/data_pipeline/    Quellstand laden, normalisieren, prüfen, Katalog bauen
 data/source_manifests/  Festgehaltener Quellstand mit Prüfsummen
 data/fixtures/          Kleiner Testkatalog (von der Pipeline erzeugt)

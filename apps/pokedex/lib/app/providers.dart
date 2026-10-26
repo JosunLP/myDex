@@ -19,6 +19,9 @@ class AppStorage {
         File('${dir.path}/preferences.json'),
       ),
       teams = FileTeamRepository(File('${dir.path}/teams.json')),
+      presets = FileFilterPresetRepository(
+        File('${dir.path}/filter_presets.json'),
+      ),
       catalogDirectory = Directory('${dir.path}/catalog');
 
   AppStorage.custom({
@@ -26,11 +29,14 @@ class AppStorage {
     required this.preferences,
     required this.catalogDirectory,
     TeamRepository? teams,
-  }) : teams = teams ?? MemoryTeamRepository();
+    FilterPresetRepository? presets,
+  }) : teams = teams ?? MemoryTeamRepository(),
+       presets = presets ?? MemoryFilterPresetRepository();
 
   final CollectionRepository collection;
   final JsonPreferencesRepository preferences;
   final TeamRepository teams;
+  final FilterPresetRepository presets;
 
   /// Getrennt von den Nutzerdaten (ADR 0003).
   final Directory catalogDirectory;
@@ -91,6 +97,9 @@ class SettingsController extends Notifier<AppSettings> {
 
   void setDataLanguage(String? language) =>
       _update(state.copyWith(dataLanguage: () => language));
+
+  /// Übernimmt Einstellungen aus einer Sicherung.
+  void replaceAll(AppSettings settings) => _update(settings);
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
@@ -212,3 +221,45 @@ TeamEvaluator evaluatorFor(WidgetRef ref, Team team) {
     catalog.contextFor(team.version),
   );
 }
+
+class PresetsController extends AsyncNotifier<List<FilterPreset>> {
+  FilterPresetRepository get _repo => ref.read(appStorageProvider).presets;
+
+  @override
+  Future<List<FilterPreset>> build() => _repo.loadAll();
+
+  Future<void> add(String name, DexFilter filter) async {
+    final now = DateTime.now();
+    await _repo.save(
+      FilterPreset(
+        id: now.microsecondsSinceEpoch.toRadixString(36),
+        name: name,
+        filter: filter,
+        updatedAt: now,
+      ),
+    );
+    ref.invalidateSelf();
+  }
+
+  Future<void> remove(String id) async {
+    await _repo.delete(id);
+    ref.invalidateSelf();
+  }
+}
+
+final presetsProvider =
+    AsyncNotifierProvider<PresetsController, List<FilterPreset>>(
+      PresetsController.new,
+    );
+
+class DexFilterController extends Notifier<DexFilter> {
+  @override
+  DexFilter build() => const DexFilter();
+
+  void set(DexFilter filter) => state = filter;
+}
+
+/// Aktiver Filter der Dex-Liste (nicht gespeichert; Vorlagen speichern ihn).
+final dexFilterProvider = NotifierProvider<DexFilterController, DexFilter>(
+  DexFilterController.new,
+);

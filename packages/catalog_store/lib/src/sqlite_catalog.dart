@@ -109,6 +109,7 @@ class _SnapshotLoader {
           nationalNumber: r['national'] as int,
           name: _name('species', r['rid'] as int),
           hatchable: r['hatchable'] == 1,
+          generation: r['generation'] as int,
         ),
     ];
 

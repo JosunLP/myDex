@@ -17,4 +17,14 @@ class MemoryCollectionRepository implements CollectionRepository {
       _entries[entry.key] = entry;
     }
   }
+
+  @override
+  Future<void> replaceAll(Iterable<CollectionEntry> entries) async {
+    _entries
+      ..clear()
+      ..addAll({
+        for (final e in entries)
+          if (!e.isEmpty) e.key: e,
+      });
+  }
 }

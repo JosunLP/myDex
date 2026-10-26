@@ -15,6 +15,7 @@ class Species {
     required this.name,
     this.aliases = const [],
     this.hatchable = false,
+    this.generation = 0,
   });
 
   factory Species.fromJson(Map<String, Object?> j) => Species(
@@ -34,6 +35,9 @@ class Species {
   /// Ob ihre Entwicklungsfamilie Eier legen kann (Babys wie Pichu eingeschlossen;
   /// nicht bei Familien nur aus „unbekannt“ oder Ditto).
   final bool hatchable;
+
+  /// Generation der Einführung (0 = unbekannt).
+  final int generation;
 }
 
 @immutable
