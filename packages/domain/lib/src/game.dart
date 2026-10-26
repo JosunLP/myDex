@@ -55,6 +55,7 @@ class Ruleset {
     required this.hasHeldItems,
     required this.hasNatures,
     required this.unifiedSpecial,
+    this.hasBreeding = false,
   });
 
   factory Ruleset.fromJson(Map<String, Object?> j) => Ruleset(
@@ -67,6 +68,7 @@ class Ruleset {
     hasHeldItems: j['hasHeldItems']! as bool,
     hasNatures: j['hasNatures']! as bool,
     unifiedSpecial: j['unifiedSpecial']! as bool,
+    hasBreeding: (j['hasBreeding'] as bool?) ?? false,
   );
 
   final RulesetId id;
@@ -80,6 +82,9 @@ class Ruleset {
 
   /// Gen 1 kennt nur einen gemeinsamen Spezial-Wert.
   final bool unifiedSpecial;
+
+  /// Ob Pokémon in diesem Spiel aus Eiern gezüchtet werden können.
+  final bool hasBreeding;
 }
 
 /// Gruppe verwandter Editionen mit gemeinsamen Daten (z. B. Rot/Blau).

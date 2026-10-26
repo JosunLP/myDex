@@ -95,7 +95,8 @@ class CatalogInstaller {
       final installed = await install(manifest, compressed());
       return installed;
     } on Object catch (e) {
-      if (active != null && await File(active.path).exists()) {
+      // Rückfall nur auf eine Vorversion, die diese App-Version lesen kann.
+      if (active != null && _isUsable(active.path)) {
         return InstalledCatalog(active.path, active.revision, installError: e);
       }
       rethrow;
@@ -147,6 +148,21 @@ class CatalogInstaller {
     await _writeActive(manifest.revision, target.path, previous?.path);
     await _cleanup(keep: {target.path, ?previous?.path});
     return InstalledCatalog(target.path, manifest.revision);
+  }
+
+  static bool _isUsable(String path) {
+    if (!File(path).existsSync()) return false;
+    try {
+      final db = openCatalogDatabase(path);
+      try {
+        readCatalogMeta(db);
+        return true;
+      } finally {
+        db.close();
+      }
+    } on Object {
+      return false;
+    }
   }
 
   void _verifyDatabase(String path, String revision) {

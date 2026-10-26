@@ -297,4 +297,104 @@ void main() {
       expect(details.searchEntities('   '), isEmpty);
     });
   });
+
+  group('Fundorte', () {
+    List<String> locationsOf(String form, String version) => [
+      for (final e in details.encountersOf(
+        FormId(form),
+        GameVersionId(version),
+      ))
+        catalog.locationAreas[e.area]!.location.value,
+    ];
+
+    test('Pikachu in Rot: Vertania-Wald und Kraftwerk', () {
+      expect(
+        locationsOf('pikachu', 'red'),
+        containsAll(['viridian-forest', 'kanto-power-plant']),
+      );
+      final forest = details
+          .encountersOf(const FormId('pikachu'), const GameVersionId('red'))
+          .firstWhere(
+            (e) =>
+                catalog.locationAreas[e.area]!.location.value ==
+                'viridian-forest',
+          );
+      expect(forest.minLevel, 3);
+      expect(forest.maxLevel, 5);
+      expect(forest.chance, inInclusiveRange(1, 100));
+      expect(catalog.encounterMethods[forest.method]!.name('de'), isNotEmpty);
+    });
+
+    test(
+      'Versionsexklusive Pokémon: Rettan nur in Rot, Sandan nur in Blau',
+      () {
+        expect(locationsOf('ekans', 'red'), isNotEmpty);
+        expect(locationsOf('ekans', 'blue'), isEmpty);
+        expect(locationsOf('sandshrew', 'blue'), isNotEmpty);
+        expect(locationsOf('sandshrew', 'red'), isEmpty);
+      },
+    );
+
+    test('Geschenke werden als eigene Methode geführt', () {
+      final starter = details.encountersOf(
+        const FormId('bulbasaur'),
+        const GameVersionId('red'),
+      );
+      expect(starter.map((e) => e.method.value), contains('gift'));
+    });
+
+    test('Ort zeigt alle Begegnungen der Version', () {
+      final forest = details.encountersAt(
+        const LocationId('viridian-forest'),
+        const GameVersionId('red'),
+      );
+      expect(forest.map((e) => e.form.value), contains('pikachu'));
+      expect(
+        details.locationsWithEncounters(const GameVersionId('red')),
+        contains(const LocationId('viridian-forest')),
+      );
+      expect(
+        catalog.locations[const LocationId('viridian-forest')]!.region,
+        const RegionId('kanto'),
+      );
+    });
+
+    test(
+      'fehlende Fundortdaten werden erkannt, nicht als „nicht fangbar“ gewertet',
+      () {
+        expect(details.hasEncounterData(const GameVersionId('red')), isTrue);
+        expect(
+          details.hasEncounterData(const GameVersionId('scarlet')),
+          isFalse,
+        );
+        final sv = details.coverage().firstWhere(
+          (c) => c.versionGroup.value == 'scarlet-violet',
+        );
+        expect(sv.encounterEntries, 0);
+        final rb = details.coverage().firstWhere(
+          (c) => c.versionGroup.value == 'red-blue',
+        );
+        expect(rb.encounterEntries, greaterThan(0));
+      },
+    );
+  });
+
+  group('Zucht', () {
+    test(
+      'Regelwerke kennen Zucht erst ab Gen 2 und nicht in Sonderspielen',
+      () {
+        expect(ctx('red').ruleset.hasBreeding, isFalse);
+        expect(ctx('gold').ruleset.hasBreeding, isTrue);
+        expect(ctx('lets-go-pikachu').ruleset.hasBreeding, isFalse);
+        expect(ctx('scarlet').ruleset.hasBreeding, isTrue);
+      },
+    );
+
+    test('Schlüpfbarkeit je Art', () {
+      // Pichu ist selbst „unbekannt“, schlüpft aber aus Pikachu-/Raichu-Eiern.
+      expect(catalog.species[const SpeciesId('pichu')]!.hatchable, isTrue);
+      expect(catalog.species[const SpeciesId('eevee')]!.hatchable, isTrue);
+      expect(catalog.species[const SpeciesId('magnemite')]!.hatchable, isTrue);
+    });
+  });
 }

@@ -22,7 +22,7 @@ Phase 1 – Fundament und vertikaler Durchstich (abgeschlossen):
 - [x] CI: Formatierung, Analyse, Tests; Builds für Linux, Android, Windows, macOS, iOS
 - [x] Android-Release ohne Internet-Berechtigung und ohne Google-Dienste
 
-Phase 2a – Wissenskatalog (dieser Stand):
+Phase 2a – Wissenskatalog (abgeschlossen):
 
 - [x] Reproduzierbare Datenpipeline (`tools/data_pipeline`) aus einem festgehaltenen PokéAPI-Stand
 - [x] SQLite-Katalog mit allen Spielen, 1351 Formen, Attacken, Fähigkeiten, Items, Erlernbarkeit
@@ -30,7 +30,14 @@ Phase 2a – Wissenskatalog (dieser Stand):
 - [x] Historische Werte: Typen, Basiswerte, Fähigkeiten und Attackenwerte je Spiel
 - [x] Sichere Katalog-Installation: Prüfsumme, Integritätstest, atomarer Wechsel, Rückfall
 - [x] App: Attacken je Spiel, Attacken- und Fähigkeitsseiten, Suche, Datenstand und Abdeckung
-- [ ] Fundorte und Beschaffungswege (Phase 2b)
+
+Phase 2b – Fundorte und Beschaffung (dieser Stand):
+
+- [x] Begegnungen je Version: Ort, Gebiet, Methode, Level, Wahrscheinlichkeit, Bedingungen
+- [x] Eigener Bereich „Fundorte“ mit Orten nach Region und Ortsseiten
+- [x] Beschaffung auf der Pokémon-Seite: Fundorte, Entwicklung, Zucht
+- [x] Datenlücken statt „nicht fangbar“, wenn ein Spiel keine Fundortdaten hat
+- [ ] Event-Verteilungen und Tausch zwischen Spielen
 - [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
 

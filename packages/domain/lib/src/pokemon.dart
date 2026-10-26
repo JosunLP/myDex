@@ -14,6 +14,7 @@ class Species {
     required this.nationalNumber,
     required this.name,
     this.aliases = const [],
+    this.hatchable = false,
   });
 
   factory Species.fromJson(Map<String, Object?> j) => Species(
@@ -29,6 +30,10 @@ class Species {
 
   /// Alternative Schreibweisen für die Suche.
   final List<String> aliases;
+
+  /// Ob ihre Entwicklungsfamilie Eier legen kann (Babys wie Pichu eingeschlossen;
+  /// nicht bei Familien nur aus „unbekannt“ oder Ditto).
+  final bool hatchable;
 }
 
 @immutable

@@ -91,6 +91,7 @@ class _Ruleset {
     required this.abilities,
     required this.heldItems,
     required this.natures,
+    this.breeding = false,
   });
   final String id;
   final int generation;
@@ -99,6 +100,7 @@ class _Ruleset {
   final bool abilities;
   final bool heldItems;
   final bool natures;
+  final bool breeding;
   bool get unifiedSpecial => generation == 1;
 }
 
@@ -129,14 +131,22 @@ _Ruleset _rulesetFor(String group, int gen) {
   final era = gen == 1
       ? TypeChartEra.gen1
       : (gen <= 5 ? TypeChartEra.gen2to5 : TypeChartEra.gen6plus);
+  // Spiele ohne Pension/Zucht erhalten ein eigenes Regelwerk.
+  final noBreeding = switch (group) {
+    'colosseum' || 'xd' => 'orre',
+    'legends-za' || 'mega-dimension' => 'lza',
+    'champions' => 'champions',
+    _ => null,
+  };
   return _Ruleset(
-    'gen$gen',
+    noBreeding ?? 'gen$gen',
     gen,
     era,
     gen <= 2 ? StatFormula.gen1to2 : StatFormula.modern,
     abilities: gen >= 3,
     heldItems: gen >= 2,
     natures: gen >= 3,
+    breeding: noBreeding == null && gen >= 2,
   );
 }
 
@@ -165,7 +175,8 @@ class CatalogBuilder {
   final _usedMoves = <int, Set<int>>{}; // VG → Attacken
   final _items = <int, String>{};
   final _locations = <int, (String, int)>{}; // ID → (Bezeichner, Region)
-  final _usedLocations = <int>{};
+  final _encounterForms = <int, Set<int>>{}; // VG → Formen mit Begegnungen
+  final _encounterEntries = <int, int>{}; // VG → Anzahl
   final _regions = <int, String>{};
 
   BuildReport build(File out) {
@@ -187,11 +198,12 @@ class CatalogBuilder {
       _items_();
       _moves();
       _learnsets();
+      _locationsTable();
+      _encounters();
       _formProfiles();
       _moveProfiles();
       _machines();
       _evolutions();
-      _locationsTable();
       _coverage();
       _searchIndex();
       _db.execute('COMMIT');
@@ -310,6 +322,7 @@ class CatalogBuilder {
         rs.heldItems ? 1 : 0,
         rs.natures ? 1 : 0,
         rs.unifiedSpecial ? 1 : 0,
+        rs.breeding ? 1 : 0,
       ]);
     }
     // Spielgruppen werden in _coverage mit has_data ergänzt; hier nur anlegen.
@@ -351,12 +364,37 @@ class CatalogBuilder {
   }
 
   void _species() {
+    final eggGroups = {
+      for (final r in t['egg_groups']) r.integer('id'): r['identifier']!,
+    };
+    final groupsOf = <int, Set<String>>{};
+    for (final r in t['pokemon_egg_groups']) {
+      groupsOf
+          .putIfAbsent(r.integer('species_id'), () => {})
+          .add(eggGroups[r.integer('egg_group_id')]!);
+    }
+    final familyBreeds = <int?, bool>{};
+    for (final r in t['pokemon_species']) {
+      final groups = groupsOf[r.integer('id')] ?? const <String>{};
+      final breeds = groups.any((g) => g != 'no-eggs' && g != 'ditto');
+      final chain = r.optInt('evolution_chain_id');
+      familyBreeds[chain] = (familyBreeds[chain] ?? false) || breeds;
+    }
     for (final r in t['pokemon_species']) {
       final id = r.integer('id');
       _speciesGen[id] = r.integer('generation_id');
       _speciesIdent[id] = r['identifier']!;
       if (!_speciesIncluded(id)) continue;
-      _insert('species', [id, r['identifier'], id, r.integer('generation_id')]);
+      // Schlüpfbar, wenn ein Mitglied der Entwicklungsfamilie Eier legen kann
+      // (Babys wie Pichu sind selbst „unbekannt“, schlüpfen aber aus Eiern).
+      final hatchable = familyBreeds[r.optInt('evolution_chain_id')] ?? false;
+      _insert('species', [
+        id,
+        r['identifier'],
+        id,
+        r.integer('generation_id'),
+        hatchable ? 1 : 0,
+      ]);
     }
     _names(
       'species',
@@ -584,7 +622,8 @@ class CatalogBuilder {
       final species = _formSpecies[form]!;
       for (final g in groups) {
         final DataAvailability availability;
-        if (_learnsetForms[g.rid]?.contains(form) ?? false) {
+        if ((_learnsetForms[g.rid]?.contains(form) ?? false) ||
+            (_encounterForms[g.rid]?.contains(form) ?? false)) {
           availability = DataAvailability.confirmedAvailable;
         } else if (_speciesGen[species]! > g.generation ||
             _formIntroducedOrder[form]! > g.order) {
@@ -805,7 +844,6 @@ class CatalogBuilder {
       default:
     }
     if (r.optInt('location_id') case final loc?) {
-      _usedLocations.add(loc);
       atoms.add(AtLocation(LocationId(_locations[loc]!.$1)));
     }
     if (r.optInt('gender_id') case final g?) {
@@ -883,12 +921,6 @@ class CatalogBuilder {
   };
 
   void _evolutions() {
-    for (final r in t['locations']) {
-      _locations[r.integer('id')] = (
-        r['identifier']!,
-        r.optInt('region_id') ?? 0,
-      );
-    }
     final triggers = {
       for (final r in t['evolution_triggers'])
         r.integer('id'): r['identifier']!,
@@ -980,10 +1012,137 @@ class CatalogBuilder {
   }
 
   void _locationsTable() {
-    for (final id in _usedLocations.toList()..sort()) {
-      _insert('location', [id, _locations[id]!.$1]);
+    for (final r in [
+      ...t['regions'],
+    ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
+      _insert('region', [r.integer('id'), r['identifier']]);
     }
-    _names('location', 'location_names', 'location_id', only: _usedLocations);
+    _names('region', 'region_names', 'region_id');
+    final seen = <String>{};
+    for (final r in [
+      ...t['locations'],
+    ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
+      var ident = r['identifier']!;
+      if (!seen.add(ident)) {
+        report.warn('Ort $ident doppelt (Quell-ID ${r['id']})');
+        ident = '$ident--${r['id']}';
+      }
+      _locations[r.integer('id')] = (ident, r.optInt('region_id') ?? 0);
+      _insert('location', [r.integer('id'), ident, r.optInt('region_id')]);
+    }
+    _names('location', 'location_names', 'location_id');
+    final areaIds = <String>{};
+    for (final r in [
+      ...t['location_areas'],
+    ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
+      final location = _locations[r.integer('location_id')];
+      if (location == null) continue;
+      final area = r['identifier'] ?? '';
+      var ident = area.isEmpty ? location.$1 : '${location.$1}/$area';
+      if (!areaIds.add(ident)) ident = '$ident--${r['id']}';
+      _insert('location_area', [
+        r.integer('id'),
+        ident,
+        r.integer('location_id'),
+      ]);
+    }
+    _names('location_area', 'location_area_prose', 'location_area_id');
+    for (final r in t['encounter_methods']) {
+      _insert('encounter_method', [
+        r.integer('id'),
+        r['identifier'],
+        r.integer('order'),
+      ]);
+    }
+    _names('encounter_method', 'encounter_method_prose', 'encounter_method_id');
+    for (final r in t['encounter_condition_values']) {
+      _insert('encounter_condition', [r.integer('id'), r['identifier']]);
+    }
+    _names(
+      'encounter_condition',
+      'encounter_condition_value_prose',
+      'encounter_condition_value_id',
+    );
+  }
+
+  /// Begegnungen je Form, Version, Gebiet, Methode und Bedingungen.
+  void _encounters() {
+    final slots = {for (final r in t['encounter_slots']) r.integer('id'): r};
+    final versionGroup = {
+      for (final r in t['versions'])
+        r.integer('id'): r.integer('version_group_id'),
+    };
+    final conditionIdent = {
+      for (final r in t['encounter_condition_values'])
+        r.integer('id'): r['identifier']!,
+    };
+    final conditions = <int, List<String>>{};
+    for (final r in t['encounter_condition_value_map']) {
+      conditions
+          .putIfAbsent(r.integer('encounter_id'), () => [])
+          .add(conditionIdent[r.integer('encounter_condition_value_id')]!);
+    }
+    final rows = <(int, int, int, int, String), List<int>>{};
+    for (final r in t['encounters']) {
+      final form = r.integer('pokemon_id');
+      final species = _formSpecies[form];
+      final slot = slots[r.integer('encounter_slot_id')];
+      if (species == null || slot == null) continue;
+      final version = r.integer('version_id');
+      final group = versionGroup[version]!;
+      _encounterForms.putIfAbsent(group, () => {}).add(form);
+      _encounterEntries[group] = (_encounterEntries[group] ?? 0) + 1;
+      if (!_speciesIncluded(species)) continue;
+      final conds = [...?conditions[r.integer('id')]]..sort();
+      final key = (
+        form,
+        version,
+        r.integer('location_area_id'),
+        slot.integer('encounter_method_id'),
+        conds.join(','),
+      );
+      final agg = rows[key];
+      final min = r.integer('min_level'), max = r.integer('max_level');
+      final rarity = slot.optInt('rarity') ?? 0;
+      if (agg == null) {
+        rows[key] = [min, max, rarity];
+      } else {
+        agg[0] = min < agg[0] ? min : agg[0];
+        agg[1] = max > agg[1] ? max : agg[1];
+        agg[2] += rarity;
+      }
+    }
+    final stmt = _db.prepare(
+      'INSERT INTO encounter VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    );
+    final keys = rows.keys.toList()
+      ..sort((a, b) {
+        for (final c in [
+          a.$1.compareTo(b.$1),
+          a.$2.compareTo(b.$2),
+          a.$3.compareTo(b.$3),
+          a.$4.compareTo(b.$4),
+          a.$5.compareTo(b.$5),
+        ]) {
+          if (c != 0) return c;
+        }
+        return 0;
+      });
+    for (final k in keys) {
+      final v = rows[k]!;
+      // Mehrere Slots können zusammen über 100 % ergeben (z. B. Bedingungsvarianten).
+      stmt.execute([
+        k.$1,
+        k.$2,
+        k.$3,
+        k.$4,
+        v[0],
+        v[1],
+        v[2] > 100 ? 100 : v[2],
+        k.$5,
+      ]);
+    }
+    stmt.close();
   }
 
   void _coverage() {
@@ -1019,7 +1178,14 @@ class CatalogBuilder {
         g.order,
         g.hasData ? 1 : 0,
       ]);
-      _insert('coverage', [g.rid, confirmed, unavailable, gaps, entries]);
+      _insert('coverage', [
+        g.rid,
+        confirmed,
+        unavailable,
+        gaps,
+        entries,
+        _encounterEntries[g.rid] ?? 0,
+      ]);
       report.counts['Formen bestätigt in ${g.id}'] = confirmed;
     }
     report.counts['Formen'] = formRids.length;

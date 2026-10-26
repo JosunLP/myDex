@@ -20,6 +20,7 @@ class AppShell extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final destinations = [
       (Icons.catching_pokemon_outlined, Icons.catching_pokemon, l10n.navDex),
+      (Icons.map_outlined, Icons.map, l10n.navLocations),
       (Icons.checklist_outlined, Icons.checklist, l10n.navCollection),
       (Icons.groups_outlined, Icons.groups, l10n.navTeams),
       (Icons.more_horiz, Icons.more_horiz, l10n.navMore),

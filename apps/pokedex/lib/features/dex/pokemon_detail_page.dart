@@ -13,6 +13,7 @@ import '../../widgets/evolution_text.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/stat_bars.dart';
 import '../../widgets/type_badge.dart';
+import 'acquisition_section.dart';
 import 'learnset_section.dart';
 
 /// Eigenständige Detailseite für schmale Fenster.
@@ -182,8 +183,10 @@ class PokemonDetailView extends ConsumerWidget {
                   ],
                 ),
         ),
-        if (profile.availability != DataAvailability.confirmedUnavailable)
+        if (profile.availability != DataAvailability.confirmedUnavailable) ...[
+          section(l10n.sectionAcquisition, AcquisitionSection(form: d.form.id)),
           section(l10n.sectionMoves, LearnsetSection(form: d.form.id)),
+        ],
         if (d.otherForms.isNotEmpty)
           section(
             l10n.sectionForms,

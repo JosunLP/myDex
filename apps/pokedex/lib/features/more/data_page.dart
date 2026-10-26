@@ -39,7 +39,8 @@ class DataPage extends ConsumerWidget {
               title: Text(catalog.versionGroups[row.versionGroup]!.name(lang)),
               subtitle: Text(
                 '${l10n.coverageRow(row.formsConfirmed, row.formsUnavailable, row.formsGaps)}\n'
-                '${l10n.coverageLearnsets(row.learnsetEntries)}',
+                '${l10n.coverageLearnsets(row.learnsetEntries)} · '
+                '${row.encounterEntries == 0 ? l10n.coverageNoEncounters : l10n.coverageEncounters(row.encounterEntries)}',
               ),
               isThreeLine: true,
               leading: Icon(

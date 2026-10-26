@@ -2,7 +2,7 @@
 /// der App nur gelesen. Änderungen erhöhen [catalogSchemaVersion].
 library;
 
-const catalogSchemaVersion = 2;
+const catalogSchemaVersion = 3;
 
 /// Lernmethoden-Codes in der Tabelle `learnset`.
 abstract final class LearnMethodCode {
@@ -18,7 +18,8 @@ const catalogSchemaSql = [
     id TEXT PRIMARY KEY, generation INTEGER NOT NULL, type_chart_era TEXT NOT NULL,
     stat_formula TEXT NOT NULL, party_size INTEGER NOT NULL,
     has_abilities INTEGER NOT NULL, has_held_items INTEGER NOT NULL,
-    has_natures INTEGER NOT NULL, unified_special INTEGER NOT NULL)''',
+    has_natures INTEGER NOT NULL, unified_special INTEGER NOT NULL,
+    has_breeding INTEGER NOT NULL)''',
   '''CREATE TABLE version_group(
     rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE, generation INTEGER NOT NULL,
     ruleset TEXT NOT NULL REFERENCES ruleset(id), sort INTEGER NOT NULL,
@@ -28,7 +29,7 @@ const catalogSchemaSql = [
     version_group INTEGER NOT NULL REFERENCES version_group(rid))''',
   '''CREATE TABLE species(
     rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE, national INTEGER NOT NULL,
-    generation INTEGER NOT NULL)''',
+    generation INTEGER NOT NULL, hatchable INTEGER NOT NULL)''',
   '''CREATE TABLE form(
     rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     species INTEGER NOT NULL REFERENCES species(rid), is_default INTEGER NOT NULL,
@@ -38,7 +39,20 @@ const catalogSchemaSql = [
   '''CREATE TABLE item(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',
   '''CREATE TABLE move(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     generation INTEGER NOT NULL)''',
-  '''CREATE TABLE location(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',
+  '''CREATE TABLE region(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',
+  '''CREATE TABLE location(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
+    region INTEGER)''',
+  '''CREATE TABLE location_area(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
+    location INTEGER NOT NULL REFERENCES location(rid))''',
+  '''CREATE TABLE encounter_method(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
+    sort INTEGER NOT NULL)''',
+  '''CREATE TABLE encounter_condition(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',
+  // Begegnungen, zusammengefasst je Form, Version, Gebiet, Methode und Bedingungen.
+  '''CREATE TABLE encounter(
+    form INTEGER NOT NULL, version INTEGER NOT NULL, area INTEGER NOT NULL,
+    method INTEGER NOT NULL, min_level INTEGER NOT NULL, max_level INTEGER NOT NULL,
+    chance INTEGER NOT NULL, conditions TEXT NOT NULL,
+    PRIMARY KEY(form, version, area, method, conditions)) WITHOUT ROWID''',
   // Mehrsprachige Namen aller Entitäten.
   '''CREATE TABLE name(kind TEXT NOT NULL, ref INTEGER NOT NULL, lang TEXT NOT NULL,
     text TEXT NOT NULL, PRIMARY KEY(kind, ref, lang)) WITHOUT ROWID''',
@@ -65,7 +79,7 @@ const catalogSchemaSql = [
     version_groups TEXT NOT NULL)''',
   '''CREATE TABLE coverage(version_group INTEGER PRIMARY KEY, forms_confirmed INTEGER NOT NULL,
     forms_unavailable INTEGER NOT NULL, forms_gaps INTEGER NOT NULL,
-    learnset_entries INTEGER NOT NULL)''',
+    learnset_entries INTEGER NOT NULL, encounter_entries INTEGER NOT NULL)''',
   // Volltextindex über normalisierte Namen (alle Sprachen).
   '''CREATE VIRTUAL TABLE search USING fts5(
     text, kind UNINDEXED, ref UNINDEXED,

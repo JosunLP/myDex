@@ -3,29 +3,11 @@ import 'dart:io';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_data_pipeline/mydex_data_pipeline.dart';
 
-/// Arten des kleinen Testkatalogs (u. a. Piepi Normal→Fee, Alola-Raichu, Evoli).
+/// Arten des kleinen Testkatalogs (u. a. Piepi Normal→Fee, Alola-Raichu, Evoli,
+/// Rettan/Sandan als Versionsexklusive, Pichu für Zucht).
 const testSubset = {
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  25,
-  26,
-  35,
-  36,
-  39,
-  81,
-  82,
-  133,
-  134,
-  135,
-  136,
-  462,
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 23, 25, 26, 27, 35, 36, 39, 81, 82, 133, 134, //
+  135, 136, 172, 462,
 };
 
 const usage = '''
