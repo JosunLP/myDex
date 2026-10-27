@@ -64,13 +64,25 @@ Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
 - [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
 - [ ] Galerie – erst nach geklärten Bildrechten
 
-Phase 4b – Optionaler Sync (dieser Stand):
+Phase 4b – Optionaler Sync (abgeschlossen):
 
 - [x] Abgleich von Sammlung, Teams und Filtervorlagen über einen selbst gehosteten Server (ADR 0012)
 - [x] Outbox, Revisionen, Grabsteine für Löschungen, Konfliktkopien statt Überschreiben
 - [x] Server mit SQLite und Kommandozeile für Konten (`tools/sync_server`)
 - [x] Android: Standardausgabe `offline` ohne Internet-Berechtigung, Ausgabe `sync` mit Abgleich
 - [ ] Ende-zu-Ende-Verschlüsselung der Datensätze
+
+Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
+
+- [x] Barrierefreiheit automatisch geprüft: Tippflächen, Beschriftungen, Kontrast (hell/dunkel, Smartphone/Desktop)
+- [x] Einheitlicher App-Name „myDex“ auf allen Plattformen
+- [x] Android-Release-Signatur über GitHub-Secrets; CI prüft die Berechtigungen der Release-APKs
+- [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
+- [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog, F-Droid-Metadaten
+- [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
+- [ ] Lizenz für den Quellcode festlegen (Voraussetzung u. a. für F-Droid)
+- [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
+- [ ] iOS/macOS/Windows signieren (Entwicklerkonten)
 
 ## Struktur
 
@@ -115,6 +127,7 @@ eingecheckten Pakete exakt übereinstimmen. Regeln und bekannte Lücken: ADR 000
 
 Datenquelle: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), Lizenzhinweis in der App.
 
-Sync-Server selbst betreiben: `tools/sync_server/README.md`.
+Sync-Server selbst betreiben: `tools/sync_server/README.md`. Releases: `docs/release/README.md`.
+Datenschutz: `PRIVACY.md`. Sicherheitslücken melden: `SECURITY.md`.
 
 Siehe `docs/architecture/overview.md`, `docs/decisions/` und `docs/parity/`.

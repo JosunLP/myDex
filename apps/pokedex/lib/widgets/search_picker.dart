@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mydex_application/mydex_application.dart';
 
 import '../app/theme.dart';
+import 'search_field.dart';
 
 @immutable
 class PickerOption<T> {
@@ -91,11 +92,9 @@ class _SearchPickerState<T> extends State<_SearchPicker<T>> {
               Space.l,
               Space.s,
             ),
-            child: SearchBar(
-              autoFocus: true,
+            child: SearchField(
+              autofocus: true,
               hintText: widget.searchHint,
-              leading: const Icon(Icons.search),
-              elevation: const WidgetStatePropertyAll(0),
               onChanged: (v) => setState(() => _query = v),
             ),
           ),

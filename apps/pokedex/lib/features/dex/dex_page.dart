@@ -12,6 +12,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
 import '../../widgets/game_context_selector.dart';
+import '../../widgets/search_field.dart';
 import '../../widgets/type_badge.dart';
 import 'filter_sheet.dart';
 import 'pokemon_detail_page.dart';
@@ -98,30 +99,27 @@ class _DexPageState extends ConsumerState<DexPage> {
             Space.l,
             Space.s,
           ),
-          child: SearchBar(
+          child: SearchField(
             controller: _controller,
             focusNode: _searchFocus,
             hintText: l10n.searchHint,
-            leading: const Icon(Icons.search),
-            trailing: [
-              if (_controller.text.isNotEmpty)
-                IconButton(
-                  tooltip: MaterialLocalizations.of(
-                    context,
-                  ).deleteButtonTooltip,
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _controller.clear();
-                    ref.read(dexQueryProvider.notifier).set('');
-                    setState(() {});
-                  },
-                ),
-            ],
+            trailing: _controller.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).deleteButtonTooltip,
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _controller.clear();
+                      ref.read(dexQueryProvider.notifier).set('');
+                      setState(() {});
+                    },
+                  ),
             onChanged: (v) {
               ref.read(dexQueryProvider.notifier).set(v);
               setState(() {});
             },
-            elevation: const WidgetStatePropertyAll(0),
           ),
         ),
         const FilterBar(),

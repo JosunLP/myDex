@@ -1,0 +1,229 @@
+name: Release
+
+# Ein Tag wie v1.2.3 baut alle Pakete und legt eine Release als Entwurf an.
+# Veröffentlicht wird von Hand nach der Abnahme (docs/release/README.md).
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.47.8
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.v.outputs.name }}
+      number: ${{ steps.v.outputs.number }}
+    steps:
+      - id: v
+        shell: bash
+        run: |
+          name="${GITHUB_REF_NAME#v}"
+          if [[ ! "$name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag muss vX.Y.Z sein, ist aber $GITHUB_REF_NAME"
+            exit 1
+          fi
+          IFS=. read -r major minor patch <<< "$name"
+          # Fortlaufende Versionsnummer für Android (X.Y.Z → XXYYZZZ).
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "number=$((major * 100000 + minor * 1000 + patch))" >> "$GITHUB_OUTPUT"
+
+  checks:
+    name: Analyse und Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart analyze --fatal-infos packages tools
+      - working-directory: apps/pokedex
+        run: flutter analyze --fatal-infos
+      - run: |
+          for p in packages/domain packages/game_rules packages/application packages/catalog_store packages/user_store packages/sync tools/data_pipeline tools/sync_server; do
+            (cd $p && dart test)
+          done
+      - working-directory: apps/pokedex
+        run: flutter test
+
+  android:
+    name: Android
+    needs: [version, checks]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Schlüssel bereitstellen
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MYDEX_KEYSTORE_BASE64 }}
+        shell: bash
+        run: |
+          if [[ -z "$KEYSTORE_BASE64" ]]; then
+            echo "::error::Secret MYDEX_KEYSTORE_BASE64 fehlt (docs/release/README.md)."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "MYDEX_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+      - name: Bauen
+        working-directory: apps/pokedex
+        env:
+          MYDEX_REQUIRE_SIGNING: 'true'
+          MYDEX_KEYSTORE_PASSWORD: ${{ secrets.MYDEX_KEYSTORE_PASSWORD }}
+          MYDEX_KEY_ALIAS: ${{ secrets.MYDEX_KEY_ALIAS }}
+          MYDEX_KEY_PASSWORD: ${{ secrets.MYDEX_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          for flavor in offline sync; do
+            flutter build apk --release --flavor $flavor \
+              --build-name ${{ needs.version.outputs.name }} \
+              --build-number ${{ needs.version.outputs.number }}
+          done
+          ../../tools/ci/check_apk_permissions.sh \
+            build/app/outputs/flutter-apk/app-offline-release.apk \
+            build/app/outputs/flutter-apk/app-sync-release.apk
+          mkdir -p ../../dist
+          v=${{ needs.version.outputs.name }}
+          cp build/app/outputs/flutter-apk/app-offline-release.apk ../../dist/mydex-$v-android.apk
+          cp build/app/outputs/flutter-apk/app-sync-release.apk ../../dist/mydex-sync-$v-android.apk
+      - name: Signatur prüfen
+        shell: bash
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
+          for apk in dist/*.apk; do
+            "$apksigner" verify --print-certs "$apk" | tee -a dist/android-certificates.txt
+          done
+          if grep -q "CN=Android Debug" dist/android-certificates.txt; then
+            echo "::error::Paket ist mit dem Debug-Schlüssel signiert."
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: dist/
+
+  desktop:
+    name: ${{ matrix.target }}
+    needs: [version, checks]
+    strategy:
+      matrix:
+        include:
+          - { target: linux, os: ubuntu-latest }
+          - { target: windows, os: windows-latest }
+          - { target: macos, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - if: matrix.target == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build libgtk-3-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Bauen und packen
+        working-directory: apps/pokedex
+        shell: bash
+        run: |
+          v=${{ needs.version.outputs.name }}
+          flutter build ${{ matrix.target }} --release \
+            --build-name $v --build-number ${{ needs.version.outputs.number }}
+          mkdir -p ../../dist
+          case "${{ matrix.target }}" in
+            linux)
+              tar -C build/linux/x64/release/bundle -czf ../../dist/mydex-$v-linux-x64.tar.gz .
+              ;;
+            windows)
+              (cd build/windows/x64/runner/Release && 7z a -tzip "$GITHUB_WORKSPACE/dist/mydex-$v-windows-x64.zip" .)
+              ;;
+            macos)
+              # Nicht notarisiert (kein Apple-Entwicklerkonto hinterlegt).
+              app="$(ls -d build/macos/Build/Products/Release/*.app | head -1)"
+              ditto -c -k --keepParent "$app" ../../dist/mydex-$v-macos.zip
+              ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/
+
+  sync-server:
+    name: Sync-Server
+    needs: [version, checks]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Bauen
+        shell: bash
+        run: |
+          v=${{ needs.version.outputs.name }}
+          mkdir -p dist/mydex-sync-server-$v
+          dart build cli --target tools/sync_server/bin/sync_server.dart -o build/sync_server
+          cp -r build/sync_server/bundle/. dist/mydex-sync-server-$v/
+          cp tools/sync_server/README.md dist/mydex-sync-server-$v/
+          tar -C dist -czf dist/mydex-sync-server-$v-linux-x64.tar.gz mydex-sync-server-$v
+          rm -r dist/mydex-sync-server-$v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sync-server
+          path: dist/
+
+  publish:
+    name: Release-Entwurf
+    needs: [version, android, desktop, sync-server]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Prüfsummen
+        working-directory: dist
+        run: sha256sum mydex-* > SHA256SUMS
+      - name: Versionshinweise
+        shell: bash
+        run: |
+          v=${{ needs.version.outputs.name }}
+          # Abschnitt der Version aus dem CHANGELOG (bis zur nächsten Überschrift).
+          awk -v v="$v" '
+            $0 ~ "^## \\[?" v "\\]?" { on = 1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          {
+            echo
+            echo "Prüfsummen: \`SHA256SUMS\`. Android-Zertifikat: \`android-certificates.txt\`."
+            echo "„mydex“ ist die Standardausgabe ohne Internet-Berechtigung, „mydex-sync“ enthält den optionalen Abgleich."
+          } >> notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: myDex ${{ needs.version.outputs.name }}
+          body_path: notes.md
+          files: dist/*

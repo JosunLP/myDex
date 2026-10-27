@@ -15,8 +15,32 @@ dart run tools/sync_server/bin/sync_server.dart serve --db /var/lib/mydex/sync.s
 ```
 
 Weitere Befehle: `list-accounts`, `rotate-token --name …` (neuer Schlüssel, alter ungültig),
-`delete-account --name …` (Konto samt Daten). Für den Dauerbetrieb lässt sich der Server mit
-`dart compile exe tools/sync_server/bin/sync_server.dart -o mydex-sync` als einzelne Datei bauen.
+`delete-account --name …` (Konto samt Daten).
+
+Für den Dauerbetrieb gibt es fertige Pakete an jeder Release (`mydex-sync-server-…-linux-x64.tar.gz`,
+Programm unter `bin/`, SQLite unter `lib/`). Selbst bauen:
+
+```sh
+dart build cli --target tools/sync_server/bin/sync_server.dart -o build/sync_server
+build/sync_server/bundle/bin/sync_server serve --db /var/lib/mydex/sync.sqlite
+```
+
+Beispiel für systemd (`/etc/systemd/system/mydex-sync.service`):
+
+```ini
+[Unit]
+Description=myDex-Sync-Server
+After=network.target
+
+[Service]
+ExecStart=/opt/mydex-sync/bin/sync_server serve --db /var/lib/mydex/sync.sqlite --port 8787
+DynamicUser=yes
+StateDirectory=mydex
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## TLS
 

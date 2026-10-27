@@ -36,3 +36,5 @@ P-034,Sammlung,Globale Checkliste,Bisasam in Rot gefangen,"Fortschritt über all
 P-035,Sprachen,Oberflächensprachen,Französisch,"Oberfläche de/en/fr/es/it, wählbar oder nach System; Datensprache folgt, Namen z. B. Dracaufeu",alle,App,n/a,automatisiert,implementiert,
 P-036,Sprachen,Datensprachen,Japanisch,"Namen in allen 11 Katalogsprachen; fehlende Übersetzung sichtbar markiert",alle,PokéAPI-Snapshot,geprüft (BSD-3),manuell,implementiert,
 P-037,Hilfe,Offline-Hilfe,Datenlücken,"Themen zu Spielauswahl, Verfügbarkeit, Suche, Fundorten, Sammlung, Teams, Vorlesen, Sicherung, Datenschutz",alle,App,n/a,automatisiert,implementiert,
+P-038,Barrierefreiheit,Tippflächen/Beschriftung/Kontrast,Dex/Detail/Teams/Mehr,"Material- und iOS-Tippflächen, beschriftete Bedienelemente, Textkontrast in hell und dunkel",alle,App,n/a,automatisiert,implementiert,
+P-039,Veröffentlichung,Berechtigungen der Android-Pakete,Release-APKs,"offline: keine Berechtigung; sync: nur INTERNET",Android,CI,n/a,automatisiert,implementiert,

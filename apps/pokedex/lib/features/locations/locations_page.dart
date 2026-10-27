@@ -7,6 +7,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/search_field.dart';
 import '../../widgets/game_context_selector.dart';
 
 /// Orte mit Begegnungen im gewählten Spiel, nach Region gruppiert.
@@ -62,10 +63,8 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
               Space.l,
               Space.s,
             ),
-            child: SearchBar(
+            child: SearchField(
               hintText: l10n.locationSearchHint,
-              leading: const Icon(Icons.search),
-              elevation: const WidgetStatePropertyAll(0),
               onChanged: (v) => setState(() => _query = v),
             ),
           ),

@@ -1,0 +1,11 @@
+<p>myDex is a fast, privacy-friendly Pokémon encyclopedia. Everything works offline and without an account.</p>
+<ul>
+<li><b>Per-game data:</b> types, base stats, abilities, moves and evolutions as they apply in the selected game – from Red/Blue to the newest titles.</li>
+<li><b>Locations:</b> encounters per version with method, levels and chance; obtaining via evolution and breeding. Data gaps are shown honestly as gaps.</li>
+<li><b>Collection:</b> seen, caught and shiny – per game and across games, with combinable filters.</li>
+<li><b>Teams:</b> stat calculation, checks against the game data, type analysis and move suggestions.</li>
+<li><b>Backup</b> to a file, optionally encrypted.</li>
+<li>Interface in English, German, French, Spanish and Italian; names in eleven languages; read-aloud via the device's speech output.</li>
+</ul>
+<p><b>Privacy:</b> no permissions, no analytics, no ads, no Google services required. To sync between devices, use the "myDex Sync" edition with your own server.</p>
+<p>Unofficial fan project. Pokémon and related names are trademarks of their respective owners. Not affiliated with Nintendo, Game Freak or The Pokémon Company. Data: PokéAPI (BSD-3-Clause).</p>

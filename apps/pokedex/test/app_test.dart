@@ -12,6 +12,7 @@ import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
 import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_app/app/sync_controller.dart';
+import 'package:mydex_app/widgets/search_field.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_domain/mydex_domain.dart';
@@ -170,7 +171,7 @@ Future<void> _selectGame(WidgetTester tester, String name) async {
 }
 
 Future<void> _search(WidgetTester tester, String query) async {
-  await tester.enterText(find.byType(SearchBar), query);
+  await tester.enterText(find.byType(SearchField), query);
   await tester.pumpAndSettle();
 }
 
@@ -327,7 +328,7 @@ void main() {
       reason: 'Detail neben der Liste',
     );
     expect(find.text('Evoli'), findsAtLeastNWidgets(2));
-    expect(find.byType(SearchBar), findsOneWidget);
+    expect(find.byType(SearchField), findsOneWidget);
   });
 
   testWidgets('Datenstand zeigt Quelle und Abdeckung', (tester) async {
@@ -369,7 +370,7 @@ void main() {
     // Eigener Navigationsbereich mit allen Orten der Version.
     await tester.tap(find.text('Fundorte').last);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(SearchBar).last, 'vertania');
+    await tester.enterText(find.byType(SearchField).last, 'vertania');
     await tester.pumpAndSettle();
     expect(find.widgetWithText(ListTile, 'Vertania-Wald'), findsOneWidget);
   });
@@ -406,7 +407,7 @@ void main() {
 
     await tester.tap(find.text('Pokémon hinzufügen'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(SearchBar).last, 'Pikachu');
+    await tester.enterText(find.byType(SearchField).last, 'Pikachu');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu').first);
     await tester.pumpAndSettle();
@@ -448,7 +449,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Pokémon hinzufügen'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(SearchBar).last, 'Glurak');
+    await tester.enterText(find.byType(SearchField).last, 'Glurak');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ListTile, 'Glurak').first);
     await tester.pumpAndSettle();
