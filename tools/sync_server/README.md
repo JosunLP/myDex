@@ -66,5 +66,6 @@ Zugangsschlüssel eintragen. Unter Android ist dafür die Ausgabe `sync` nötig.
 | `DELETE` | `/v1/account` | alle Daten des Kontos löschen |
 
 Gespeichert werden je Konto Datensätze (Art, ID, Revision, JSON, Zeitstempel) und Grabsteine
-für Löschungen. Zugangsschlüssel liegen nur als SHA-256-Hash vor. Die Daten selbst sind auf
-dem Server nicht Ende-zu-Ende-verschlüsselt; wer den Server betreibt, kann sie lesen.
+für Löschungen. Zugangsschlüssel liegen nur als SHA-256-Hash vor. Die App verschlüsselt alle
+Datensätze vorher Ende-zu-Ende (ADR 0014): Der Server speichert nur undurchsichtige IDs und
+Chiffrate und kann den Inhalt nicht lesen.

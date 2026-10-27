@@ -2,6 +2,7 @@
 library;
 
 export 'src/client.dart';
+export 'src/encryption.dart';
 export 'src/http_handler.dart';
 export 'src/http_transport.dart';
 export 'src/protocol.dart';

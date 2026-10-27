@@ -808,7 +808,7 @@
     }
   },
   "syncIntro": "Optionally keep your collection, teams and filter presets in sync between your devices through your own myDex sync server. Without it, everything keeps working offline.",
-  "syncPrivacyNote": "Data is sent encrypted (HTTPS) but stored on the server without end-to-end encryption. Only use a server you run yourself or trust. Settings and the catalog are not synced.",
+  "syncPrivacyNote": "Your data is encrypted on the device with your sync password before it is sent (end-to-end). The server only sees encrypted records, how many there are and when they change. Settings and the catalog are not synced.",
   "syncServerUrl": "Server address",
   "syncToken": "Access key",
   "syncShowToken": "Show access key",
@@ -857,7 +857,7 @@
       }
     }
   },
-  "syncError": "{error, select, unauthorized{The access key is not valid.} insecureConnection{Only HTTPS connections are allowed (except to this device).} network{The server cannot be reached. Changes are kept and sent later.} tooLarge{Too much data for one request.} unsupportedProtocol{The server uses a different version.} invalidRequest{The server address is not valid.} notFound{No myDex sync server at this address.} other{The server reported an error. Changes are kept.}}",
+  "syncError": "{error, select, unauthorized{The access key is not valid.} insecureConnection{Only HTTPS connections are allowed (except to this device).} network{The server cannot be reached. Changes are kept and sent later.} tooLarge{Too much data for one request.} unsupportedProtocol{The server uses a different version.} invalidRequest{The server address is not valid.} notFound{No myDex sync server at this address.} wrongPassphrase{The sync password does not match the one used on your other devices.} passphraseTooShort{The sync password must have at least 8 characters.} other{The server reported an error. Changes are kept.}}",
   "@syncError": {
     "placeholders": {
       "error": {
@@ -867,7 +867,7 @@
   },
   "syncConflictLabel": "conflict",
   "helpSyncTitle": "Sync (optional)",
-  "helpSyncBody": "Sync uses your own server: run the myDex sync server (see the project documentation), create an account and enter the address and access key under More → Sync. Changes are sent automatically a few seconds after you make them. If two devices change the same team or preset, both versions are kept – one as a copy marked \"conflict\". For collection marks, the newer change wins. On Android, sync is only available in the \"sync\" edition; the standard edition has no internet permission.",
+  "helpSyncBody": "Sync uses your own server: run the myDex sync server (see the project documentation), create an account and enter the address and access key under More → Sync. Changes are sent automatically a few seconds after you make them. All synced data is encrypted end-to-end with your sync password; use the same one on every device. If two devices change the same team or preset, both versions are kept – one as a copy marked \"conflict\". For collection marks, the newer change wins. On Android, sync is only available in the \"sync\" edition; the standard edition has no internet permission.",
   "sectionGallery": "Gallery",
   "galleryDefault": "Standard",
   "galleryEmpty": "No pictures for this form.",
@@ -892,5 +892,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "syncPassphrase": "Sync password",
+  "syncPassphraseHint": "Encrypts your data before it leaves the device (end-to-end). Use the same password on all devices. At least 8 characters; it cannot be recovered.",
+  "syncUnlocking": "Connecting…"
 }

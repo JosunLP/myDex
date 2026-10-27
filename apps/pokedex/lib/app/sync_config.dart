@@ -2,22 +2,36 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
 /// Verbindung zum eigenen Sync-Server.
 @immutable
 class SyncConfig {
-  const SyncConfig({required this.serverUrl, required this.token});
+  const SyncConfig({
+    required this.serverUrl,
+    required this.token,
+    required this.key,
+  });
 
   factory SyncConfig.fromJson(Map<String, Object?> j) => SyncConfig(
     serverUrl: j['serverUrl']! as String,
     token: j['token']! as String,
+    key: SyncKey.fromJson(j['key']! as Map<String, Object?>),
   );
 
   final String serverUrl;
   final String token;
 
-  Map<String, Object?> toJson() => {'serverUrl': serverUrl, 'token': token};
+  /// Aus dem Sync-Passwort abgeleitete Schlüssel (ADR 0014). Das Passwort
+  /// selbst wird nicht gespeichert.
+  final SyncKey key;
+
+  Map<String, Object?> toJson() => {
+    'serverUrl': serverUrl,
+    'token': token,
+    'key': key.toJson(),
+  };
 }
 
 abstract interface class SyncConfigStore {

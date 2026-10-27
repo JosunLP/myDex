@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -12,15 +13,32 @@ import 'sync_config.dart';
 /// keinen Abgleich; alle anderen Ausgaben bieten ihn optional an.
 final syncSupportedProvider = Provider<bool>((ref) => appFlavor != 'offline');
 
-/// Baut die Verbindung zum Server (in Tests ersetzbar).
+/// Baut die (unverschlüsselte) Verbindung zum Server; in Tests ersetzbar.
 final syncTransportFactoryProvider =
-    Provider<SyncTransport Function(SyncConfig config)>(
+    Provider<SyncTransport Function(String serverUrl, String token)>(
       (ref) =>
-          (config) => HttpSyncTransport(
-            Uri.parse(config.serverUrl.trim()),
-            config.token.trim(),
-          ),
+          (serverUrl, token) => HttpSyncTransport(Uri.parse(serverUrl), token),
     );
+
+/// PBKDF2-Runden für neue Sync-Schlüssel (in Tests kleiner).
+final syncKdfIterationsProvider = Provider<int>(
+  (ref) => SyncEncryption.defaultIterations,
+);
+
+/// Schlüsselableitung; außerhalb des Webs in einem Hintergrund-Isolate.
+final syncKeyDerivationProvider = Provider<KeyDerivation>(
+  (ref) => kIsWeb ? SyncKey.derive : _deriveInBackground,
+);
+
+/// Mindestlänge des Sync-Passworts.
+const syncPassphraseMinLength = 8;
+
+// Eigenständig, damit das Isolate nichts aus der Oberfläche einfängt.
+Future<SyncKey> _deriveInBackground(
+  String passphrase,
+  List<int> salt,
+  int iterations,
+) => Isolate.run(() => SyncKey.derive(passphrase, salt, iterations));
 
 @immutable
 class SyncStatus {
@@ -95,17 +113,54 @@ class SyncController extends Notifier<SyncStatus> {
     _debounce = Timer(delay, () => unawaited(syncNow()));
   }
 
-  /// Verbindet mit einem Server. Scheitert die erste Übertragung an der
-  /// Anmeldung oder Adresse, bleibt die App getrennt.
-  Future<String?> connect(String serverUrl, String token) async {
-    final config = SyncConfig(serverUrl: serverUrl.trim(), token: token.trim());
+  SyncTransport _base(SyncConfig config) =>
+      ref.read(syncTransportFactoryProvider)(config.serverUrl, config.token);
+
+  /// Verschlüsselte Verbindung (ADR 0014).
+  EncryptingTransport _transport(SyncConfig config) => EncryptingTransport(
+    _base(config),
+    config.key,
+    ref.read(appStorageProvider).syncAliases,
+  );
+
+  /// Verbindet mit einem Server und entsperrt die Verschlüsselung mit dem
+  /// Sync-Passwort. Scheitert Anmeldung, Adresse oder Passwort, bleibt die
+  /// App getrennt.
+  Future<String?> connect(
+    String serverUrl,
+    String token,
+    String passphrase,
+  ) async {
+    final url = serverUrl.trim();
+    final secret = token.trim();
     try {
-      HttpSyncTransport.checkServerUrl(Uri.parse(config.serverUrl));
+      HttpSyncTransport.checkServerUrl(Uri.parse(url));
     } on SyncProtocolException catch (e) {
       return e.code;
     } on FormatException {
       return 'invalidRequest';
     }
+    if (passphrase.length < syncPassphraseMinLength) {
+      return 'passphraseTooShort';
+    }
+    state = _status(syncing: true);
+    final base = ref.read(syncTransportFactoryProvider)(url, secret);
+    final SyncKey key;
+    try {
+      key = await EncryptingTransport.unlock(
+        base,
+        passphrase,
+        iterations: ref.read(syncKdfIterationsProvider),
+        derive: ref.read(syncKeyDerivationProvider),
+      );
+    } on SyncProtocolException catch (e) {
+      if (ref.mounted) state = _status(error: e.code);
+      return e.code;
+    } finally {
+      if (base is HttpSyncTransport) base.close();
+    }
+    final config = SyncConfig(serverUrl: url, token: secret, key: key);
+    await ref.read(appStorageProvider).syncAliases.clear();
     await _client.connect();
     await _store.save(config);
     state = _status(config: config);
@@ -123,7 +178,7 @@ class SyncController extends Notifier<SyncStatus> {
     if (config == null) return 'notConnected';
     _debounce?.cancel();
     state = _status(syncing: true);
-    final transport = ref.read(syncTransportFactoryProvider)(config);
+    final transport = _transport(config);
     try {
       final report = await _client.sync(transport);
       if (!ref.mounted) return null;
@@ -143,7 +198,7 @@ class SyncController extends Notifier<SyncStatus> {
       if (ref.mounted) state = _status(error: 'server');
       return 'server';
     } finally {
-      if (transport is HttpSyncTransport) transport.close();
+      transport.close();
     }
   }
 
@@ -152,7 +207,7 @@ class SyncController extends Notifier<SyncStatus> {
   Future<String?> disconnect({bool wipeServer = false}) async {
     final config = state.config;
     if (wipeServer && config != null) {
-      final transport = ref.read(syncTransportFactoryProvider)(config);
+      final transport = _base(config);
       try {
         await transport.deleteAccountData();
       } on SyncProtocolException catch (e) {
@@ -165,6 +220,7 @@ class SyncController extends Notifier<SyncStatus> {
     _debounce?.cancel();
     await _client.disconnect();
     await _store.clear();
+    await ref.read(appStorageProvider).syncAliases.clear();
     state = const SyncStatus();
     return null;
   }

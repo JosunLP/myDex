@@ -27,6 +27,7 @@ class AppStorage {
     mediaDirectory: Directory('${dir.path}/media'),
     syncState: FileSyncStateStore(File('${dir.path}/sync_state.json')),
     syncConfig: FileSyncConfigStore(File('${dir.path}/sync_config.json')),
+    syncAliases: FileSyncAliasStore(File('${dir.path}/sync_aliases.json')),
   );
 
   AppStorage.custom({
@@ -38,7 +39,9 @@ class AppStorage {
     FilterPresetRepository? presets,
     SyncStateStore? syncState,
     SyncConfigStore? syncConfig,
+    SyncAliasStore? syncAliases,
   }) : syncConfig = syncConfig ?? MemorySyncConfigStore(),
+       syncAliases = syncAliases ?? MemorySyncAliasStore(),
        mediaDirectory =
            mediaDirectory ??
            Directory('${catalogDirectory.parent.path}/media') {
@@ -70,6 +73,9 @@ class AppStorage {
   /// Serveradresse und Zugangsschlüssel – bewusst nicht in den Einstellungen,
   /// damit sie nie in einer Datensicherung landen.
   final SyncConfigStore syncConfig;
+
+  /// Zuordnung verschlüsselter IDs (für Löschungen).
+  final SyncAliasStore syncAliases;
 
   /// Zusatz für Konfliktkopien, in der App-Sprache (wird von der App gesetzt).
   String conflictLabel = 'Konflikt';

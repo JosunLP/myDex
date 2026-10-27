@@ -17,6 +17,7 @@ class SyncPage extends ConsumerStatefulWidget {
 class _SyncPageState extends ConsumerState<SyncPage> {
   final _url = TextEditingController();
   final _token = TextEditingController();
+  final _passphrase = TextEditingController();
   bool _busy = false;
   bool _showToken = false;
 
@@ -24,6 +25,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
   void dispose() {
     _url.dispose();
     _token.dispose();
+    _passphrase.dispose();
     super.dispose();
   }
 
@@ -115,6 +117,19 @@ class _SyncPageState extends ConsumerState<SyncPage> {
             ),
           ),
         ),
+        const SizedBox(height: Space.m),
+        TextField(
+          controller: _passphrase,
+          obscureText: true,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: InputDecoration(
+            labelText: l10n.syncPassphrase,
+            helperText: l10n.syncPassphraseHint,
+            helperMaxLines: 3,
+            border: const OutlineInputBorder(),
+          ),
+        ),
         if (status.error != null) ...[
           const SizedBox(height: Space.m),
           Text(
@@ -131,11 +146,20 @@ class _SyncPageState extends ConsumerState<SyncPage> {
             onPressed: busy
                 ? null
                 : () => _run(
-                    () => controller.connect(_url.text, _token.text),
+                    () => controller.connect(
+                      _url.text,
+                      _token.text,
+                      _passphrase.text,
+                    ),
                     l10n.syncConnected,
                   ),
-            icon: const Icon(Icons.link),
-            label: Text(l10n.syncConnect),
+            icon: busy
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.link),
+            label: Text(busy ? l10n.syncUnlocking : l10n.syncConnect),
           ),
         ),
       ];

@@ -252,7 +252,7 @@
   "syncSubtitleOff": "Desactivada – tus datos se quedan en este dispositivo",
   "syncSubtitleOn": "Conectado a {server}",
   "syncIntro": "Si quieres, mantén sincronizados tu colección, tus equipos y tus plantillas de filtros entre tus dispositivos a través de tu propio servidor de sincronización de myDex. Sin él, todo sigue funcionando sin conexión.",
-  "syncPrivacyNote": "Los datos se transmiten cifrados (HTTPS), pero se guardan en el servidor sin cifrado de extremo a extremo. Usa solo un servidor que gestiones tú o en el que confíes. Los ajustes y el catálogo no se sincronizan.",
+  "syncPrivacyNote": "Tus datos se cifran en el dispositivo con tu contraseña de sincronización antes de enviarse (de extremo a extremo). El servidor solo ve registros cifrados, cuántos hay y cuándo cambian. Los ajustes y el catálogo no se sincronizan.",
   "syncServerUrl": "Dirección del servidor",
   "syncToken": "Clave de acceso",
   "syncShowToken": "Mostrar clave de acceso",
@@ -270,13 +270,16 @@
   "syncPending": "{count} cambios pendientes",
   "syncReport": "Última vez: {sent} enviados, {received} recibidos",
   "syncCopies": "{count} copias de conflicto conservadas",
-  "syncError": "{error, select, unauthorized{La clave de acceso no es válida.} insecureConnection{Solo se permiten conexiones HTTPS (salvo a este dispositivo).} network{No se puede acceder al servidor. Los cambios se guardan y se enviarán más tarde.} tooLarge{Demasiados datos para una solicitud.} unsupportedProtocol{El servidor usa otra versión.} invalidRequest{La dirección del servidor no es válida.} notFound{No hay ningún servidor de sincronización de myDex en esta dirección.} other{El servidor informa de un error. Los cambios se conservan.}}",
+  "syncError": "{error, select, unauthorized{La clave de acceso no es válida.} insecureConnection{Solo se permiten conexiones HTTPS (salvo a este dispositivo).} network{No se puede acceder al servidor. Los cambios se guardan y se enviarán más tarde.} tooLarge{Demasiados datos para una solicitud.} unsupportedProtocol{El servidor usa otra versión.} invalidRequest{La dirección del servidor no es válida.} notFound{No hay ningún servidor de sincronización de myDex en esta dirección.} wrongPassphrase{La contraseña de sincronización no coincide con la de tus otros dispositivos.} passphraseTooShort{La contraseña de sincronización necesita al menos 8 caracteres.} other{El servidor informa de un error. Los cambios se conservan.}}",
   "syncConflictLabel": "conflicto",
   "helpSyncTitle": "Sincronización (opcional)",
-  "helpSyncBody": "La sincronización usa tu propio servidor: instala el servidor de sincronización de myDex (consulta la documentación del proyecto), crea una cuenta e introduce la dirección y la clave de acceso en Más → Sincronización. Los cambios se envían automáticamente unos segundos después. Si dos dispositivos cambian el mismo equipo o la misma plantilla, se conservan ambas versiones: una como copia marcada como «conflicto». En las marcas de la colección gana el cambio más reciente. En Android, la sincronización solo está en la edición «sync»; la edición estándar no tiene permiso de internet.",
+  "helpSyncBody": "La sincronización usa tu propio servidor: instala el servidor de sincronización de myDex (consulta la documentación del proyecto), crea una cuenta e introduce la dirección y la clave de acceso en Más → Sincronización. Los cambios se envían automáticamente unos segundos después. Todos los datos sincronizados se cifran de extremo a extremo con tu contraseña de sincronización; usa la misma en cada dispositivo. Si dos dispositivos cambian el mismo equipo o la misma plantilla, se conservan ambas versiones: una como copia marcada como «conflicto». En las marcas de la colección gana el cambio más reciente. En Android, la sincronización solo está en la edición «sync»; la edición estándar no tiene permiso de internet.",
   "sectionGallery": "Galería",
   "galleryDefault": "Estándar",
   "galleryEmpty": "No hay imágenes de esta forma.",
   "gallerySprite": "{name} – {game}",
-  "gallerySpriteShiny": "{name} (variocolor) – {game}"
+  "gallerySpriteShiny": "{name} (variocolor) – {game}",
+  "syncPassphrase": "Contraseña de sincronización",
+  "syncPassphraseHint": "Cifra tus datos antes de que salgan del dispositivo (de extremo a extremo). Usa la misma contraseña en todos los dispositivos. Al menos 8 caracteres; no se puede recuperar.",
+  "syncUnlocking": "Conectando…"
 }
