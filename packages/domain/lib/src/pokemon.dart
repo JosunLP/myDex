@@ -16,6 +16,7 @@ class Species {
     this.aliases = const [],
     this.hatchable = false,
     this.generation = 0,
+    this.mythical = false,
   });
 
   factory Species.fromJson(Map<String, Object?> j) => Species(
@@ -38,6 +39,10 @@ class Species {
 
   /// Generation der Einführung (0 = unbekannt).
   final int generation;
+
+  /// Mysteriöses Pokémon (z. B. Mew, Celebi): in der Regel nur über
+  /// Event-Verteilungen erhältlich.
+  final bool mythical;
 }
 
 @immutable

@@ -237,7 +237,7 @@
   "helpSearchTitle": "Recherche",
   "helpSearchBody": "Recherchez par nom ou numéro dans n’importe quelle langue du catalogue, par exemple « charizard » ou « 6 ». Les petites fautes de frappe sont tolérées. Capacités et talents apparaissent aussi dans les résultats. Les filtres combinent types, générations et état de votre collection ; enregistrez les filtres fréquents comme modèles.",
   "helpLocationsTitle": "Lieux",
-  "helpLocationsBody": "Les rencontres sont listées par version avec méthode, niveaux, probabilité et conditions. Les cadeaux et échanges en jeu comptent comme méthodes de rencontre. L’évolution et l’élevage sont indiqués comme autres moyens d’obtention. Les événements et les échanges entre jeux ne sont pas encore couverts.",
+  "helpLocationsBody": "Les rencontres sont listées par version avec méthode, niveaux, probabilité et conditions. Les cadeaux et échanges en jeu comptent comme méthodes de rencontre. L’évolution et l’élevage sont indiqués comme autres moyens d’obtention. Pour les exclusivités de version, les jeux depuis lesquels les échanger sont indiqués ; les Pokémon fabuleux sont signalés comme Pokémon d’événement. Les dates d’événements ne sont pas incluses.",
   "helpCollectionTitle": "Collection",
   "helpCollectionBody": "Marquez les Pokémon comme vus, capturés ou chromatiques – par jeu ou dans votre liste personnelle multi-jeux. « Tous les jeux réunis » montre dans quels jeux et quand vous avez capturé un Pokémon.",
   "helpTeamsTitle": "Équipes",
@@ -282,5 +282,7 @@
   "syncPassphrase": "Mot de passe de synchronisation",
   "syncPassphraseHint": "Chiffre vos données avant qu’elles ne quittent l’appareil (de bout en bout). Utilisez le même mot de passe sur tous les appareils. Au moins 8 caractères ; il ne peut pas être récupéré.",
   "syncUnlocking": "Connexion…",
-  "galleryArtwork": "Illustration officielle"
+  "galleryArtwork": "Illustration officielle",
+  "acquireByTrade": "Par échange depuis {games}",
+  "acquireByEvent": "Pokémon fabuleux – généralement disponible uniquement lors de distributions événementielles."
 }

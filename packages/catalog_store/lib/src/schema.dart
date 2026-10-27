@@ -2,7 +2,7 @@
 /// der App nur gelesen. Änderungen erhöhen [catalogSchemaVersion].
 library;
 
-const catalogSchemaVersion = 4;
+const catalogSchemaVersion = 5;
 
 /// Lernmethoden-Codes in der Tabelle `learnset`.
 abstract final class LearnMethodCode {
@@ -29,7 +29,8 @@ const catalogSchemaSql = [
     version_group INTEGER NOT NULL REFERENCES version_group(rid))''',
   '''CREATE TABLE species(
     rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE, national INTEGER NOT NULL,
-    generation INTEGER NOT NULL, hatchable INTEGER NOT NULL)''',
+    generation INTEGER NOT NULL, hatchable INTEGER NOT NULL,
+    mythical INTEGER NOT NULL)''',
   '''CREATE TABLE form(
     rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     species INTEGER NOT NULL REFERENCES species(rid), is_default INTEGER NOT NULL,

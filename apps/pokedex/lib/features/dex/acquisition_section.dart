@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
@@ -53,16 +54,33 @@ class AcquisitionSection extends ConsumerWidget {
         rootSpecies.hatchable &&
         detail.profile.availability == DataAvailability.confirmedAvailable;
 
+    // Tausch aus anderen Spielen (nur wenn hier keine Fundorte bekannt sind)
+    // und Event-Verteilungen bei Mysteriösen Pokémon.
+    final acquisition = AcquisitionQueries(catalog, details);
+    final tradeFrom = byLocation.isEmpty
+        ? acquisition.tradeSources(form, ctx)
+        : const <GameVersion>[];
+    final eventOnly = acquisition.isEventOnly(form, ctx);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!hasData)
+        if (eventOnly)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Space.s),
+            child: _Notice(
+              icon: Icons.card_giftcard,
+              text: l10n.acquireByEvent,
+              color: scheme.primary,
+            ),
+          ),
+        if (!hasData && !eventOnly)
           _Notice(
             icon: Icons.construction_outlined,
             text: l10n.noEncounterData(gameName),
             color: scheme.tertiary,
           )
-        else if (byLocation.isEmpty)
+        else if (byLocation.isEmpty && !eventOnly)
           Text(l10n.noEncountersForForm(gameName))
         else
           for (final MapEntry(key: location, value: list) in byLocation.entries)
@@ -109,6 +127,16 @@ class AcquisitionSection extends ConsumerWidget {
                 ),
               ),
             ),
+        if (tradeFrom.isNotEmpty)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.swap_horiz),
+            title: Text(
+              l10n.acquireByTrade(
+                tradeFrom.map((v) => v.name(lang)).toSet().join(', '),
+              ),
+            ),
+          ),
         for (final f in from)
           ListTile(
             contentPadding: EdgeInsets.zero,

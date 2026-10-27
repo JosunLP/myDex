@@ -9,7 +9,8 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
 ### Neu
 - Pokémon-Dex mit allen Spielen: Formen, Typen, Basiswerte und Fähigkeiten je Spiel,
   Entwicklungen mit Bedingungen, Attacken mit Erlernbarkeit und Änderungshistorie.
-- Fundorte je Spielversion, Beschaffung über Entwicklung und Zucht; Datenlücken werden als
+- Fundorte je Spielversion, Beschaffung über Entwicklung, Zucht, Tausch zwischen Spielen und
+  Events (Mysteriöse Pokémon); Datenlücken werden als
   solche gezeigt, nie als „nicht fangbar“.
 - Sammlung je Spiel und spielübergreifend, mit Shiny und Fangdatum; kombinierbare Filter und
   Vorlagen.

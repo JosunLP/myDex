@@ -865,4 +865,33 @@ void main() {
     );
     expect(identical(headerBytes(), modern), isFalse);
   });
+
+  testWidgets('Beschaffung: Tausch aus anderem Spiel und Event-Pokémon', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _selectGame(tester, 'Rot');
+
+    await _search(tester, 'sandan');
+    await tester.tap(find.widgetWithText(ListTile, 'Sandan'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Durch Tausch aus'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('Durch Tausch aus Blau'), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await _search(tester, 'mew');
+    await tester.tap(find.widgetWithText(ListTile, 'Mew'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Event-Verteilungen'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('Mysteriöses Pokémon'), findsOneWidget);
+  });
 }

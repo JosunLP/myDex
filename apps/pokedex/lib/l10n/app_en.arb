@@ -786,7 +786,7 @@
   "helpSearchTitle": "Search",
   "helpSearchBody": "Search by name or number in any catalog language, for example \"charizard\" or \"6\". Small typos are tolerated. Moves and abilities appear in the results as well. Filters combine types, generations and your collection status; save frequently used filters as presets.",
   "helpLocationsTitle": "Locations",
-  "helpLocationsBody": "Encounters are listed per game version with method, levels, chance and conditions. Gifts and in-game trades count as encounter methods. Evolution and breeding are shown as further ways to obtain a Pokémon. Events and trades between games are not covered yet.",
+  "helpLocationsBody": "Encounters are listed per game version with method, levels, chance and conditions. Gifts and in-game trades count as encounter methods. Evolution and breeding are shown as further ways to obtain a Pokémon. Version exclusives show which games you can trade them from; Mythical Pokémon are marked as event Pokémon. Specific event dates are not included.",
   "helpCollectionTitle": "Collection",
   "helpCollectionBody": "Mark Pokémon as seen, caught or shiny – per game or in your own cross-game list. \"All games combined\" shows in which games you caught a Pokémon and when.",
   "helpTeamsTitle": "Teams",
@@ -896,5 +896,14 @@
   "syncPassphrase": "Sync password",
   "syncPassphraseHint": "Encrypts your data before it leaves the device (end-to-end). Use the same password on all devices. At least 8 characters; it cannot be recovered.",
   "syncUnlocking": "Connecting…",
-  "galleryArtwork": "Official artwork"
+  "galleryArtwork": "Official artwork",
+  "acquireByTrade": "By trade from {games}",
+  "@acquireByTrade": {
+    "placeholders": {
+      "games": {
+        "type": "String"
+      }
+    }
+  },
+  "acquireByEvent": "Mythical Pokémon – usually only available through event distributions."
 }

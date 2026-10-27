@@ -394,6 +394,8 @@ class CatalogBuilder {
         id,
         r.integer('generation_id'),
         hatchable ? 1 : 0,
+        // Mysteriöse Pokémon gibt es in der Regel nur über Events.
+        r.flag('is_mythical') ? 1 : 0,
       ]);
     }
     _names(

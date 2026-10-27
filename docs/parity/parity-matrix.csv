@@ -24,7 +24,7 @@ P-022,Entwicklungen,Ortsabhängige Entwicklungen,Magneton → Magnezone,"Ort je 
 P-023,Fundort-Dex,Orte je Spiel,Vertania-Wald in Rot,"Ortsliste nach Region, Ortsseite mit allen Begegnungen",alle,PokéAPI-Snapshot,geprüft (BSD-3),automatisiert,implementiert,
 P-024,Beschaffung,Versionsexklusive,Rettan / Sandan,"Rettan nur in Rot, Sandan nur in Blau",alle,PokéAPI-Snapshot,geprüft (BSD-3),automatisiert,implementiert,
 P-025,Beschaffung,Entwicklung und Zucht als Weg,Raichu in Gold,"„Durch Entwicklung aus Pikachu“, „Über Zucht von Pichu und Entwicklung“",alle,Pipeline,n/a,automatisiert,implementiert,
-P-026,Beschaffung,"Geschenke, Tausch, Events",Starter in Rot,Geschenke und NPC-Tausch über Begegnungsmethoden; Events offen,alle,PokéAPI-Snapshot,geprüft (BSD-3),automatisiert,in_arbeit,
+P-026,Beschaffung,"Geschenke, Tausch, Events",Sandan in Rot / Mew,"Geschenke und NPC-Tausch über Begegnungsmethoden; „Durch Tausch aus Blau“ bei Versionsexklusiven; Mysteriöse als Event-Pokémon; keine Event-Termine",alle,PokéAPI-Snapshot,geprüft (BSD-3),automatisiert,implementiert,
 P-027,Team-Builder,Teams je Spiel,Team in Rot,Bis zu 6 Mitglieder; Felder nach Regelwerk (Gen 1 ohne Fähigkeit/Item/Wesen),alle,Nutzerdaten + Katalog,n/a,automatisiert,implementiert,
 P-028,Team-Builder,Werteberechnung,Pikachu X Lv. 50 Mäßig,"KP 110, Sp.-Ang. 77, Angriff 67",alle,Regelwerk,n/a,automatisiert,implementiert,
 P-029,Team-Analyse,Legalitätsprüfung,Pikachu mit Mondgewalt in Rot,Ungültig; nicht erfasst erlernbare Attacke = teilweise geprüft,alle,Katalog,n/a,automatisiert,implementiert,

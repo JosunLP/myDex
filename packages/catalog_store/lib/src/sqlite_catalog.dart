@@ -110,6 +110,7 @@ class _SnapshotLoader {
           name: _name('species', r['rid'] as int),
           hatchable: r['hatchable'] == 1,
           generation: r['generation'] as int,
+          mythical: r['mythical'] == 1,
         ),
     ];
 

@@ -37,7 +37,7 @@ Phase 2b – Fundorte und Beschaffung (abgeschlossen):
 - [x] Eigener Bereich „Fundorte“ mit Orten nach Region und Ortsseiten
 - [x] Beschaffung auf der Pokémon-Seite: Fundorte, Entwicklung, Zucht
 - [x] Datenlücken statt „nicht fangbar“, wenn ein Spiel keine Fundortdaten hat
-- [ ] Event-Verteilungen und Tausch zwischen Spielen
+- [x] Tausch zwischen Spielen und Event-Pokémon (Mysteriöse); konkrete Event-Termine nicht enthalten
 
 Phase 3a – Teams (abgeschlossen):
 

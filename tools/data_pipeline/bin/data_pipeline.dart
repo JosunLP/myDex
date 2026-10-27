@@ -7,7 +7,7 @@ import 'package:mydex_data_pipeline/mydex_data_pipeline.dart';
 /// Rettan/Sandan als Versionsexklusive, Pichu für Zucht).
 const testSubset = {
   1, 2, 3, 4, 5, 6, 7, 8, 9, 23, 25, 26, 27, 35, 36, 39, 81, 82, 133, 134, //
-  135, 136, 172, 462,
+  135, 136, 151, 172, 462,
 };
 
 const usage = '''
