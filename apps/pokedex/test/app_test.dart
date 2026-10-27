@@ -65,8 +65,10 @@ class _Harness {
       backupFilesProvider.overrideWithValue(files),
       speakerProvider.overrideWithValue(speaker),
       syncTransportFactoryProvider.overrideWithValue(
-        (config) => _CoreTransport(syncCore, config.token),
+        (url, token) => _CoreTransport(syncCore, token),
       ),
+      syncKdfIterationsProvider.overrideWithValue(1000),
+      syncKeyDerivationProvider.overrideWithValue(SyncKey.derive),
       appStorageProvider.overrideWithValue(
         AppStorage.custom(
           collection: collection,
@@ -691,15 +693,20 @@ void main() {
     tester,
   ) async {
     final h = await _pump(tester, const Size(500, 1600));
-    // Ein anderes Gerät hat bereits ein Team hochgeladen.
+    // Ein anderes Gerät hat bereits ein Team verschlüsselt hochgeladen.
     final other = Team(
       id: 'fremd',
       name: 'Vom Tablet',
       version: const GameVersionId('red'),
       updatedAt: DateTime.utc(2026, 3, 1),
     );
-    h.syncCore.handle(
-      'konto',
+    final tablet = _CoreTransport(h.syncCore, 'geheim');
+    final key = await EncryptingTransport.unlock(
+      tablet,
+      'tablet-passwort',
+      iterations: 1000,
+    );
+    await EncryptingTransport(tablet, key, MemorySyncAliasStore()).sync(
       SyncRequest(
         since: 0,
         changes: [
@@ -717,7 +724,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Synchronisierung').last);
     await tester.pumpAndSettle();
-    expect(find.textContaining('ohne Ende-zu-Ende'), findsOneWidget);
+    expect(find.textContaining('Ende-zu-Ende'), findsWidgets);
 
     // Unverschlüsselt ins Netz ist nicht erlaubt.
     await tester.enterText(
@@ -736,6 +743,19 @@ void main() {
       find.widgetWithText(TextField, 'Serveradresse'),
       'https://sync.example.org',
     );
+    // Zu kurzes Sync-Passwort.
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Sync-Passwort'),
+      'kurz',
+    );
+    await tester.tap(find.text('Verbinden'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('mindestens 8 Zeichen'), findsWidgets);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Sync-Passwort'),
+      'tablet-passwort',
+    );
     await tester.tap(find.text('Verbinden'));
     await tester.pumpAndSettle();
     expect(find.text('Der Zugangsschlüssel ist ungültig.'), findsWidgets);
@@ -743,6 +763,18 @@ void main() {
     await tester.enterText(
       find.widgetWithText(TextField, 'Zugangsschlüssel'),
       'geheim',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Sync-Passwort'),
+      'falsches-passwort',
+    );
+    await tester.tap(find.text('Verbinden'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('passt nicht'), findsWidgets);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Sync-Passwort'),
+      'tablet-passwort',
     );
     await tester.tap(find.text('Verbinden'));
     await tester.pumpAndSettle();

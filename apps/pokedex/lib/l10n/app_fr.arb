@@ -252,7 +252,7 @@
   "syncSubtitleOff": "Désactivée – vos données restent sur cet appareil",
   "syncSubtitleOn": "Connecté à {server}",
   "syncIntro": "Synchronisez si vous le souhaitez votre collection, vos équipes et vos modèles de filtres entre vos appareils, via votre propre serveur de synchronisation myDex. Sans lui, tout continue de fonctionner hors ligne.",
-  "syncPrivacyNote": "Les données sont transmises chiffrées (HTTPS), mais stockées sur le serveur sans chiffrement de bout en bout. N’utilisez qu’un serveur que vous gérez vous-même ou auquel vous faites confiance. Les réglages et le catalogue ne sont pas synchronisés.",
+  "syncPrivacyNote": "Vos données sont chiffrées sur l’appareil avec votre mot de passe de synchronisation avant l’envoi (de bout en bout). Le serveur ne voit que des enregistrements chiffrés, leur nombre et quand ils changent. Les réglages et le catalogue ne sont pas synchronisés.",
   "syncServerUrl": "Adresse du serveur",
   "syncToken": "Clé d’accès",
   "syncShowToken": "Afficher la clé d’accès",
@@ -270,13 +270,16 @@
   "syncPending": "{count} modifications en attente",
   "syncReport": "Dernière fois : {sent} envoyées, {received} reçues",
   "syncCopies": "{count} copies de conflit conservées",
-  "syncError": "{error, select, unauthorized{La clé d’accès n’est pas valide.} insecureConnection{Seules les connexions HTTPS sont autorisées (sauf vers cet appareil).} network{Le serveur est injoignable. Les modifications sont conservées et envoyées plus tard.} tooLarge{Trop de données pour une requête.} unsupportedProtocol{Le serveur utilise une autre version.} invalidRequest{L’adresse du serveur n’est pas valide.} notFound{Aucun serveur de synchronisation myDex à cette adresse.} other{Le serveur signale une erreur. Les modifications sont conservées.}}",
+  "syncError": "{error, select, unauthorized{La clé d’accès n’est pas valide.} insecureConnection{Seules les connexions HTTPS sont autorisées (sauf vers cet appareil).} network{Le serveur est injoignable. Les modifications sont conservées et envoyées plus tard.} tooLarge{Trop de données pour une requête.} unsupportedProtocol{Le serveur utilise une autre version.} invalidRequest{L’adresse du serveur n’est pas valide.} notFound{Aucun serveur de synchronisation myDex à cette adresse.} wrongPassphrase{Le mot de passe de synchronisation ne correspond pas à celui de vos autres appareils.} passphraseTooShort{Le mot de passe de synchronisation doit comporter au moins 8 caractères.} other{Le serveur signale une erreur. Les modifications sont conservées.}}",
   "syncConflictLabel": "conflit",
   "helpSyncTitle": "Synchronisation (facultative)",
-  "helpSyncBody": "La synchronisation utilise votre propre serveur : installez le serveur de synchronisation myDex (voir la documentation du projet), créez un compte et saisissez l’adresse et la clé d’accès sous Plus → Synchronisation. Les modifications sont envoyées automatiquement quelques secondes plus tard. Si deux appareils modifient la même équipe ou le même modèle, les deux versions sont conservées – l’une comme copie marquée « conflit ». Pour les marques de collection, la modification la plus récente l’emporte. Sur Android, la synchronisation n’existe que dans l’édition « sync » ; l’édition standard n’a pas d’autorisation internet.",
+  "helpSyncBody": "La synchronisation utilise votre propre serveur : installez le serveur de synchronisation myDex (voir la documentation du projet), créez un compte et saisissez l’adresse et la clé d’accès sous Plus → Synchronisation. Les modifications sont envoyées automatiquement quelques secondes plus tard. Toutes les données synchronisées sont chiffrées de bout en bout avec votre mot de passe de synchronisation ; utilisez le même sur chaque appareil. Si deux appareils modifient la même équipe ou le même modèle, les deux versions sont conservées – l’une comme copie marquée « conflit ». Pour les marques de collection, la modification la plus récente l’emporte. Sur Android, la synchronisation n’existe que dans l’édition « sync » ; l’édition standard n’a pas d’autorisation internet.",
   "sectionGallery": "Galerie",
   "galleryDefault": "Standard",
   "galleryEmpty": "Aucune image pour cette forme.",
   "gallerySprite": "{name} – {game}",
-  "gallerySpriteShiny": "{name} (chromatique) – {game}"
+  "gallerySpriteShiny": "{name} (chromatique) – {game}",
+  "syncPassphrase": "Mot de passe de synchronisation",
+  "syncPassphraseHint": "Chiffre vos données avant qu’elles ne quittent l’appareil (de bout en bout). Utilisez le même mot de passe sur tous les appareils. Au moins 8 caractères ; il ne peut pas être récupéré.",
+  "syncUnlocking": "Connexion…"
 }

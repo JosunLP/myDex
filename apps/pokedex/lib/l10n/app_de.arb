@@ -252,7 +252,7 @@
   "syncSubtitleOff": "Aus – deine Daten bleiben auf diesem Gerät",
   "syncSubtitleOn": "Verbunden mit {server}",
   "syncIntro": "Halte Sammlung, Teams und Filtervorlagen auf Wunsch zwischen deinen Geräten abgeglichen – über einen eigenen myDex-Sync-Server. Ohne ihn funktioniert weiterhin alles offline.",
-  "syncPrivacyNote": "Die Übertragung ist verschlüsselt (HTTPS), auf dem Server liegen die Daten aber ohne Ende-zu-Ende-Verschlüsselung. Nutze nur einen Server, den du selbst betreibst oder dem du vertraust. Einstellungen und Katalog werden nicht abgeglichen.",
+  "syncPrivacyNote": "Deine Daten werden vor dem Senden auf dem Gerät mit deinem Sync-Passwort verschlüsselt (Ende-zu-Ende). Der Server sieht nur verschlüsselte Datensätze, deren Anzahl und wann sie sich ändern. Einstellungen und Katalog werden nicht abgeglichen.",
   "syncServerUrl": "Serveradresse",
   "syncToken": "Zugangsschlüssel",
   "syncShowToken": "Zugangsschlüssel anzeigen",
@@ -270,13 +270,16 @@
   "syncPending": "{count} Änderungen warten",
   "syncReport": "Zuletzt: {sent} gesendet, {received} empfangen",
   "syncCopies": "{count} Konfliktkopien behalten",
-  "syncError": "{error, select, unauthorized{Der Zugangsschlüssel ist ungültig.} insecureConnection{Nur HTTPS-Verbindungen sind erlaubt (außer zu diesem Gerät).} network{Der Server ist nicht erreichbar. Änderungen bleiben erhalten und werden später gesendet.} tooLarge{Zu viele Daten für eine Anfrage.} unsupportedProtocol{Der Server nutzt eine andere Version.} invalidRequest{Die Serveradresse ist ungültig.} notFound{Unter dieser Adresse läuft kein myDex-Sync-Server.} other{Der Server meldet einen Fehler. Änderungen bleiben erhalten.}}",
+  "syncError": "{error, select, unauthorized{Der Zugangsschlüssel ist ungültig.} insecureConnection{Nur HTTPS-Verbindungen sind erlaubt (außer zu diesem Gerät).} network{Der Server ist nicht erreichbar. Änderungen bleiben erhalten und werden später gesendet.} tooLarge{Zu viele Daten für eine Anfrage.} unsupportedProtocol{Der Server nutzt eine andere Version.} invalidRequest{Die Serveradresse ist ungültig.} notFound{Unter dieser Adresse läuft kein myDex-Sync-Server.} wrongPassphrase{Das Sync-Passwort passt nicht zu dem deiner anderen Geräte.} passphraseTooShort{Das Sync-Passwort braucht mindestens 8 Zeichen.} other{Der Server meldet einen Fehler. Änderungen bleiben erhalten.}}",
   "syncConflictLabel": "Konflikt",
   "helpSyncTitle": "Synchronisierung (optional)",
-  "helpSyncBody": "Der Abgleich nutzt einen eigenen Server: Betreibe den myDex-Sync-Server (siehe Projektdokumentation), lege ein Konto an und trage Adresse und Zugangsschlüssel unter Mehr → Synchronisierung ein. Änderungen werden wenige Sekunden später automatisch gesendet. Ändern zwei Geräte dasselbe Team oder dieselbe Vorlage, bleiben beide Fassungen erhalten – eine als Kopie mit dem Zusatz „Konflikt“. Bei Sammlungsmarkierungen gewinnt die neuere Änderung. Unter Android gibt es den Abgleich nur in der Ausgabe „sync“; die Standardausgabe hat keine Internet-Berechtigung.",
+  "helpSyncBody": "Der Abgleich nutzt einen eigenen Server: Betreibe den myDex-Sync-Server (siehe Projektdokumentation), lege ein Konto an und trage Adresse und Zugangsschlüssel unter Mehr → Synchronisierung ein. Änderungen werden wenige Sekunden später automatisch gesendet. Alle abgeglichenen Daten sind mit deinem Sync-Passwort Ende-zu-Ende verschlüsselt; nutze auf jedem Gerät dasselbe. Ändern zwei Geräte dasselbe Team oder dieselbe Vorlage, bleiben beide Fassungen erhalten – eine als Kopie mit dem Zusatz „Konflikt“. Bei Sammlungsmarkierungen gewinnt die neuere Änderung. Unter Android gibt es den Abgleich nur in der Ausgabe „sync“; die Standardausgabe hat keine Internet-Berechtigung.",
   "sectionGallery": "Galerie",
   "galleryDefault": "Standard",
   "galleryEmpty": "Für diese Form gibt es keine Bilder.",
   "gallerySprite": "{name} – {game}",
-  "gallerySpriteShiny": "{name} (Shiny) – {game}"
+  "gallerySpriteShiny": "{name} (Shiny) – {game}",
+  "syncPassphrase": "Sync-Passwort",
+  "syncPassphraseHint": "Verschlüsselt deine Daten, bevor sie das Gerät verlassen (Ende-zu-Ende). Auf allen Geräten dasselbe Passwort verwenden. Mindestens 8 Zeichen; es lässt sich nicht wiederherstellen.",
+  "syncUnlocking": "Verbinde…"
 }

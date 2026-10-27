@@ -70,7 +70,7 @@ Phase 4b – Optionaler Sync (abgeschlossen):
 - [x] Outbox, Revisionen, Grabsteine für Löschungen, Konfliktkopien statt Überschreiben
 - [x] Server mit SQLite und Kommandozeile für Konten (`tools/sync_server`)
 - [x] Android: Standardausgabe `offline` ohne Internet-Berechtigung, Ausgabe `sync` mit Abgleich
-- [ ] Ende-zu-Ende-Verschlüsselung der Datensätze
+- [x] Ende-zu-Ende-Verschlüsselung mit Sync-Passwort (ADR 0014)
 
 Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
 

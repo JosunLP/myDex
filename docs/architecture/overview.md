@@ -26,6 +26,7 @@ Windows, macOS, Linux.
 11. Vorlesen über die System-Sprachausgabe, fünf Oberflächensprachen (ADR 0011).
 12. Optionaler Sync über einen selbst gehosteten Server (ADR 0012).
 13. Sprites als eigenes, mitgeliefertes Medienpaket (ADR 0013).
+14. Sync Ende-zu-Ende-verschlüsselt mit Sync-Passwort (ADR 0014).
 
 ## Schichten
 
@@ -86,8 +87,8 @@ ungedeckte Garantie.
 
 Selbst gehosteter Server (`tools/sync_server`) und Client-Logik in `packages/sync` (ADR 0012).
 Outbox je Gerät, kontoweite Revisionen mit optimistischer Nebenläufigkeit, Grabsteine für
-Löschungen, Konfliktkopien statt stillem Überschreiben. HTTPS über einen Reverse-Proxy; keine
-Ende-zu-Ende-Verschlüsselung in Version 1. Die Android-Standardausgabe enthält keinen Sync und
+Löschungen, Konfliktkopien statt stillem Überschreiben. HTTPS über einen Reverse-Proxy; die
+Datensätze sind zusätzlich Ende-zu-Ende verschlüsselt (ADR 0014). Die Android-Standardausgabe enthält keinen Sync und
 keine Internet-Berechtigung.
 
 ## GrapheneOS
