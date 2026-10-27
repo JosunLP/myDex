@@ -1,10 +1,10 @@
-# Paritätsmatrix
+# Parity matrix
 
-`parity-matrix.csv` ist die messbare Definition von „mindestens Referenzniveau“. Vor Phase 2
-wird die Referenz-App-Version mit Prüfdatum eingefroren und die Matrix im Hands-on-Audit
-vervollständigt.
+`parity-matrix.csv` is the measurable definition of “at least reference level”. Before phase 2
+the reference app version is frozen with a review date and the matrix is completed in a
+hands-on audit.
 
-Spalten: `id, bereich, feature, beispieldatensatz, erwartetes_verhalten, plattform, datenquelle,
-rechtestatus, pruefart, status, abnahme`.
+Columns: `id, area, feature, example_record, expected_behavior, platform, data_source,
+rights_status, check_type, status, acceptance`.
 
-Status-Werte: `offen`, `in_arbeit`, `implementiert`, `abgenommen`, `blockiert`.
+Status values: `open`, `in_progress`, `implemented`, `accepted`, `blocked`.

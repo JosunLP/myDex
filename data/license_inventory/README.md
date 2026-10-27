@@ -1,10 +1,10 @@
-# Lizenz- und Rechteinventar
+# License and rights inventory
 
-Jede Quelle wird hier mit Code-, Datenbank-, Text- und Medienrechten getrennt erfasst, bevor
-Inhalte daraus in ein Katalog- oder Medienpaket gelangen.
+Every source is recorded here with its code, database, text and media rights separately before
+any of its content ends up in a catalog or media pack.
 
-| Quelle | Umfang | Code-Lizenz | Daten-/Textrechte | Medienrechte | Weiterverbreitung | Status |
+| Source | Scope | Code license | Data/text rights | Media rights | Redistribution | Status |
 |---|---|---|---|---|---|---|
-| PokéAPI-CSV, Commit `2bf639e` | Namen (11 Sprachen), Spiele, Arten, Formen, Typen, Basiswerte, Fähigkeiten, Attacken, Erlernbarkeit, Maschinen, Items, Entwicklungen, Orte, Gebiete, Begegnungen, Eigruppen, Wesen, Item-Kategorien | BSD-3-Clause | BSD-3-Clause; Namen sind Marken der Inhaber (Nennung, keine Zugehörigkeit) | nicht verwendet | ja, mit Lizenzhinweis | geprüft |
-| PokéAPI-Sprites (`PokeAPI/sprites`) | Sprites je Spiel, Artwork | – | – | bei Nintendo / Game Freak / The Pokémon Company; Nutzung für die private App vom Projektinhaber freigegeben (2026-10-27) | nur privat, keine öffentliche Verbreitung | freigegeben (privat) |
-| PokéAPI Flavor-/Effekttexte | Pokédex-, Attacken-, Fähigkeitstexte | BSD-3-Clause | Spieltexte urheberrechtlich bei den Inhabern; Effekttexte separat prüfen | – | offen | nicht importiert |
+| PokéAPI CSV, commit `2bf639e` | Names (11 languages), games, species, forms, types, base stats, abilities, moves, learnsets, machines, items, evolutions, locations, areas, encounters, egg groups, natures, item categories, regional Pokédexes | BSD-3-Clause | BSD-3-Clause; names are trademarks of their owners (mention, no affiliation) | not used | yes, with license notice | reviewed |
+| PokéAPI sprites (`PokeAPI/sprites`) | Sprites per game, box icons, artwork | – | – | Nintendo / Game Freak / The Pokémon Company; use in the private app approved by the project owner (2026-10-27) | private only, no public distribution | approved (private) |
+| PokéAPI flavor/effect texts | Pokédex, move and ability texts | BSD-3-Clause | game texts are copyrighted by their owners; effect texts to be reviewed separately | – | open | not imported |

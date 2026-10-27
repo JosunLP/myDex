@@ -1,80 +1,80 @@
 # Release
 
-Für das erste Release: `erstes-release.md` (Schritt für Schritt).
+For the first release see `first-release.md` (step by step).
 
-## Ablauf
-1. `main` ist grün (CI inkl. Berechtigungsprüfung der APKs und Barrierefreiheitstests).
-2. In `CHANGELOG.md` „Unveröffentlicht“ in `## [X.Y.Z] – JJJJ-MM-TT` umbenennen und mergen.
-3. Tag setzen: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. Der Workflow „Release“ baut und legt eine **Release als Entwurf** an:
-   - `mydex-X.Y.Z-android.apk` (Ausgabe „offline“, keine Berechtigungen)
-   - `mydex-sync-X.Y.Z-android.apk` (Ausgabe „sync“, nur Internet)
+## Process
+1. `main` is green (CI including the APK permission check and accessibility tests).
+2. In `CHANGELOG.md` rename “Unreleased” to `## [X.Y.Z] – YYYY-MM-DD` and merge.
+3. Create the tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+4. The “Release” workflow builds everything and creates a **draft release**:
+   - `mydex-X.Y.Z-android.apk` (flavor “offline”, no permissions)
+   - `mydex-sync-X.Y.Z-android.apk` (flavor “sync”, internet only)
    - `mydex-X.Y.Z-linux-x64.tar.gz`, `mydex-X.Y.Z-windows-x64.zip`, `mydex-X.Y.Z-macos.zip`
    - `mydex-sync-server-X.Y.Z-linux-x64.tar.gz`
-   - `mydex-catalog-update-X.Y.Z.tar.gz` (nur mit Signaturschlüssel, siehe unten)
+   - `mydex-catalog-update-X.Y.Z.tar.gz` (only with a signing key, see below)
    - `SHA256SUMS`, `android-certificates.txt`
-5. Abnahme nach `grapheneos-abnahme.md` mit der Entwurfs-APK.
-6. Release-Entwurf auf GitHub veröffentlichen.
+5. Acceptance according to `grapheneos-acceptance.md` with the draft APK.
+6. Publish the draft release on GitHub.
 
-Versionsnummern: `X.Y.Z` aus dem Tag; Android-`versionCode` = `X·100000 + Y·1000 + Z`.
+Version numbers: `X.Y.Z` from the tag; Android `versionCode` = `X·100000 + Y·1000 + Z`.
 
-## Android-Signatur (einmalig)
-Der Schlüssel identifiziert die App dauerhaft – ohne ihn sind keine Updates möglich. Sicher
-und zusätzlich offline aufbewahren.
+## Android signing (once)
+The key identifies the app permanently – without it no updates are possible. Store it safely and
+additionally offline.
 
 ```sh
 keytool -genkeypair -v -keystore mydex-release.jks -alias mydex \
   -keyalg RSA -keysize 4096 -validity 10000
-base64 -w0 mydex-release.jks   # Ausgabe als Secret hinterlegen
+base64 -w0 mydex-release.jks   # store the output as a secret
 ```
 
 GitHub → Settings → Secrets and variables → Actions:
 
-| Secret | Inhalt |
+| Secret | Content |
 |---|---|
-| `MYDEX_KEYSTORE_BASE64` | Keystore, Base64-kodiert |
-| `MYDEX_KEYSTORE_PASSWORD` | Passwort des Keystores |
-| `MYDEX_KEY_ALIAS` | Alias, z. B. `mydex` |
-| `MYDEX_KEY_PASSWORD` | Passwort des Schlüssels |
+| `MYDEX_KEYSTORE_BASE64` | Keystore, Base64-encoded |
+| `MYDEX_KEYSTORE_PASSWORD` | Keystore password |
+| `MYDEX_KEY_ALIAS` | Alias, e.g. `mydex` |
+| `MYDEX_KEY_PASSWORD` | Key password |
 
-Lokal geht stattdessen `apps/pokedex/android/key.properties` (nie einchecken):
+Locally, use `apps/pokedex/android/key.properties` instead (never commit it):
 
 ```properties
-storeFile=/absoluter/pfad/mydex-release.jks
+storeFile=/absolute/path/mydex-release.jks
 storePassword=…
 keyAlias=mydex
 keyPassword=…
 ```
 
-Ohne Schlüssel bauen lokale Release-Builds mit dem Debug-Schlüssel; der Release-Workflow
-bricht dann ab (`MYDEX_REQUIRE_SIGNING=true`) und prüft zusätzlich, dass kein
-Debug-Zertifikat im Paket steckt.
+Without a key, local release builds use the debug key; the release workflow then aborts
+(`MYDEX_REQUIRE_SIGNING=true`) and additionally checks that no debug certificate is in the
+package.
 
-## Katalog-Updates (optional, ADR 0015)
-Damit die Ausgaben mit Netzwerk neue Katalogstände über den eigenen Sync-Server bekommen,
-einmalig ein Schlüsselpaar erzeugen:
+## Catalog updates (optional, ADR 0015)
+So that the flavors with network access receive new catalog snapshots via your own sync server,
+create a key pair once:
 
 ```sh
 dart run tools/data_pipeline/bin/data_pipeline.dart keygen --out catalog-signing.key
 ```
 
-| Secret | Inhalt |
+| Secret | Content |
 |---|---|
-| `MYDEX_CATALOG_SIGNING_KEY` | Inhalt von `catalog-signing.key` (privat) |
-| `MYDEX_CATALOG_PUBLIC_KEY` | ausgegebener öffentlicher Schlüssel |
+| `MYDEX_CATALOG_SIGNING_KEY` | Content of `catalog-signing.key` (private) |
+| `MYDEX_CATALOG_PUBLIC_KEY` | The printed public key |
 
-Der Release-Workflow baut den öffentlichen Schlüssel in die Apps ein und legt
-`mydex-catalog-update-X.Y.Z.tar.gz` bei. Auf dem Server entpacken und mit
-`serve --catalog-dir <dir>` ausliefern. Ein neuer Katalog ohne App-Release:
+The release workflow builds the public key into the apps and attaches
+`mydex-catalog-update-X.Y.Z.tar.gz`. Unpack it on the server and serve it with
+`serve --catalog-dir <dir>`. A new catalog without an app release:
 
 ```sh
 dart run tools/data_pipeline/bin/data_pipeline.dart sign-update \
   --key catalog-signing.key --out /var/lib/mydex/catalog
 ```
 
-## Nicht automatisiert
-- **iOS:** braucht ein Apple-Entwicklerkonto (Signatur, TestFlight/App Store).
-- **macOS:** das Paket ist nicht signiert/notarisiert; Gatekeeper fragt beim ersten Start.
-- **Windows:** nicht signiert; SmartScreen kann warnen.
-- **Verteilung:** myDex ist eine private App. Releases sind GitHub-Releases (APK direkt
-  installieren, z. B. per Obtainium); keine Store- oder F-Droid-Veröffentlichung.
+## Not automated
+- **iOS:** needs an Apple developer account (signing, TestFlight/App Store).
+- **macOS:** the package is not signed/notarized; Gatekeeper asks on first launch.
+- **Windows:** not signed; SmartScreen may warn.
+- **Distribution:** myDex is a private app. Releases are GitHub releases (install the APK
+  directly, e.g. via Obtainium); no store or F-Droid publication.

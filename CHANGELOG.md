@@ -1,43 +1,42 @@
-# Änderungen
+# Changelog
 
-Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionen nach
-[Semantic Versioning](https://semver.org/lang/de/). Vor einem Release wird „Unveröffentlicht“
-in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow
+[Semantic Versioning](https://semver.org/). Before a release, “Unreleased” is renamed to the new
+version; the release workflow takes that section as release notes.
 
-## [Unveröffentlicht]
+## [Unreleased]
 
 ## [1.0.0] – 2026-10-27
 
-Erste Version.
+First version.
 
-### Neu
-- Pokémon-Dex mit allen Spielen: Formen, Typen, Basiswerte und Fähigkeiten je Spiel,
-  Entwicklungen mit Bedingungen, Attacken mit Erlernbarkeit und Änderungshistorie.
-- Fundorte je Spielversion, Beschaffung über Entwicklung, Zucht, Tausch zwischen Spielen und
-  Events (Mysteriöse Pokémon); Datenlücken werden als
-  solche gezeigt, nie als „nicht fangbar“.
-- Welche Pokémon in neueren Spielen fehlen, wird aus vollständigen Spieldaten, Regional-Pokédexen
-  und Spielmechaniken abgeleitet (Let's Go bis Champions); Erweiterungen übernehmen ihr
-  Hauptspiel. Datenlücken in diesen Spielen sinken dadurch insgesamt um über 90 %.
-- Sammlung je Spiel und spielübergreifend, mit Shiny und Fangdatum; kombinierbare Filter und
-  Vorlagen.
-- Teams mit Werteberechnung, Prüfung (gültig / teilweise / Datenlage unzureichend / ungültig),
-  Typanalyse und Attackenvorschlägen.
-- Datensicherung als Datei, optional mit Passwort verschlüsselt.
-- Oberfläche auf Deutsch, Englisch, Französisch, Spanisch und Italienisch; Namen in elf Sprachen.
-- Vorlesen über die Sprachausgabe des Systems; Offline-Hilfe.
-- Optionaler Abgleich über einen selbst gehosteten Server, Ende-zu-Ende-verschlüsselt mit
-  Sync-Passwort; Android-Ausgabe „sync“.
-- Katalog-Updates über den eigenen Sync-Server, mit Ed25519 signiert und gegen den in der App
-  hinterlegten Schlüssel geprüft; ältere Stände werden nicht eingespielt.
-- Galerie mit offiziellem Artwork und Bildern je Spiel: Sprites Gen 1–6 mit Shiny, ab Gen 7
-  Einzelbilder bzw. Box-Symbole der Spiele bis Champions;
-  Vorschaubilder in Dex, Sammlung und Teams – vollständig offline.
-- Gestaltung im Stil des Pokédex: gedämpftes rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit
-  Artwork vor der Farbe des jeweiligen Pokémon (aus dem Artwork abgeleitet) und Digitalnummer;
-  Dex-Liste, Sammlung und Teams mit kleinen Anzeigen in Pokémon-Farbe; dunkle Variante.
-- Barrierefreiheit automatisch geprüft (Tippflächen, Beschriftungen, Kontrast).
+### Added
+- Pokémon Dex covering all games: forms, types, base stats and abilities per game, evolutions
+  with conditions, moves with learnsets and change history.
+- Locations per game version; acquisition via evolution, breeding, trading between games and
+  events (mythical Pokémon). Data gaps are shown as such, never as “not catchable”.
+- Which Pokémon are missing from newer games is derived from complete game data, regional
+  Pokédexes and game mechanics (Let's Go to Champions); expansions inherit their base game.
+  This reduces data gaps in these games by more than 90 % overall.
+- Collection per game and across games, with shiny and catch date; combinable filters and
+  presets.
+- Teams with stat calculation, validation (valid / partial / insufficient data / invalid), type
+  analysis and move suggestions.
+- Backup to a file, optionally password-encrypted.
+- UI in German, English, French, Spanish and Italian; names in eleven languages.
+- Read-aloud via the system's text-to-speech; offline help.
+- Optional sync via a self-hosted server, end-to-end encrypted with a sync passphrase; Android
+  flavor “sync”.
+- Catalog updates via your own sync server, signed with Ed25519 and verified against the key
+  built into the app; older snapshots are never installed.
+- Gallery with official artwork and images per game: sprites for Gen 1–6 with shiny, from Gen 7
+  still images or box icons up to Champions; thumbnails in Dex, collection and teams – fully
+  offline.
+- Pokédex-style design: muted red casing, lens with signal LEDs, screen with the artwork in
+  front of the Pokémon's own colour (derived from the artwork) and a digital number; Dex list,
+  collection and teams with small screens in the Pokémon's colour; dark variant.
+- Accessibility checked automatically (tap targets, labels, contrast).
 
-### Sicherheit und Datenschutz
-- Keine Konten, keine Analyse, keine Werbung. Die Android-Standardausgabe hat keine
-  Internet-Berechtigung (in der CI geprüft).
+### Security and privacy
+- No accounts, no analytics, no ads. The default Android flavor has no internet permission
+  (checked in CI).

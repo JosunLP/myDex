@@ -1,40 +1,31 @@
-# Datenschutz
+# Privacy
 
-*English summary below.*
+myDex is an unofficial fan project and works without an account and without internet access.
 
-myDex ist ein inoffizielles Fanprojekt und funktioniert ohne Konto und ohne Internet.
+## What data does the app process?
+- **Catalog** (Pokémon, moves, locations …): shipped with the app and read locally.
+- **Your data** (collection, teams, filter presets, settings): stored only on your device, in
+  the app's private directory.
+- **No** analytics, crash reports, ads, trackers or device identifiers. The app never sends
+  anything on its own.
 
-## Welche Daten verarbeitet die App?
-- **Katalog** (Pokémon, Attacken, Orte …): wird mit der App ausgeliefert und lokal gelesen.
-- **Deine Daten** (Sammlung, Teams, Filtervorlagen, Einstellungen): werden ausschließlich auf
-  deinem Gerät gespeichert, im privaten Verzeichnis der App.
-- **Keine** Analyse, Absturzberichte, Werbung, Tracker oder Gerätekennungen. Die App sendet
-  von sich aus nichts.
+## When does data leave the device?
+Only when you trigger it yourself:
+- **Backup:** you choose the location and, optionally, a password (AES-256-GCM).
+- **Sync (optional):** collection, teams and filter presets are sent via HTTPS to a server whose
+  address you enter – usually your own. Before that they are encrypted on the device with your
+  sync passphrase (AES-256-GCM, end-to-end); the server only sees encrypted records, their
+  number and modification times. “Delete my data on the server” removes them there. On Android,
+  sync is only available in the “myDex Sync” edition; the default edition has no internet
+  permission.
+- **Catalog updates (optional):** editions with sync can download a signed catalog update from
+  the same server. Only the request itself is visible to the server.
+- **Read-aloud:** uses your device's text-to-speech. Whether it sends text to third parties
+  depends on the installed engine (RHVoice and eSpeak NG work locally).
 
-## Wann verlassen Daten das Gerät?
-Nur, wenn du es selbst auslöst:
-- **Datensicherung:** Du wählst Speicherort und optional ein Passwort (AES-256-GCM).
-- **Synchronisierung (optional):** Sammlung, Teams und Filtervorlagen gehen per HTTPS an einen
-  Server, dessen Adresse du einträgst – in der Regel deinen eigenen. Vorher werden sie auf dem
-  Gerät mit deinem Sync-Passwort verschlüsselt (AES-256-GCM, Ende-zu-Ende); der Server sieht nur
-  verschlüsselte Datensätze, deren Anzahl und Änderungszeitpunkte. Über „Meine Daten auf dem
-  Server löschen“ entfernst du sie dort. Unter Android gibt es den Abgleich nur in der
-  Ausgabe „myDex Sync“; die Standardausgabe hat keine Internet-Berechtigung.
-- **Vorlesen:** Nutzt die Sprachausgabe deines Geräts. Ob diese Text an Dritte sendet, hängt
-  von der installierten Engine ab (RHVoice und eSpeak NG arbeiten lokal).
+## Permissions
+- Android “myDex”: none. Android “myDex Sync”: internet only.
+- macOS: network access (only for the optional sync), user-selected files.
 
-## Berechtigungen
-- Android „myDex“: keine. Android „myDex Sync“: nur Internet.
-- macOS: Netzwerkzugriff (nur für den optionalen Abgleich), vom Nutzer gewählte Dateien.
-
-## Löschen
-App deinstallieren oder die App-Daten löschen entfernt alles auf dem Gerät.
-
----
-
-## English summary
-myDex works without an account and without internet. Your collection, teams, presets and
-settings are stored only on your device. There is no analytics, crash reporting, advertising
-or tracking. Data leaves the device only when you export a backup or turn on the optional sync
-with a server you choose (HTTPS, and end-to-end encrypted with your sync password). The standard Android
-edition requests no permissions at all; "myDex Sync" requests internet access only.
+## Deletion
+Uninstalling the app or clearing its data removes everything from the device.

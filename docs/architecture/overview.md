@@ -1,108 +1,108 @@
-# Architekturüberblick
+# Architecture overview
 
-Kurzfassung des Gesamtentwurfs. Verbindliche Einzelentscheidungen stehen in `docs/decisions/`.
+Summary of the overall design. Binding individual decisions live in `docs/decisions/`.
 
-## Produktvision
+## Product vision
 
-Eine schnelle, datenschutzfreundliche Pokémon-Enzyklopädie für Smartphone und Desktop, ohne
-Konto nutzbar, mit vollständig offline verfügbaren Kernfunktionen. Funktionsumfang mindestens auf
-dem Niveau der in `docs/parity/` eingefrorenen Referenzversion.
+A fast, privacy-friendly Pokémon encyclopedia for phones and desktops, usable without an
+account, with all core features available fully offline. Feature scope at least on the level of
+the reference version frozen in `docs/parity/`.
 
-Zielplattformen: Android, GrapheneOS ohne Play Services (Testziel, kein eigener Port), iOS,
-Windows, macOS, Linux.
+Target platforms: Android, GrapheneOS without Play Services (test target, not a separate port),
+iOS, Windows, macOS, Linux.
 
-## Leitentscheidungen
+## Key decisions
 
-1. Flutter/Dart für eine gemeinsame Client-Codebase (ADR 0001).
-2. Lokaler modularer Monolith; kein Backend fürs Nachschlagen (ADR 0002).
-3. Öffentlicher Katalog und persönliche Daten in getrennten Speichern (ADR 0003).
-4. Spielkontext wird explizit durch jede regelabhängige Abfrage gereicht (ADR 0004).
-5. Fehlende Daten sind nie „nicht verfügbar“ – fünf unterscheidbare Zustände (ADR 0005).
-6. Entwicklungsbedingungen sind deklarative Daten, nie Skripte (ADR 0006).
-7. Katalog als nur lesbares SQLite-Paket über `sqlite3` (ADR 0007).
-8. Festgehaltene Datenquelle und dokumentierte Ableitungsregeln (ADR 0008).
-9. Team-Prüfung mit vier Zuständen, ohne Legalitätsgarantie (ADR 0009).
-10. Datensicherung als versionierte, optional verschlüsselte Datei (ADR 0010).
-11. Vorlesen über die System-Sprachausgabe, fünf Oberflächensprachen (ADR 0011).
-12. Optionaler Sync über einen selbst gehosteten Server (ADR 0012).
-13. Sprites als eigenes, mitgeliefertes Medienpaket (ADR 0013).
-14. Sync Ende-zu-Ende-verschlüsselt mit Sync-Passwort (ADR 0014).
+1. Flutter/Dart for one shared client codebase (ADR 0001).
+2. Local modular monolith; no backend for lookups (ADR 0002).
+3. Public catalog and personal data in separate stores (ADR 0003).
+4. The game context is passed explicitly through every rule-dependent query (ADR 0004).
+5. Missing data is never “not available” – five distinguishable states (ADR 0005).
+6. Evolution conditions are declarative data, never scripts (ADR 0006).
+7. Catalog as a read-only SQLite pack via `sqlite3` (ADR 0007).
+8. Pinned data source and documented derivation rules (ADR 0008).
+9. Team validation with four states, without a legality guarantee (ADR 0009).
+10. Backup as a versioned, optionally encrypted file (ADR 0010).
+11. Read-aloud via the system's text-to-speech, five UI languages (ADR 0011).
+12. Optional sync via a self-hosted server (ADR 0012).
+13. Sprites as a separate media pack shipped with the app (ADR 0013).
+14. Sync end-to-end encrypted with a sync passphrase (ADR 0014).
+15. Signed catalog updates via your own sync server (ADR 0015).
 
-## Schichten
+## Layers
 
-| Schicht | Paket | Inhalt |
+| Layer | Package | Contents |
 |---|---|---|
-| Presentation | `apps/pokedex` | Widgets, Navigation, Darstellungszustände |
-| Application | `packages/application` | Anwendungsfälle, Repository-Schnittstellen, Suche |
-| Domain | `packages/domain`, `packages/game_rules` | Modelle, Regelwerke, Berechnungen |
-| Infrastructure | `packages/catalog_store`, `packages/user_store`, `packages/sync` | Katalogpaket, Nutzerdaten, Abgleich |
+| Presentation | `apps/pokedex` | Widgets, navigation, view state |
+| Application | `packages/application` | Use cases, repository interfaces, search |
+| Domain | `packages/domain`, `packages/game_rules` | Models, rulesets, calculations |
+| Infrastructure | `packages/catalog_store`, `packages/user_store`, `packages/sync` | Catalog pack, user data, sync |
 
-Regel: innere Schichten kennen keine äußeren. Infrastruktur implementiert Schnittstellen aus
+Rule: inner layers know nothing about outer ones. Infrastructure implements interfaces from
 `application`.
 
-## Datenmodell (Kern)
+## Data model (core)
 
-- `Species` – Art mit nationaler Nummer.
-- `Variety` / `Form` – spielmechanisch relevante Erscheinungsform; eigene stabile ID.
-  Nationaldex-Nummern sind keine Primärschlüssel für Formen.
-- `GameVersion`, `VersionGroup`, `Ruleset` – Spiel, Spielgruppe, mechanische Regeln.
-- `FormGameProfile` – Typen, Basiswerte, Fähigkeiten und Verfügbarkeit einer Form in einer
-  Spielgruppe. Beispiel: Piepi ist bis Gen 5 Normal, ab Gen 6 Fee.
-- `EvolutionEdge` mit strukturierter `EvolutionCondition` (UND/ODER, Level, Item, …).
-- Nutzerdaten: `CollectionEntry` je Umfang (Spiel oder global), Form und Shiny-Flag.
-  Shiny ist eine Eigenschaft, keine Form.
+- `Species` – species with its national number.
+- `Variety` / `Form` – a mechanically relevant appearance with its own stable ID. National Dex
+  numbers are not primary keys for forms.
+- `GameVersion`, `VersionGroup`, `Ruleset` – game, version group, mechanical rules.
+- `FormGameProfile` – types, base stats, abilities and availability of a form in a version
+  group. Example: Clefairy is Normal up to Gen 5 and Fairy from Gen 6.
+- `EvolutionEdge` with a structured `EvolutionCondition` (AND/OR, level, item, …).
+- User data: `CollectionEntry` per scope (game or global), form and shiny flag. Shiny is a
+  property, not a form.
 
-## Offline und Updates
+## Offline and updates
 
-Der Kernkatalog wird mit der App ausgeliefert, damit der erste Start ohne Netz funktioniert.
-Updates: signiertes Manifest → temporärer Download → Hash-/Integritätsprüfung → atomare
-Aktivierung → letzte Version für Rollback behalten. App-Version, Katalogversion und
-Nutzerdatenschema sind drei getrennte Versionen.
+The core catalog ships with the app so that the first start works without a network.
+Updates: signed manifest → temporary download → hash/integrity check → atomic activation →
+keep the previous version for rollback. App version, catalog version and user data schema are
+three separate versions.
 
-Aktueller Stand: Das Katalogpaket (gzip-komprimierte SQLite-Datei + Manifest mit SHA-256) wird
-mit der App ausgeliefert und beim ersten Start bzw. nach App-Updates von `CatalogInstaller`
-installiert. Netz-Updates mit signiertem Manifest nutzen später denselben Installer.
+The catalog pack (gzip-compressed SQLite file + manifest with SHA-256) ships with the app and is
+installed by `CatalogInstaller` on first start and after app updates. Network updates (ADR 0015)
+use the same installer after verifying an Ed25519 signature.
 
-## Datenpipeline
+## Data pipeline
 
-`tools/data_pipeline` lädt die benötigten PokéAPI-CSV-Tabellen eines festgehaltenen Commits,
-prüft sie gegen `data/source_manifests/pokeapi.json`, leitet Spielprofile ab (ADR 0008), baut
-den Katalog, validiert ihn über denselben Leser wie die App und verpackt ihn deterministisch.
-Abdeckung je Spiel wird mitgeliefert und in der App unter „Datenstand und Abdeckung“ gezeigt.
+`tools/data_pipeline` downloads the required PokéAPI CSV tables of a pinned commit, checks them
+against `data/source_manifests/pokeapi.json`, derives game profiles (ADR 0008), builds the
+catalog, validates it through the same reader as the app and packs it deterministically.
+Coverage per game is shipped as well and shown in the app under “Data status and coverage”.
 
-## Suche
+## Search
 
-Sprachübergreifend über Namen, Aliase und Nummern. Ranking: exakte Nummer/exakter Name →
-exakter Alias → Präfix → Teilstring → kontrollierte Tippfehlertoleranz. Normalisierung entfernt
-Diakritika und vereinheitlicht ß, ♀/♂ und Satzzeichen.
+Across languages over names, aliases and numbers. Ranking: exact number/exact name → exact
+alias → prefix → substring → controlled typo tolerance. Normalization strips diacritics and
+unifies ß, ♀/♂ and punctuation.
 
-## Team-Analyse
+## Team analysis
 
-Drei getrennte Stufen: Basistypen-Analyse (implementiert), kontextabhängige Analyse
-(Fähigkeiten, Items, Wetter) und Legalitätsprüfung. Ergebnisse der Legalitätsprüfung sind
-`gültig`, `ungültig`, `teilweise geprüft` oder `Datenlage unzureichend` – nie eine
-ungedeckte Garantie.
+Three separate stages: base type analysis (implemented), context-dependent analysis (abilities,
+items, weather) and legality checks. Legality results are `valid`, `invalid`,
+`partially checked` or `insufficient data` – never an unbacked guarantee.
 
 ## Sync (optional)
 
-Selbst gehosteter Server (`tools/sync_server`) und Client-Logik in `packages/sync` (ADR 0012).
-Outbox je Gerät, kontoweite Revisionen mit optimistischer Nebenläufigkeit, Grabsteine für
-Löschungen, Konfliktkopien statt stillem Überschreiben. HTTPS über einen Reverse-Proxy; die
-Datensätze sind zusätzlich Ende-zu-Ende verschlüsselt (ADR 0014). Die Android-Standardausgabe enthält keinen Sync und
-keine Internet-Berechtigung.
+Self-hosted server (`tools/sync_server`) and client logic in `packages/sync` (ADR 0012). Outbox
+per device, account-wide revisions with optimistic concurrency, tombstones for deletions,
+conflict copies instead of silent overwrites. HTTPS via a reverse proxy; records are
+additionally end-to-end encrypted (ADR 0014). The default Android flavor contains neither sync
+nor the internet permission.
 
 ## GrapheneOS
 
-Abnahmekriterium: Betrieb ohne Google Play Services. Kein Google-Login-, Play-Integrity- oder
-Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen.
+Acceptance criterion: works without Google Play Services. No mandatory Google login, Play
+Integrity or push; a signed APK in addition to any store; no unnecessary permissions.
 
-## Phasen
+## Phases
 
-| Phase | Inhalt |
+| Phase | Contents |
 |---|---|
-| 0 | Referenzanalyse, Paritätsmatrix, Rechteinventar, Plattform-Spikes |
-| 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
-| 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (abgeschlossen) |
-| 3 | Sammlung und Teams: 3a Teams, 3b Sammlung, Filter, Export/Import (abgeschlossen) |
-| 4 | Referenzparität: 4a Sprachen, Hilfe, Vorlesen (abgeschlossen); 4b Sync (abgeschlossen); Galerie (Sprites, abgeschlossen) |
-| 5 | Stabilisierung und Veröffentlichung: Barrierefreiheit, Signatur, Release-Workflow, Abnahme (laufend) |
+| 0 | Reference analysis, parity matrix, rights inventory, platform spikes |
+| 1 | Foundation, vertical slice (done) |
+| 2 | Complete knowledge catalog: 2a pipeline, moves, abilities, history (done); 2b locations and acquisition (done) |
+| 3 | Collection and teams: 3a teams, 3b collection, filters, export/import (done) |
+| 4 | Reference parity: 4a languages, help, read-aloud (done); 4b sync (done); gallery (done) |
+| 5 | Stabilization and release: accessibility, signing, release workflow, acceptance (in progress) |
