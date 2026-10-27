@@ -29,8 +29,8 @@ void main() {
   FormGameProfile profile(String form, String group) =>
       catalog.forms[FormId(form)]!.profileFor(VersionGroupId(group));
 
-  group('Katalog', () {
-    test('ist gültig und vollständig geladen', () {
+  group('Catalog', () {
+    test('is valid and fully loaded', () {
       expect(validateCatalog(catalog), isEmpty);
       expect(catalog.versions.length, greaterThan(40));
       expect(
@@ -43,7 +43,7 @@ void main() {
       expect(details.source.source, 'PokéAPI');
     });
 
-    test('Standardkontext ist immer das neueste Spiel', () {
+    test('default context is always the newest game', () {
       final group =
           catalog.versionGroups[catalog.defaultContext.versionGroupId]!;
       expect(
@@ -52,7 +52,7 @@ void main() {
       );
     });
 
-    test('Namen in allen Kernsprachen', () {
+    test('names in all core languages', () {
       final name = catalog.species[const SpeciesId('charizard')]!.name;
       expect(name('de'), 'Glurak');
       expect(name('en'), 'Charizard');
@@ -61,33 +61,33 @@ void main() {
     });
   });
 
-  group('Historische Werte', () {
-    test('Piepi: Normal bis Gen 5, Fee ab Gen 6', () {
+  group('Historical values', () {
+    test('Clefairy: Normal up to Gen 5, Fairy from Gen 6', () {
       expect(profile('clefairy', 'black-white').types, [PokemonType.normal]);
       expect(profile('clefairy', 'x-y').types, [PokemonType.fairy]);
     });
 
-    test('Gen 1: gemeinsamer Spezial-Wert, keine Fähigkeiten', () {
+    test('Gen 1: shared Special stat, no abilities', () {
       final p = profile('pikachu', 'red-blue');
       expect(p.baseStats!.specialAttack, 50);
       expect(p.baseStats!.specialDefense, 50);
       expect(
         p.baseStats!.defense,
         30,
-        reason: 'Pikachus Verteidigung stieg erst in Gen 6',
+        reason: 'Pikachu\'s Defense only rose in Gen 6',
       );
       expect(p.abilities, isEmpty);
       expect(ctx('red').ruleset.unifiedSpecial, isTrue);
     });
 
-    test('Gen 2: Spezial getrennt, Werte vor Gen 6', () {
+    test('Gen 2: Special split, stats before Gen 6', () {
       final p = profile('pikachu', 'gold-silver');
       expect(p.baseStats!.specialDefense, 40);
       expect(p.baseStats!.defense, 30);
       expect(profile('pikachu', 'x-y').baseStats!.defense, 40);
     });
 
-    test('versteckte Fähigkeiten erst ab Gen 5', () {
+    test('hidden abilities only from Gen 5', () {
       expect(
         profile('bulbasaur', 'diamond-pearl').abilities.where((a) => a.hidden),
         isEmpty,
@@ -98,7 +98,7 @@ void main() {
       );
     });
 
-    test('Attackenwerte je Spiel', () {
+    test('move data per game', () {
       expect(
         details
             .moveProfile(
@@ -119,8 +119,8 @@ void main() {
       );
     });
 
-    test('Schadensklasse folgt bis Gen 3 dem Typ', () {
-      // Biss war in Gen 1 Normal (physisch) und wurde Unlicht (bis Gen 3 speziell).
+    test('damage class follows the type up to Gen 3', () {
+      // Bite was Normal (physical) in Gen 1 and became Dark (special up to Gen 3).
       expect(
         details
             .moveProfile(
@@ -147,7 +147,7 @@ void main() {
       );
     });
 
-    test('Attacken existieren erst ab ihrer Generation', () {
+    test('moves only exist from their generation', () {
       expect(
         details.moveProfile(
           const MoveId('moonblast'),
@@ -165,15 +165,15 @@ void main() {
     });
   });
 
-  group('Verfügbarkeit', () {
-    test('Mega-Formen erst ab X/Y', () {
+  group('Availability', () {
+    test('Mega forms only from X/Y', () {
       expect(
         profile('venusaur-mega', 'black-white').availability,
         DataAvailability.confirmedUnavailable,
       );
     });
 
-    test('Formen mit Erlernbarkeit gelten als bestätigt', () {
+    test('forms with learnsets count as confirmed', () {
       expect(
         profile('raichu-alola', 'sun-moon').availability,
         DataAvailability.confirmedAvailable,
@@ -184,7 +184,7 @@ void main() {
       );
     });
 
-    test('fehlende Daten sind Lücken, keine Nichtverfügbarkeit', () {
+    test('missing data are gaps, not unavailability', () {
       final gaps = catalog.forms.values.where(
         (f) => f
             .profileFor(const VersionGroupId('sword-shield'))
@@ -201,8 +201,8 @@ void main() {
     DataAvailability at(String form, String group) =>
         profile(form, group).availability;
 
-    test('vollständiger Kader: Art ohne Daten ist nicht im Spiel', () {
-      // Rettan gibt es in Schwert/Schild nicht, Pikachu schon.
+    test('complete roster: species without data is not in the game', () {
+      // Ekans is not in Sword/Shield, Pikachu is.
       expect(
         at('ekans', 'sword-shield'),
         DataAvailability.confirmedUnavailable,
@@ -211,11 +211,11 @@ void main() {
         at('pikachu', 'sword-shield'),
         DataAvailability.confirmedAvailable,
       );
-      // Mysteriöse Pokémon fehlen teils in den Daten: bleiben Lücken.
+      // Mythical Pokémon are partly missing from the data: they stay gaps.
       expect(at('mew', 'legends-arceus').isGap, isTrue);
     });
 
-    test('Kader nach Regional-Dex (Champions)', () {
+    test('roster by regional Dex (Champions)', () {
       expect(at('clefable', 'champions'), DataAvailability.confirmedAvailable);
       expect(
         at('clefairy', 'champions'),
@@ -223,7 +223,7 @@ void main() {
       );
     });
 
-    test('Kampfformen nur mit ihrer Spielmechanik', () {
+    test('battle forms only with their game mechanic', () {
       expect(
         at('venusaur-mega', 'scarlet-violet'),
         DataAvailability.confirmedUnavailable,
@@ -235,7 +235,7 @@ void main() {
       expect(at('venusaur-gmax', 'sword-shield').isGap, isTrue);
     });
 
-    test('spielexklusive Formen', () {
+    test('game-exclusive forms', () {
       expect(
         at('pikachu-starter', 'sword-shield'),
         DataAvailability.confirmedUnavailable,
@@ -246,7 +246,7 @@ void main() {
       );
     });
 
-    test('Erweiterungen übernehmen das Hauptspiel', () {
+    test('expansions inherit the base game', () {
       expect(
         at('pikachu', 'the-isle-of-armor'),
         DataAvailability.confirmedAvailable,
@@ -258,20 +258,20 @@ void main() {
     });
   });
 
-  group('Entwicklungen', () {
+  group('Evolutions', () {
     List<String> family(String form, String version) => [
       for (final e in queries.detail(FormId(form), ctx(version)).evolutions)
         '${e.from.id.value}>${e.to.id.value}',
     ];
 
-    test('Alola-Raichu ersetzt Raichu in Sonne/Mond', () {
+    test('Alolan Raichu replaces Raichu in Sun/Moon', () {
       expect(family('pikachu', 'sun'), contains('pikachu>raichu-alola'));
       expect(family('pikachu', 'sun'), isNot(contains('pikachu>raichu')));
       expect(family('pikachu', 'x'), contains('pikachu>raichu'));
       expect(family('pikachu', 'x'), isNot(contains('pikachu>raichu-alola')));
     });
 
-    test('Magnezone: Ort hängt vom Spiel ab', () {
+    test('Magnezone: location depends on the game', () {
       AtLocation? location(String version) {
         final edge = queries
             .detail(const FormId('magneton'), ctx(version))
@@ -290,13 +290,13 @@ void main() {
       );
     });
 
-    test('Evoli hat mehrere Entwicklungen', () {
+    test('Eevee has several evolutions', () {
       expect(family('eevee', 'red').length, 3);
     });
   });
 
-  group('Erlernbarkeit', () {
-    test('Pikachu in Rot/Blau: Level und Maschinen', () {
+  group('Learnsets', () {
+    test('Pikachu in Red/Blue: level-up and machines', () {
       final entries = details.learnset(
         const FormId('pikachu'),
         const VersionGroupId('red-blue'),
@@ -310,7 +310,7 @@ void main() {
       expect(machines.every((e) => e.machine != null), isTrue);
     });
 
-    test('Wer erlernt eine Attacke', () {
+    test('who learns a move', () {
       final learners = details.learnersOf(
         const MoveId('thunderbolt'),
         const VersionGroupId('red-blue'),
@@ -321,7 +321,7 @@ void main() {
       );
     });
 
-    test('Attackenhistorie ist chronologisch', () {
+    test('move history is chronological', () {
       final history = details.moveHistory(const MoveId('thunderbolt'));
       final orders = [
         for (final (g, _) in history) catalog.versionGroups[g]!.order,
@@ -330,14 +330,14 @@ void main() {
     });
   });
 
-  group('Suche', () {
-    test('Attacken sprachübergreifend per Präfix', () {
+  group('Search', () {
+    test('moves across languages by prefix', () {
       final hits = details.searchEntities('donnerbl');
       expect(hits.first, const EntityHit(EntityKind.move, 'thunderbolt'));
       expect(details.searchEntities('Thunderbolt').first.id, 'thunderbolt');
     });
 
-    test('Fähigkeiten und Items', () {
+    test('abilities and items', () {
       expect(
         details.searchEntities('Notdünger').first,
         const EntityHit(EntityKind.ability, 'overgrow'),
@@ -348,7 +348,7 @@ void main() {
       );
     });
 
-    test('Sonderzeichen in der Anfrage sind harmlos', () {
+    test('special characters in the query are harmless', () {
       expect(
         details.searchEntities('"; DROP TABLE move; --'),
         isA<List<EntityHit>>(),
@@ -357,7 +357,7 @@ void main() {
     });
   });
 
-  group('Fundorte', () {
+  group('Locations', () {
     List<String> locationsOf(String form, String version) => [
       for (final e in details.encountersOf(
         FormId(form),
@@ -366,7 +366,7 @@ void main() {
         catalog.locationAreas[e.area]!.location.value,
     ];
 
-    test('Pikachu in Rot: Vertania-Wald und Kraftwerk', () {
+    test('Pikachu in Red: Viridian Forest and Power Plant', () {
       expect(
         locationsOf('pikachu', 'red'),
         containsAll(['viridian-forest', 'kanto-power-plant']),
@@ -384,17 +384,14 @@ void main() {
       expect(catalog.encounterMethods[forest.method]!.name('de'), isNotEmpty);
     });
 
-    test(
-      'Versionsexklusive Pokémon: Rettan nur in Rot, Sandan nur in Blau',
-      () {
-        expect(locationsOf('ekans', 'red'), isNotEmpty);
-        expect(locationsOf('ekans', 'blue'), isEmpty);
-        expect(locationsOf('sandshrew', 'blue'), isNotEmpty);
-        expect(locationsOf('sandshrew', 'red'), isEmpty);
-      },
-    );
+    test('version exclusives: Ekans only in Red, Sandshrew only in Blue', () {
+      expect(locationsOf('ekans', 'red'), isNotEmpty);
+      expect(locationsOf('ekans', 'blue'), isEmpty);
+      expect(locationsOf('sandshrew', 'blue'), isNotEmpty);
+      expect(locationsOf('sandshrew', 'red'), isEmpty);
+    });
 
-    test('Geschenke werden als eigene Methode geführt', () {
+    test('gifts are listed as their own method', () {
       final starter = details.encountersOf(
         const FormId('bulbasaur'),
         const GameVersionId('red'),
@@ -402,7 +399,7 @@ void main() {
       expect(starter.map((e) => e.method.value), contains('gift'));
     });
 
-    test('Ort zeigt alle Begegnungen der Version', () {
+    test('a location shows all encounters of the version', () {
       final forest = details.encountersAt(
         const LocationId('viridian-forest'),
         const GameVersionId('red'),
@@ -419,7 +416,7 @@ void main() {
     });
 
     test(
-      'fehlende Fundortdaten werden erkannt, nicht als „nicht fangbar“ gewertet',
+      'missing location data is detected, not treated as "not catchable"',
       () {
         expect(details.hasEncounterData(const GameVersionId('red')), isTrue);
         expect(
@@ -438,26 +435,23 @@ void main() {
     );
   });
 
-  group('Zucht', () {
-    test(
-      'Regelwerke kennen Zucht erst ab Gen 2 und nicht in Sonderspielen',
-      () {
-        expect(ctx('red').ruleset.hasBreeding, isFalse);
-        expect(ctx('gold').ruleset.hasBreeding, isTrue);
-        expect(ctx('lets-go-pikachu').ruleset.hasBreeding, isFalse);
-        expect(ctx('scarlet').ruleset.hasBreeding, isTrue);
-      },
-    );
+  group('Breeding', () {
+    test('rulesets know breeding only from Gen 2 and not in special games', () {
+      expect(ctx('red').ruleset.hasBreeding, isFalse);
+      expect(ctx('gold').ruleset.hasBreeding, isTrue);
+      expect(ctx('lets-go-pikachu').ruleset.hasBreeding, isFalse);
+      expect(ctx('scarlet').ruleset.hasBreeding, isTrue);
+    });
 
-    test('Schlüpfbarkeit je Art', () {
-      // Pichu ist selbst „unbekannt“, schlüpft aber aus Pikachu-/Raichu-Eiern.
+    test('hatchability per species', () {
+      // Pichu is "undiscovered" itself but hatches from Pikachu/Raichu eggs.
       expect(catalog.species[const SpeciesId('pichu')]!.hatchable, isTrue);
       expect(catalog.species[const SpeciesId('eevee')]!.hatchable, isTrue);
       expect(catalog.species[const SpeciesId('magnemite')]!.hatchable, isTrue);
     });
   });
 
-  group('Beschaffung über Tausch und Events', () {
+  group('Acquisition via trades and events', () {
     late AcquisitionQueries acquisition;
     setUp(() => acquisition = AcquisitionQueries(catalog, details));
     List<String> sources(String form, String version) => [
@@ -465,13 +459,13 @@ void main() {
         v.id.value,
     ];
 
-    test('Versionsexklusive: Sandan in Rot per Tausch aus Blau', () {
+    test('version exclusives: Sandshrew in Red by trade from Blue', () {
       expect(sources('sandshrew', 'red'), contains('blue'));
       expect(sources('ekans', 'blue'), contains('red'));
       expect(sources('sandshrew', 'red'), isNot(contains('red')));
     });
 
-    test('Zeitkapsel: Gen 1 und 2 tauschen, Gen 3 nicht mit Gen 1', () {
+    test('Time Capsule: Gen 1 and 2 trade, Gen 3 not with Gen 1', () {
       final partners = [
         for (final v in acquisition.tradePartners(const GameVersionId('gold')))
           v.id.value,
@@ -484,11 +478,11 @@ void main() {
       );
     });
 
-    test('kein Tausch für Formen, die es im Spiel nicht gibt', () {
+    test('no trade for forms that do not exist in the game', () {
       expect(sources('raichu-alola', 'red'), isEmpty);
     });
 
-    test('Mysteriöse Pokémon gelten als Event-Pokémon', () {
+    test('mythical Pokémon count as event Pokémon', () {
       expect(catalog.species[const SpeciesId('mew')]!.mythical, isTrue);
       expect(acquisition.isEventOnly(const FormId('mew'), ctx('red')), isTrue);
       expect(

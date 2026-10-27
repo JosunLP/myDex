@@ -57,7 +57,7 @@ void main() {
       i.form.id.value,
   ];
 
-  test('Typfilter: enthält einen oder alle Typen', () {
+  test('type filter: contains any or all types', () {
     expect(ids(const DexFilter(types: {PokemonType.fire})), [
       'charizard',
       'arcanine',
@@ -78,7 +78,7 @@ void main() {
     );
   });
 
-  test('Generation, Standardformen und Sammlungsstatus kombiniert (UND)', () {
+  test('generation, default forms and collection status combined (AND)', () {
     expect(ids(const DexFilter(generations: {3})), ['torchic']);
     expect(
       ids(const DexFilter(defaultFormsOnly: true)),
@@ -98,7 +98,7 @@ void main() {
     ]);
   });
 
-  test('Filter-JSON ist versionstolerant', () {
+  test('filter JSON tolerates versions', () {
     const f = DexFilter(
       types: {PokemonType.water},
       generations: {1, 2},
@@ -114,7 +114,7 @@ void main() {
     );
   });
 
-  test('Gesamtübersicht über alle Spiele', () {
+  test('overview across all games', () {
     final early = DateTime.utc(2025);
     final entries = [
       CollectionEntry(
@@ -158,7 +158,7 @@ void main() {
     expect(
       overview.containsKey(const FormId('eevee')),
       isFalse,
-      reason: 'nur gesehen',
+      reason: 'only seen',
     );
   });
 }

@@ -13,6 +13,8 @@ import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
+// The UI runs in German here, so the German localization is exercised;
+// UI texts in `find.text` are therefore German.
 const _fixtureDir = '../../data/fixtures';
 late String _catalogPath;
 late String _mediaPath;
@@ -102,9 +104,7 @@ void main() {
       ('Smartphone', const Size(400, 860)),
       ('Desktop', const Size(1400, 900)),
     ]) {
-      testWidgets('Barrierefreiheit: $name, ${brightness.name}', (
-        tester,
-      ) async {
+      testWidgets('accessibility: $name, ${brightness.name}', (tester) async {
         final handle = tester.ensureSemantics();
         await _pump(tester, size, brightness);
         for (final tab in ['Dex', 'Fundorte', 'Sammlung', 'Teams', 'Mehr']) {
@@ -112,7 +112,7 @@ void main() {
           await tester.pumpAndSettle();
           await _checkGuidelines(tester);
         }
-        // Pokémon-Detail
+        // Pokémon detail
         await tester.tap(find.text('Dex').last);
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(SearchField), 'pikachu');
@@ -121,7 +121,7 @@ void main() {
         await tester.pumpAndSettle();
         await _checkGuidelines(tester);
 
-        // Unterseiten unter „Mehr“ und ein Team im Editor.
+        // Subpages under "More" and a team in the editor.
         for (final page in [
           'Hilfe',
           'Synchronisierung',

@@ -23,12 +23,14 @@ import 'package:mydex_domain/mydex_domain.dart';
 import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
+// The tests run the app with a German UI (locale `de`), so the German
+// localization is exercised; UI texts in `find.text` are therefore German.
 const _fixtureDir = '../../data/fixtures';
 late String _catalogPath;
 late String _mediaPath;
 late Directory _tmp;
 
-/// Liefert den Testkatalog aus, als wäre er ein App-Asset.
+/// Serves the test catalog as if it were an app asset.
 class _FixtureBundle extends CachingAssetBundle {
   @override
   Future<ByteData> load(String key) async {
@@ -53,7 +55,7 @@ class _FixtureRepository implements CatalogRepository {
   Future<LoadedCatalog> load() async => openLoadedCatalog(_catalogPath);
 }
 
-/// Update-Quelle im Speicher.
+/// In-memory update source.
 class _FakeUpdateSource implements CatalogUpdateSource {
   _FakeUpdateSource(this.update, this.pack);
   final Map<String, Object?>? update;
@@ -108,14 +110,14 @@ class _Harness {
   );
 }
 
-/// Sync-Server im Speicher; nur der Schlüssel „geheim“ ist gültig.
+/// In-memory sync server; only the token "secret" is valid.
 class _CoreTransport implements SyncTransport {
   _CoreTransport(this.core, this.token);
   final SyncServerCore core;
   final String token;
 
   void _check() {
-    if (token != 'geheim') throw const SyncProtocolException('unauthorized');
+    if (token != 'secret') throw const SyncProtocolException('unauthorized');
   }
 
   @override
@@ -133,7 +135,7 @@ class _CoreTransport implements SyncTransport {
   }
 }
 
-/// Merkt sich Vorlesetexte; die Ausgabe läuft, bis [finish] oder `stop`.
+/// Records read-aloud texts; output runs until [finish] or `stop`.
 class _FakeSpeaker implements Speaker {
   final spoken = <(String, String)>[];
   Completer<void>? _running;
@@ -186,9 +188,9 @@ Future<_Harness> _pump(WidgetTester tester, Size size) async {
 Future<void> _selectGame(WidgetTester tester, String name) async {
   await tester.tap(find.byTooltip('Spiel').first);
   await tester.pumpAndSettle();
-  // Das Menü ist lang (neueste Spiele oben) und muss ggf. gescrollt werden.
-  // Neueste zuerst: bei gleichnamigen Versionen (z. B. japanische Fassungen)
-  // ist der erste Treffer die gemeinte.
+  // The menu is long (newest games on top) and may need scrolling.
+  // Newest first: for versions with the same name (e.g. Japanese editions)
+  // the first match is the intended one.
   final entry = find
       .descendant(
         of: find.byWidgetPredicate((w) => w is PopupMenuItem<String>),
@@ -250,7 +252,7 @@ void main() {
       expect(loaded.snapshot.forms, isNotEmpty);
       expect(repo.installError, isNull);
       loaded.details.close();
-      // Zweiter Start: bereits installiert, kein erneutes Entpacken nötig.
+      // Second start: already installed, no unpacking needed.
       final again = await BundledCatalogRepository(
         dir,
         bundle: _FixtureBundle(),
@@ -260,9 +262,7 @@ void main() {
     },
   );
 
-  testWidgets('Smartphone: suchen, Detail öffnen, als gefangen markieren', (
-    tester,
-  ) async {
+  testWidgets('phone: search, open detail, mark as caught', (tester) async {
     final h = await _pump(tester, const Size(400, 860));
     expect(find.byType(NavigationBar), findsOneWidget);
 
@@ -288,33 +288,32 @@ void main() {
     expect(entries[key]?.seen, isTrue);
   });
 
-  testWidgets('Spielwechsel ändert Typ, Werte und Fähigkeiten konsistent', (
-    tester,
-  ) async {
-    await _pump(tester, const Size(500, 1600));
-    // Piepi ist nicht im Kader von Champions (neuestes Spiel).
-    await _selectGame(tester, 'Rot');
-    await _search(tester, 'Piepi');
-    await tester.tap(find.widgetWithText(ListTile, 'Piepi'));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'switching games changes type, stats and abilities consistently',
+    (tester) async {
+      await _pump(tester, const Size(500, 1600));
+      // Clefairy is not in the roster of Champions (newest game).
+      await _selectGame(tester, 'Rot');
+      await _search(tester, 'Piepi');
+      await tester.tap(find.widgetWithText(ListTile, 'Piepi'));
+      await tester.pumpAndSettle();
 
-    await _selectGame(tester, 'Rot');
-    expect(find.text('Normal'), findsWidgets);
-    expect(find.text('Spezial'), findsOneWidget);
-    expect(
-      find.text('In dieser Generation gibt es keine Fähigkeiten.'),
-      findsOneWidget,
-    );
+      await _selectGame(tester, 'Rot');
+      expect(find.text('Normal'), findsWidgets);
+      expect(find.text('Spezial'), findsOneWidget);
+      expect(
+        find.text('In dieser Generation gibt es keine Fähigkeiten.'),
+        findsOneWidget,
+      );
 
-    await _selectGame(tester, 'X');
-    expect(find.text('Fee'), findsWidgets);
-    expect(find.text('Sp.-Ang.'), findsOneWidget);
-    expect(find.text('Magieschild'), findsOneWidget);
-  });
+      await _selectGame(tester, 'X');
+      expect(find.text('Fee'), findsWidgets);
+      expect(find.text('Sp.-Ang.'), findsOneWidget);
+      expect(find.text('Magieschild'), findsOneWidget);
+    },
+  );
 
-  testWidgets('Attacken: Erlernbarkeit, Attackenseite und Historie', (
-    tester,
-  ) async {
+  testWidgets('moves: learnset, move page and history', (tester) async {
     await _pump(tester, const Size(500, 1400));
     await _selectGame(tester, 'Rot');
     await _search(tester, 'Pikachu');
@@ -342,14 +341,12 @@ void main() {
     expect(
       find.text('Speziell'),
       findsOneWidget,
-      reason: 'Elektro war bis Gen 3 speziell',
+      reason: 'Electric was special up to Gen 3',
     );
     expect(find.widgetWithText(ActionChip, 'Raichu'), findsOneWidget);
   });
 
-  testWidgets('Suche findet Attacken und zeigt deren Änderungen', (
-    tester,
-  ) async {
+  testWidgets('search finds moves and shows their changes', (tester) async {
     await _pump(tester, const Size(500, 1400));
     await _search(tester, 'Donnerblitz');
     expect(find.text('Attacken'), findsOneWidget);
@@ -360,9 +357,7 @@ void main() {
     expect(find.textContaining('Stärke 90'), findsOneWidget);
   });
 
-  testWidgets('Desktop: Sidebar, Liste und Detail nebeneinander', (
-    tester,
-  ) async {
+  testWidgets('desktop: sidebar, list and detail side by side', (tester) async {
     await _pump(tester, const Size(1280, 900));
     expect(find.byType(NavigationBar), findsNothing);
     expect(
@@ -376,7 +371,7 @@ void main() {
     await _search(tester, 'Evoli');
     await tester.tap(find.widgetWithText(ListTile, 'Evoli'));
     await tester.pumpAndSettle();
-    // Pokédex-Anzeige mit Artwork und Nummer im Detail neben der Liste.
+    // Pokédex screen with artwork and number in the detail next to the list.
     expect(find.byType(DexScreen), findsOneWidget);
     expect(find.text('#0133'), findsWidgets);
     await tester.scrollUntilVisible(
@@ -387,13 +382,13 @@ void main() {
     expect(
       find.text('Entwicklung'),
       findsOneWidget,
-      reason: 'Detail neben der Liste',
+      reason: 'detail next to the list',
     );
     expect(find.text('Evoli'), findsAtLeastNWidgets(2));
     expect(find.byType(SearchField), findsOneWidget);
   });
 
-  testWidgets('Datenstand zeigt Quelle und Abdeckung', (tester) async {
+  testWidgets('data status shows source and coverage', (tester) async {
     await _pump(tester, const Size(500, 1200));
     await tester.tap(find.text('Mehr'));
     await tester.pumpAndSettle();
@@ -403,7 +398,7 @@ void main() {
     expect(find.textContaining('bestätigt'), findsWidgets);
   });
 
-  testWidgets('Fundorte auf der Pokémon-Seite und als eigener Bereich', (
+  testWidgets('locations on the Pokémon page and as their own section', (
     tester,
   ) async {
     await _pump(tester, const Size(500, 1600));
@@ -424,7 +419,7 @@ void main() {
       scrollable: scrollable,
     );
     expect(find.text('Fundorte und Beschaffung'), findsOneWidget);
-    // Nach oben holen, damit die Navigationsleiste ihn nicht verdeckt.
+    // Scroll it up so that the navigation bar does not cover it.
     await tester.ensureVisible(find.text('Vertania-Wald'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Vertania-Wald'));
@@ -432,7 +427,7 @@ void main() {
     expect(find.text('Kanto'), findsOneWidget);
     expect(find.text('Pikachu'), findsWidgets);
 
-    // Eigener Navigationsbereich mit allen Orten der Version.
+    // Own navigation section with all locations of the version.
     await tester.tap(find.text('Fundorte').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(SearchField).last, 'vertania');
@@ -440,20 +435,21 @@ void main() {
     expect(find.widgetWithText(ListTile, 'Vertania-Wald'), findsOneWidget);
   });
 
-  testWidgets('Ohne Fundortdaten erscheint ein Hinweis statt „nicht fangbar“', (
-    tester,
-  ) async {
-    await _pump(tester, const Size(500, 1200));
-    await _selectGame(tester, 'Karmesin');
-    await tester.tap(find.text('Fundorte').last);
-    await tester.pumpAndSettle();
-    expect(
-      find.text('Für Karmesin liegen noch keine Fundortdaten vor.'),
-      findsOneWidget,
-    );
-  });
+  testWidgets(
+    'without location data a hint appears instead of "not catchable"',
+    (tester) async {
+      await _pump(tester, const Size(500, 1200));
+      await _selectGame(tester, 'Karmesin');
+      await tester.tap(find.text('Fundorte').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Für Karmesin liegen noch keine Fundortdaten vor.'),
+        findsOneWidget,
+      );
+    },
+  );
 
-  testWidgets('Team anlegen, Pokémon hinzufügen, prüfen und analysieren', (
+  testWidgets('create a team, add Pokémon, validate and analyse', (
     tester,
   ) async {
     final h = await _pump(tester, const Size(500, 1600));
@@ -486,15 +482,15 @@ void main() {
     expect(saved.version, const GameVersionId('red'));
     final member = saved.members.single;
     expect(member.form, const FormId('pikachu'));
-    expect(member.ability, isNull, reason: 'Gen 1 hat keine Fähigkeiten');
+    expect(member.ability, isNull, reason: 'Gen 1 has no abilities');
     expect(
       member.moves,
       isNotEmpty,
-      reason: 'Level-Attacken bis Lv. 50 vorbelegt',
+      reason: 'level-up moves up to Lv. 50 preselected',
     );
     expect(member.moves.length, lessThanOrEqualTo(4));
 
-    // Mitglied öffnen: Gen 1 zeigt DVs und kein Wesen/Item/Fähigkeit.
+    // Open the member: Gen 1 shows DVs and no nature/item/ability.
     await tester.tap(find.textContaining('Lv. 50').first);
     await tester.pumpAndSettle();
     expect(find.text('DVs'), findsOneWidget);
@@ -503,7 +499,7 @@ void main() {
     expect(find.text('Berechnete Werte'), findsOneWidget);
   });
 
-  testWidgets('Moderne Spiele: Fähigkeit, Wesen und Item im Editor', (
+  testWidgets('modern games: ability, nature and item in the editor', (
     tester,
   ) async {
     final h = await _pump(tester, const Size(500, 2000));
@@ -523,7 +519,7 @@ void main() {
     expect(
       member.ability,
       const AbilityId('blaze'),
-      reason: 'erste reguläre Fähigkeit',
+      reason: 'first regular ability',
     );
 
     await tester.tap(find.textContaining('Lv. 50').first);
@@ -534,7 +530,7 @@ void main() {
     expect(find.text('Summe 0 / 510'), findsOneWidget);
   });
 
-  testWidgets('Filter kombinieren und als Vorlage speichern', (tester) async {
+  testWidgets('combine filters and save them as a preset', (tester) async {
     final h = await _pump(tester, const Size(500, 1400));
     await _selectGame(tester, 'Rot');
     await tester.tap(find.text('Filter'));
@@ -549,7 +545,7 @@ void main() {
     expect(find.widgetWithText(ListTile, 'Glumanda'), findsOneWidget);
     expect(find.widgetWithText(ListTile, 'Pikachu'), findsNothing);
 
-    // Als Vorlage speichern.
+    // Save as a preset.
     await tester.tap(find.text('Filter (1)'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Als Vorlage speichern'));
@@ -560,14 +556,14 @@ void main() {
     await tester.pumpAndSettle();
     expect((await h.presets.loadAll()).single.filter.types, {PokemonType.fire});
 
-    // Vorlage abwählen setzt den Filter zurück.
+    // Deselecting the preset resets the filter.
     await tester.tap(find.widgetWithText(ChoiceChip, 'Feuer'));
     await tester.pumpAndSettle();
     expect(find.text('Filter'), findsOneWidget);
     expect(find.widgetWithText(ListTile, 'Bisasam'), findsOneWidget);
   });
 
-  testWidgets('Globale Checkliste fasst alle Spiele zusammen', (tester) async {
+  testWidgets('global checklist combines all games', (tester) async {
     final h = await _pump(tester, const Size(500, 1400));
     final at = DateTime.utc(2026, 1, 15);
     await h.collection.put(
@@ -579,7 +575,7 @@ void main() {
         updatedAt: at,
       ).withCaught(true, at),
     );
-    // Direkt in den Speicher geschrieben: Anzeige neu laden.
+    // Written directly to the store: reload the display.
     ProviderScope.containerOf(
       tester.element(find.byType(Scaffold).first),
     ).invalidate(collectionProvider);
@@ -592,9 +588,7 @@ void main() {
     expect(find.textContaining('15.1.2026'), findsOneWidget);
   });
 
-  testWidgets('Export und Import (Zusammenführen) über eine Datei', (
-    tester,
-  ) async {
+  testWidgets('export and import (merge) via a file', (tester) async {
     final h = await _pump(tester, const Size(500, 1600));
     final at = DateTime.utc(2026, 2, 1);
     await h.collection.put(
@@ -621,7 +615,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
       await tester.tap(find.widgetWithText(FilledButton, 'Exportieren'));
-      // Hintergrundarbeit (Isolate) läuft in Echtzeit; Frames weiterschalten.
+      // Background work (isolate) runs in real time; advance frames.
       for (
         var i = 0;
         i < 100 && find.byType(SnackBar).evaluate().isEmpty;
@@ -635,7 +629,7 @@ void main() {
     expect(h.files.stored, isNotNull);
     expect(find.text('Sicherung gespeichert.'), findsOneWidget);
 
-    // Daten verlieren, dann wiederherstellen.
+    // Lose data, then restore it.
     await h.collection.replaceAll(const []);
     await h.teams.replaceAll(const []);
     await tester.runAsync(() async {
@@ -672,11 +666,9 @@ void main() {
     );
   });
 
-  testWidgets('Vorlesen: Zusammenfassung aus Katalogfakten, Stopp', (
-    tester,
-  ) async {
+  testWidgets('read-aloud: summary from catalog facts, stop', (tester) async {
     final h = await _pump(tester, const Size(400, 860));
-    // Pichu gibt es in Champions nicht; Entwicklung nur in Spielen mit Pichu.
+    // Pichu is not in Champions; the evolution only shows in games with Pichu.
     await _selectGame(tester, 'Gold');
     await _search(tester, 'pikachu');
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
@@ -695,7 +687,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('Vorlesen'), findsOneWidget);
 
-    // Endet die Ausgabe von selbst, wird der Knopf wieder zu „Vorlesen“.
+    // When the output ends by itself, the button turns back into "read aloud".
     await tester.tap(find.byTooltip('Vorlesen'));
     await tester.pump();
     h.speaker.finish();
@@ -704,7 +696,7 @@ void main() {
     expect(h.speaker.spoken, hasLength(2));
   });
 
-  testWidgets('App-Sprache umstellen und Hilfe öffnen', (tester) async {
+  testWidgets('switch the app language and open the help', (tester) async {
     await _pump(tester, const Size(500, 1600));
     await tester.tap(find.text('Mehr'));
     await tester.pumpAndSettle();
@@ -724,28 +716,26 @@ void main() {
     expect(find.text('Équipes'), findsWidgets);
     expect(find.text('Langue de l’app'), findsOneWidget);
 
-    // Die Datensprache folgt der App-Sprache.
+    // The data language follows the app language.
     await tester.tap(find.text('Dex'));
     await tester.pumpAndSettle();
     await _search(tester, 'glurak');
     expect(find.text('Dracaufeu'), findsOneWidget);
   });
 
-  testWidgets('Synchronisierung: verbinden, empfangen, trennen', (
-    tester,
-  ) async {
+  testWidgets('sync: connect, receive, disconnect', (tester) async {
     final h = await _pump(tester, const Size(500, 1600));
-    // Ein anderes Gerät hat bereits ein Team verschlüsselt hochgeladen.
+    // Another device has already uploaded an encrypted team.
     final other = Team(
       id: 'fremd',
-      name: 'Vom Tablet',
+      name: 'From the tablet',
       version: const GameVersionId('red'),
       updatedAt: DateTime.utc(2026, 3, 1),
     );
-    final tablet = _CoreTransport(h.syncCore, 'geheim');
+    final tablet = _CoreTransport(h.syncCore, 'secret');
     final key = await EncryptingTransport.unlock(
       tablet,
-      'tablet-passwort',
+      'tablet-passphrase',
       iterations: 1000,
     );
     await EncryptingTransport(tablet, key, MemorySyncAliasStore()).sync(
@@ -768,7 +758,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Ende-zu-Ende'), findsWidgets);
 
-    // Unverschlüsselt ins Netz ist nicht erlaubt.
+    // Unencrypted connections to the network are not allowed.
     await tester.enterText(
       find.widgetWithText(TextField, 'Serveradresse'),
       'http://sync.example.org',
@@ -785,7 +775,7 @@ void main() {
       find.widgetWithText(TextField, 'Serveradresse'),
       'https://sync.example.org',
     );
-    // Zu kurzes Sync-Passwort.
+    // Sync passphrase too short.
     await tester.enterText(
       find.widgetWithText(TextField, 'Sync-Passwort'),
       'kurz',
@@ -796,7 +786,7 @@ void main() {
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Sync-Passwort'),
-      'tablet-passwort',
+      'tablet-passphrase',
     );
     await tester.tap(find.text('Verbinden'));
     await tester.pumpAndSettle();
@@ -804,11 +794,11 @@ void main() {
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Zugangsschlüssel'),
-      'geheim',
+      'secret',
     );
     await tester.enterText(
       find.widgetWithText(TextField, 'Sync-Passwort'),
-      'falsches-passwort',
+      'wrong-passphrase',
     );
     await tester.tap(find.text('Verbinden'));
     await tester.pumpAndSettle();
@@ -816,33 +806,33 @@ void main() {
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Sync-Passwort'),
-      'tablet-passwort',
+      'tablet-passphrase',
     );
     await tester.tap(find.text('Verbinden'));
     await tester.pumpAndSettle();
     expect(find.text('https://sync.example.org'), findsOneWidget);
     expect(find.textContaining('1 empfangen'), findsOneWidget);
-    expect((await h.teams.loadAll()).single.name, 'Vom Tablet');
+    expect((await h.teams.loadAll()).single.name, 'From the tablet');
 
     await tester.tap(find.text('Teams'));
     await tester.pumpAndSettle();
-    expect(find.text('Vom Tablet'), findsOneWidget);
+    expect(find.text('From the tablet'), findsOneWidget);
 
     await tester.tap(find.text('Mehr'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Trennen'));
     await tester.pumpAndSettle();
     expect(find.text('Verbinden'), findsOneWidget);
-    // Lokale Daten bleiben nach dem Trennen.
+    // Local data stays after disconnecting.
     expect(await h.teams.loadAll(), hasLength(1));
   });
 
-  testWidgets('Galerie: Sprites je Spiel, Kopfbild folgt dem Spiel', (
+  testWidgets('gallery: sprites per game, header image follows the game', (
     tester,
   ) async {
     await _pump(tester, const Size(500, 2400));
     await _search(tester, 'pikachu');
-    // Vorschaubilder in der Liste.
+    // Thumbnails in the list.
     expect(
       find.descendant(
         of: find.widgetWithText(ListTile, 'Pikachu'),
@@ -853,7 +843,7 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
 
-    // Hintergrund der Anzeige in der Farbe des Artworks.
+    // Screen background in the artwork's colour.
     final rgb = SqliteMediaLibrary.open(_mediaPath);
     addTearDown(rgb.close);
     expect(
@@ -861,7 +851,7 @@ void main() {
       Color(0xFF000000 | rgb.artworkColor(const FormId('pikachu'))!),
     );
 
-    // Kleines Spiel-Sprite in der Pokédex-Anzeige.
+    // Small game sprite on the Pokédex screen.
     Uint8List headerBytes() =>
         (tester
                     .widget<Image>(
@@ -873,7 +863,7 @@ void main() {
                     .image
                 as MemoryImage)
             .bytes;
-    // Offizielles Artwork als großes Bild.
+    // Official artwork as the large image.
     expect(
       find.descendant(
         of: find.byType(DexScreen),
@@ -906,7 +896,7 @@ void main() {
     expect(identical(headerBytes(), modern), isFalse);
   });
 
-  testWidgets('Beschaffung: Tausch aus anderem Spiel und Event-Pokémon', (
+  testWidgets('acquisition: trade from another game and event Pokémon', (
     tester,
   ) async {
     await _pump(tester, const Size(500, 2400));
@@ -936,7 +926,7 @@ void main() {
   });
 
   testWidgets(
-    'Katalog-Update: fremde Signatur abgelehnt, gültige installiert',
+    'catalog update: foreign signature rejected, valid one installed',
     (tester) async {
       final h = await _pump(tester, const Size(500, 1600));
       final manifest =
@@ -966,7 +956,7 @@ void main() {
         () => h.syncConfig.save(
           SyncConfig(
             serverUrl: 'https://sync.example.org',
-            token: 'geheim',
+            token: 'secret',
             key: SyncKey(
               encryption: List.filled(32, 1),
               authentication: List.filled(32, 2),
@@ -983,15 +973,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Katalog-Updates'), findsOneWidget);
 
-      // Läuft außerhalb der künstlichen Zeit, weil der Katalog über echte
-      // Dateizugriffe und ein Isolate installiert wird.
+      // Runs outside fake time because the catalog is installed via real
+      // file access and an isolate.
       Future<void> check() async {
         await tester.runAsync(() async {
           await tester.tap(find.text('Prüfen'));
           for (var i = 0; i < 500; i++) {
             await Future<void>.delayed(const Duration(milliseconds: 20));
             await tester.pump();
-            // Nach einer Installation lädt der Katalog neu (Ladeanzeige).
+            // After an installation the catalog reloads (progress indicator).
             if (find.text('Prüfen').evaluate().isNotEmpty &&
                 find.byType(CircularProgressIndicator).evaluate().isEmpty) {
               break;
@@ -1001,7 +991,7 @@ void main() {
         await tester.pumpAndSettle();
       }
 
-      // Ohne hinterlegten Schlüssel gibt es keine Updates.
+      // Without a configured key there are no updates.
       await check();
       expect(find.textContaining('nicht eingerichtet'), findsOneWidget);
 
@@ -1016,7 +1006,7 @@ void main() {
         findsOneWidget,
       );
 
-      // Dasselbe Update ein zweites Mal: nichts Neues.
+      // The same update a second time: nothing new.
       await check();
       expect(find.textContaining('ist aktuell'), findsOneWidget);
     },

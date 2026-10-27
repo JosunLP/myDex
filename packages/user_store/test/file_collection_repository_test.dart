@@ -17,7 +17,7 @@ void main() {
 
   File file() => File('${dir.path}/collection.json');
 
-  test('übersteht Neustart', () async {
+  test('survives a restart', () async {
     final repo = FileCollectionRepository(file());
     await repo.put(
       CollectionEntry(key: key, updatedAt: now).withCaught(true, now),
@@ -27,7 +27,7 @@ void main() {
     expect(File('${file().path}.tmp').existsSync(), isFalse);
   });
 
-  test('leere Einträge werden entfernt', () async {
+  test('empty entries are removed', () async {
     final repo = FileCollectionRepository(file());
     final caught = CollectionEntry(
       key: key,
@@ -38,7 +38,7 @@ void main() {
     expect(await FileCollectionRepository(file()).loadAll(), isEmpty);
   });
 
-  test('parallele Schreibvorgänge gehen nicht verloren', () async {
+  test('concurrent writes are not lost', () async {
     final repo = FileCollectionRepository(file());
     await Future.wait([
       for (var i = 0; i < 20; i++)
@@ -52,7 +52,7 @@ void main() {
     expect(await FileCollectionRepository(file()).loadAll(), hasLength(20));
   });
 
-  test('beschädigte Datei wird beiseitegelegt, nicht gelöscht', () async {
+  test('corrupted file is set aside, not deleted', () async {
     file().writeAsStringSync('{ kaputt');
     final repo = FileCollectionRepository(file());
     expect(await repo.loadAll(), isEmpty);
@@ -60,7 +60,7 @@ void main() {
     expect(File(repo.quarantinedPath!).readAsStringSync(), '{ kaputt');
   });
 
-  test('Einstellungen: Rundreise und robuste Standardwerte', () async {
+  test('settings: round trip and robust defaults', () async {
     final prefs = JsonPreferencesRepository(File('${dir.path}/prefs.json'));
     expect(await prefs.load(), isEmpty);
     await prefs.save({'theme': 'dark'});

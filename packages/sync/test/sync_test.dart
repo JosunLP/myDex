@@ -5,7 +5,7 @@ import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 import 'package:test/test.dart';
 
-/// Ruft den Serverkern direkt auf, wie es die HTTP-Schicht täte.
+/// Calls the server core directly, as the HTTP layer would.
 class DirectTransport implements SyncTransport {
   DirectTransport(this.core, this.account);
   final SyncServerCore core;
@@ -15,7 +15,7 @@ class DirectTransport implements SyncTransport {
   @override
   Future<SyncResponse> sync(SyncRequest request) async {
     requests++;
-    // Über JSON, damit die Serialisierung mitgeprüft wird.
+    // Via JSON so that serialization is tested as well.
     final wire = SyncRequest.fromJson(request.toJson());
     return SyncResponse.fromJson(core.handle(account, wire).toJson());
   }
@@ -24,7 +24,7 @@ class DirectTransport implements SyncTransport {
   Future<void> deleteAccountData() async => core.wipe(account);
 }
 
-/// Ein Gerät mit eigenem Speicher und Abgleich.
+/// A device with its own storage and sync.
 class Device {
   Device(SyncServerCore core, {String account = 'a', String suffix = 'x'})
     : transport = DirectTransport(core, account) {
@@ -35,12 +35,12 @@ class Device {
         CollectionSyncAdapter(rawCollection),
         DocumentSyncAdapter.teams(
           rawTeams,
-          conflictName: (name) => '$name (Konflikt)',
+          conflictName: (name) => '$name (conflict)',
           newId: () => 'copy-$suffix-${n++}',
         ),
         DocumentSyncAdapter.filterPresets(
           rawPresets,
-          conflictName: (name) => '$name (Konflikt)',
+          conflictName: (name) => '$name (conflict)',
         ),
       ],
     );
@@ -75,7 +75,7 @@ Team team(String id, String name, DateTime at) => Team(
 );
 
 void main() {
-  group('Serverkern', () {
+  group('Server core', () {
     late SyncServerCore core;
     setUp(() => core = SyncServerCore(MemorySyncStore()));
 
@@ -89,7 +89,7 @@ void main() {
           data: deleted ? null : {'id': id},
         );
 
-    test('nimmt neue Datensätze an und vergibt fortlaufende Revisionen', () {
+    test('accepts new records and assigns increasing revisions', () {
       final r = core.handle(
         'a',
         SyncRequest(since: 0, changes: [change('1'), change('2')]),
@@ -102,18 +102,24 @@ void main() {
       expect(r.changes.map((c) => c.id), ['1', '2']);
     });
 
-    test('veraltete Basisrevision ergibt einen Konflikt mit Serverstand', () {
-      core.handle('a', SyncRequest(since: 0, changes: [change('1')]));
-      core.handle('a', SyncRequest(since: 1, changes: [change('1', base: 1)]));
-      final r = core.handle(
-        'a',
-        SyncRequest(since: 2, changes: [change('1', base: 1)]),
-      );
-      expect(r.results.single.status, SyncResultStatus.conflict);
-      expect(r.results.single.current!.revision, 2);
-    });
+    test(
+      'outdated base revision results in a conflict with the server state',
+      () {
+        core.handle('a', SyncRequest(since: 0, changes: [change('1')]));
+        core.handle(
+          'a',
+          SyncRequest(since: 1, changes: [change('1', base: 1)]),
+        );
+        final r = core.handle(
+          'a',
+          SyncRequest(since: 2, changes: [change('1', base: 1)]),
+        );
+        expect(r.results.single.status, SyncResultStatus.conflict);
+        expect(r.results.single.current!.revision, 2);
+      },
+    );
 
-    test('Löschungen bleiben als Grabstein sichtbar', () {
+    test('deletions stay visible as tombstones', () {
       core.handle('a', SyncRequest(since: 0, changes: [change('1')]));
       core.handle(
         'a',
@@ -124,12 +130,12 @@ void main() {
       expect(r.changes.single.data, isNull);
     });
 
-    test('Konten sind voneinander getrennt', () {
+    test('accounts are separated from each other', () {
       core.handle('a', SyncRequest(since: 0, changes: [change('1')]));
       expect(core.handle('b', const SyncRequest(since: 0)).changes, isEmpty);
     });
 
-    test('seitenweises Abholen', () {
+    test('paged fetching', () {
       for (var i = 0; i < 3; i++) {
         core.handle(
           'a',
@@ -148,7 +154,7 @@ void main() {
       expect(first.cursor, SyncLimits.changesPerRequest);
     });
 
-    test('ungültige Anfragen werden abgelehnt', () {
+    test('invalid requests are rejected', () {
       expect(
         () => core.handle(
           'a',
@@ -162,7 +168,7 @@ void main() {
           SyncRequest(
             since: 0,
             changes: [
-              SyncChange(kind: 'Böse', id: '1', updatedAt: t0, data: const {}),
+              SyncChange(kind: 'Bad!', id: '1', updatedAt: t0, data: const {}),
             ],
           ),
         ),
@@ -191,7 +197,7 @@ void main() {
       );
     });
 
-    test('Zeitstempel aus der Zukunft werden gekappt', () {
+    test('timestamps from the future are capped', () {
       final now = DateTime.utc(2026, 1, 1);
       final c = SyncServerCore(MemorySyncStore(), clock: () => now);
       final r = c.handle(
@@ -212,7 +218,7 @@ void main() {
     });
   });
 
-  group('Geräte gleichen sich ab', () {
+  group('Devices sync with each other', () {
     late SyncServerCore core;
     late Device a, b;
     setUp(() async {
@@ -221,14 +227,14 @@ void main() {
       b = Device(core, suffix: 'b');
     });
 
-    test('vorhandene Daten beider Geräte werden zusammengeführt', () async {
+    test('existing data of both devices is merged', () async {
       await a.rawCollection.put(
         CollectionEntry(
           key: key('pikachu'),
           updatedAt: t0,
         ).withCaught(true, t0),
       );
-      await a.rawTeams.save(team('t1', 'Rot', t0));
+      await a.rawTeams.save(team('t1', 'Red', t0));
       await b.rawCollection.put(
         CollectionEntry(key: key('eevee'), updatedAt: t0).withSeen(true, t0),
       );
@@ -245,15 +251,15 @@ void main() {
       for (final d in [a, b]) {
         final entries = await d.collection.loadAll();
         expect(entries.keys, unorderedEquals([key('pikachu'), key('eevee')]));
-        expect((await d.teams.loadAll()).single.name, 'Rot');
+        expect((await d.teams.loadAll()).single.name, 'Red');
         expect(d.client.pending, 0);
       }
     });
 
-    test('laufende Änderungen und Löschungen kommen an', () async {
+    test('ongoing changes and deletions arrive', () async {
       await a.client.connect();
       await b.client.connect();
-      await a.teams.save(team('t1', 'Rot', t0));
+      await a.teams.save(team('t1', 'Red', t0));
       await a.collection.put(
         CollectionEntry(
           key: key('pikachu'),
@@ -277,18 +283,18 @@ void main() {
       expect(await a.collection.loadAll(), isEmpty);
     });
 
-    test('gleichzeitige Team-Bearbeitung ergibt eine Konfliktkopie', () async {
+    test('concurrent team edits result in a conflict copy', () async {
       await a.client.connect();
       await b.client.connect();
-      await a.teams.save(team('t1', 'Rot', t0));
+      await a.teams.save(team('t1', 'Red', t0));
       await a.sync();
       await b.sync();
 
       await a.teams.save(
-        team('t1', 'Rot A', t0.add(const Duration(minutes: 1))),
+        team('t1', 'Red A', t0.add(const Duration(minutes: 1))),
       );
       await b.teams.save(
-        team('t1', 'Rot B', t0.add(const Duration(minutes: 2))),
+        team('t1', 'Red B', t0.add(const Duration(minutes: 2))),
       );
       await a.sync();
       final report = await b.sync();
@@ -298,34 +304,34 @@ void main() {
       expect(report.copies, 1);
       for (final d in [a, b]) {
         final names = (await d.teams.loadAll()).map((t) => t.name);
-        expect(names, unorderedEquals(['Rot A', 'Rot B (Konflikt)']));
+        expect(names, unorderedEquals(['Red A', 'Red B (conflict)']));
       }
       expect(
         (await b.teams.loadAll()).firstWhere((t) => t.id == 't1').name,
-        'Rot A',
+        'Red A',
       );
     });
 
-    test('Bearbeitung gewinnt gegen Löschung', () async {
+    test('edit wins over deletion', () async {
       await a.client.connect();
       await b.client.connect();
-      await a.teams.save(team('t1', 'Rot', t0));
+      await a.teams.save(team('t1', 'Red', t0));
       await a.sync();
       await b.sync();
 
       await a.teams.delete('t1');
       await b.teams.save(
-        team('t1', 'Rot neu', t0.add(const Duration(minutes: 1))),
+        team('t1', 'Red new', t0.add(const Duration(minutes: 1))),
       );
       await a.sync();
       await b.sync();
       await a.sync();
       for (final d in [a, b]) {
-        expect((await d.teams.loadAll()).single.name, 'Rot neu');
+        expect((await d.teams.loadAll()).single.name, 'Red new');
       }
     });
 
-    test('Sammlung: der neuere Eintrag gewinnt', () async {
+    test('collection: the newer entry wins', () async {
       await a.client.connect();
       await b.client.connect();
       final early = t0;
@@ -350,33 +356,33 @@ void main() {
       }
     });
 
-    test('Import (Ersetzen) überträgt Änderungen und Löschungen', () async {
+    test('import (replace) transfers changes and deletions', () async {
       await a.client.connect();
       await b.client.connect();
-      await a.teams.save(team('t1', 'Alt', t0));
+      await a.teams.save(team('t1', 'Old', t0));
       await a.sync();
       await b.sync();
-      await a.teams.replaceAll([team('t2', 'Neu', t0)]);
+      await a.teams.replaceAll([team('t2', 'New', t0)]);
       await a.sync();
       await b.sync();
       expect((await b.teams.loadAll()).single.id, 't2');
     });
 
-    test('ohne Verbindung wird nichts aufgezeichnet', () async {
-      await a.teams.save(team('t1', 'Rot', t0));
+    test('nothing is recorded without a connection', () async {
+      await a.teams.save(team('t1', 'Red', t0));
       expect(a.client.pending, 0);
       expect(() => a.sync(), throwsA(isA<SyncProtocolException>()));
     });
 
-    test('Trennen löscht nur den Abgleichsstand', () async {
+    test('disconnecting only clears the sync state', () async {
       await a.client.connect();
-      await a.teams.save(team('t1', 'Rot', t0));
+      await a.teams.save(team('t1', 'Red', t0));
       await a.client.disconnect();
       expect(a.client.connected, isFalse);
       expect(await a.teams.loadAll(), hasLength(1));
     });
 
-    test('Abgleichsstand übersteht einen Neustart (Datei)', () async {
+    test('sync state survives a restart (file)', () async {
       final dir = Directory.systemTemp.createTempSync('mydex_sync');
       addTearDown(() => dir.deleteSync(recursive: true));
       final store = FileSyncStateStore(File('${dir.path}/sync.json'));

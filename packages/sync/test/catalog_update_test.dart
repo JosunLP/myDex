@@ -13,7 +13,7 @@ void main() {
     'sequence': 179250036405,
   };
 
-  test('kanonisches JSON ist unabhängig von der Schlüsselreihenfolge', () {
+  test('canonical JSON is independent of key order', () {
     expect(
       canonicalJson({
         'b': 1,
@@ -26,22 +26,19 @@ void main() {
     );
   });
 
-  test(
-    'signiertes Update wird mit dem öffentlichen Schlüssel erkannt',
-    () async {
-      final key = CatalogSigningKey.generate();
-      final update = await signCatalogUpdate(manifest, key);
-      // Über JSON übertragen, Schlüsselreihenfolge darf sich ändern.
-      final wire = jsonDecode(jsonEncode(update)) as Map<String, Object?>;
-      final verified = await verifyCatalogUpdate(wire, [
-        await key.publicKeyBase64(),
-      ]);
-      expect(verified['revision'], 'pokeapi-test-s5');
-      expect(update['keyId'], await catalogKeyId(await key.publicKeyBase64()));
-    },
-  );
+  test('signed update is recognized with the public key', () async {
+    final key = CatalogSigningKey.generate();
+    final update = await signCatalogUpdate(manifest, key);
+    // Transferred via JSON, the key order may change.
+    final wire = jsonDecode(jsonEncode(update)) as Map<String, Object?>;
+    final verified = await verifyCatalogUpdate(wire, [
+      await key.publicKeyBase64(),
+    ]);
+    expect(verified['revision'], 'pokeapi-test-s5');
+    expect(update['keyId'], await catalogKeyId(await key.publicKeyBase64()));
+  });
 
-  test('veränderte Manifeste und fremde Schlüssel werden abgelehnt', () async {
+  test('modified manifests and foreign keys are rejected', () async {
     final key = CatalogSigningKey.generate();
     final other = CatalogSigningKey.generate();
     final update = await signCatalogUpdate(manifest, key);
@@ -66,12 +63,12 @@ void main() {
     );
   });
 
-  test('Server bietet Update und Paket nur angemeldet an', () async {
+  test('server offers update and pack only to authenticated clients', () async {
     final dir = Directory.systemTemp.createTempSync('mydex_catalog_update');
     addTearDown(() => dir.deleteSync(recursive: true));
     final handler = SyncHttpHandler(
       SyncServerCore(MemorySyncStore()),
-      (t) => t == 'geheim' ? 'konto' : null,
+      (t) => t == 'secret' ? 'konto' : null,
       catalogDirectory: dir,
     );
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
@@ -79,7 +76,7 @@ void main() {
     server.listen(handler.call);
     final base = Uri.parse('http://127.0.0.1:${server.port}');
 
-    final transport = HttpSyncTransport(base, 'geheim');
+    final transport = HttpSyncTransport(base, 'secret');
     addTearDown(transport.close);
     expect(await transport.catalogUpdate(), isNull);
 

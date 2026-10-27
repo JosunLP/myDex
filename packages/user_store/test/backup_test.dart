@@ -40,7 +40,7 @@ void main() {
   );
 
   group('Format', () {
-    test('Rundreise ohne Passwort', () async {
+    test('round trip without password', () async {
       final bytes = await BackupCodec.encode(data);
       expect(BackupCodec.isEncrypted(bytes), isFalse);
       final back = await BackupCodec.decode(bytes);
@@ -51,13 +51,13 @@ void main() {
       expect(back.createdAt, t1);
     });
 
-    test('Rundreise mit Passwort; falsches Passwort wird erkannt', () async {
+    test('round trip with password; wrong password is detected', () async {
       final bytes = await BackupCodec.encode(data, password: 'geheim');
       expect(BackupCodec.isEncrypted(bytes), isTrue);
       expect(
         utf8.decode(bytes),
         isNot(contains('Kanto')),
-        reason: 'Inhalt ist verschlüsselt',
+        reason: 'content is encrypted',
       );
       expect(
         (await BackupCodec.decode(bytes, password: 'geheim')).teams.single.name,
@@ -85,7 +85,7 @@ void main() {
       );
     }, timeout: const Timeout(Duration(minutes: 1)));
 
-    test('fremde Dateien und unbekannte Versionen werden abgelehnt', () async {
+    test('foreign files and unknown versions are rejected', () async {
       await expectLater(
         BackupCodec.decode(utf8.encode('{"hallo": 1}')),
         throwsA(
@@ -97,7 +97,7 @@ void main() {
         ),
       );
       await expectLater(
-        BackupCodec.decode(utf8.encode('kein json')),
+        BackupCodec.decode(utf8.encode('not json')),
         throwsA(isA<BackupException>()),
       );
       await expectLater(
@@ -114,7 +114,7 @@ void main() {
       );
     });
 
-    test('unlesbare Einträge werden übersprungen und gezählt', () async {
+    test('unreadable entries are skipped and counted', () async {
       final json =
           jsonDecode(utf8.decode(await BackupCodec.encode(data)))
               as Map<String, dynamic>;
@@ -125,7 +125,7 @@ void main() {
     });
   });
 
-  group('Import planen', () {
+  group('Planning an import', () {
     final current = BackupData(
       collection: [entry('pikachu', t1), entry('eevee', t0)],
       teams: [team('a', 'Alt', t0), team('b', 'Nur lokal', t0)],
@@ -142,7 +142,7 @@ void main() {
       createdAt: t1,
     );
 
-    test('Zusammenführen: neuere Einträge gewinnen, nichts geht verloren', () {
+    test('merge: newer entries win, nothing is lost', () {
       final plan = planImport(
         current: current,
         incoming: incoming,
@@ -153,14 +153,10 @@ void main() {
       expect(plan.collectionCounts.kept, 1);
       expect(plan.collection, hasLength(3));
       expect(plan.teams.map((t) => t.name), containsAll(['Neu', 'Nur lokal']));
-      expect(
-        plan.preferences,
-        isNull,
-        reason: 'Einstellungen bleiben beim Zusammenführen',
-      );
+      expect(plan.preferences, isNull, reason: 'settings stay when merging');
     });
 
-    test('Ersetzen: Sicherung gilt vollständig, Entferntes wird gezählt', () {
+    test('replace: the backup applies fully, removed entries are counted', () {
       final plan = planImport(
         current: current,
         incoming: incoming,

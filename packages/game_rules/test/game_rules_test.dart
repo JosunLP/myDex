@@ -8,19 +8,19 @@ void main() {
   final gen6 = TypeChart.forEra(TypeChartEra.gen6plus);
   const t = PokemonType.values;
 
-  group('Typentabellen', () {
-    test('Anzahl der Typen je Ära', () {
+  group('Type charts', () {
+    test('number of types per era', () {
       expect(gen1.types, hasLength(15));
       expect(gen5.types, hasLength(17));
       expect(gen6.types, hasLength(18));
     });
 
-    test('Geist → Psycho: Gen 1 ×0, danach ×2', () {
+    test('Ghost → Psychic: Gen 1 ×0, afterwards ×2', () {
       expect(gen1.single(PokemonType.ghost, PokemonType.psychic), 0);
       expect(gen5.single(PokemonType.ghost, PokemonType.psychic), 2);
     });
 
-    test('Gen-1-Sonderfälle', () {
+    test('Gen 1 special cases', () {
       expect(gen1.single(PokemonType.bug, PokemonType.poison), 2);
       expect(gen1.single(PokemonType.poison, PokemonType.bug), 2);
       expect(gen1.single(PokemonType.ice, PokemonType.fire), 1);
@@ -28,14 +28,14 @@ void main() {
       expect(gen5.single(PokemonType.bug, PokemonType.poison), .5);
     });
 
-    test('Stahl resistiert Geist/Unlicht nur bis Gen 5', () {
+    test('Steel resists Ghost/Dark only up to Gen 5', () {
       expect(gen5.single(PokemonType.ghost, PokemonType.steel), .5);
       expect(gen5.single(PokemonType.dark, PokemonType.steel), .5);
       expect(gen6.single(PokemonType.ghost, PokemonType.steel), 1);
       expect(gen6.single(PokemonType.dark, PokemonType.steel), 1);
     });
 
-    test('Fee existiert vor Gen 6 nicht', () {
+    test('Fairy does not exist before Gen 6', () {
       expect(
         () => gen5.single(PokemonType.fairy, PokemonType.dragon),
         throwsArgumentError,
@@ -43,7 +43,7 @@ void main() {
       expect(gen6.single(PokemonType.dragon, PokemonType.fairy), 0);
     });
 
-    test('Doppeltypen multiplizieren', () {
+    test('dual types multiply', () {
       expect(
         gen6.against(PokemonType.rock, [PokemonType.fire, PokemonType.flying]),
         4,
@@ -64,7 +64,7 @@ void main() {
       );
     });
 
-    test('Gen-6-Tabelle ist vollständig 18×18 definiert', () {
+    test('Gen 6 chart is fully defined 18×18', () {
       for (final a in t) {
         for (final d in t) {
           expect([0, .5, 1, 2], contains(gen6.single(a, d)));
@@ -73,8 +73,8 @@ void main() {
     });
   });
 
-  group('Statuswerte', () {
-    test('moderne Formel (Referenzbeispiel Knakrack Lv. 78)', () {
+  group('Stats', () {
+    test('modern formula (reference example Garchomp Lv. 78)', () {
       const base = BaseStats(
         hp: 108,
         attack: 130,
@@ -115,7 +115,7 @@ void main() {
       expect(r[Stat.speed], 171);
     });
 
-    test('Gen-1-Formel mit maximalen DVs und Status-EP (Mewtu Lv. 100)', () {
+    test('Gen 1 formula with maximum DVs and stat exp (Mewtwo Lv. 100)', () {
       const base = BaseStats.gen1(
         hp: 106,
         attack: 110,
@@ -140,7 +140,7 @@ void main() {
       expect(r[Stat.speed], 358);
     });
 
-    test('ungültige Eingaben werden abgelehnt', () {
+    test('invalid input is rejected', () {
       const base = BaseStats(
         hp: 1,
         attack: 1,
@@ -185,8 +185,8 @@ void main() {
     });
   });
 
-  group('Teamanalyse', () {
-    test('gemeinsame Schwäche ohne Resistenz wird gemeldet', () {
+  group('Team analysis', () {
+    test('shared weakness without resistance is reported', () {
       final a = TeamAnalyzer(gen6).analyze(const [
         TeamMemberTyping(
           label: 'A',
@@ -214,7 +214,7 @@ void main() {
       expect(gaps, isNot(contains(PokemonType.water)));
     });
 
-    test('Immunität verhindert die Meldung', () {
+    test('immunity prevents the report', () {
       final a = TeamAnalyzer(gen6).analyze(const [
         TeamMemberTyping(label: 'A', types: [PokemonType.water]),
         TeamMemberTyping(label: 'B', types: [PokemonType.water]),
@@ -233,12 +233,12 @@ void main() {
       expect(
         shared,
         contains(PokemonType.grass),
-        reason: 'Pflanze trifft Wasser und Boden',
+        reason: 'Grass hits Water and Ground',
       );
       expect(
         a.findings.whereType<CoverageGap>(),
         isEmpty,
-        reason: 'ohne Attacken keine Abdeckungsaussage',
+        reason: 'no coverage statement without moves',
       );
     });
   });

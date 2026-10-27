@@ -33,14 +33,14 @@ void main() {
   bool isPng(List<int>? b) =>
       b != null && b.length > 8 && b[1] == 0x50 && b[2] == 0x4E;
 
-  test('Installation als eigenes Paket neben dem Katalog', () {
+  test('installed as its own pack next to the catalog', () {
     expect(
       dir.listSync().map((e) => e.uri.pathSegments.last),
       contains(startsWith('media-')),
     );
   });
 
-  test('ein Katalogpaket wird als Medienpaket abgelehnt', () async {
+  test('a catalog pack is rejected as a media pack', () async {
     final catalog = CatalogPackManifest.fromJson(
       jsonDecode(File('$_dir/catalog_test.manifest.json').readAsStringSync())
           as Map<String, Object?>,
@@ -54,20 +54,20 @@ void main() {
     );
   });
 
-  test('Standard- und Shiny-Sprite', () {
+  test('default and shiny sprite', () {
     const pikachu = FormId('pikachu');
     expect(isPng(media.sprite(pikachu)), isTrue);
     expect(isPng(media.sprite(pikachu, shiny: true)), isTrue);
-    // Gleiche Instanz für den Bild-Cache der Oberfläche.
+    // Same instance for the UI's image cache.
     expect(identical(media.sprite(pikachu), media.sprite(pikachu)), isTrue);
   });
 
-  test('Sprite je Spiel mit Rückfall auf das Standard-Sprite', () {
+  test('sprite per game with fallback to the default sprite', () {
     const pikachu = FormId('pikachu');
     expect(media.slotFor(const GameVersionId('red')), 'red-blue');
     expect(media.slotFor(const GameVersionId('white-2')), 'black-white');
     expect(media.slotFor(const GameVersionId('scarlet')), 'scarlet-violet');
-    // Colosseum hat keine eigenen Sprites.
+    // Colosseum has no sprites of its own.
     expect(media.slotFor(const GameVersionId('colosseum')), isNull);
     final red = media.spriteFor(pikachu, version: const GameVersionId('red'));
     expect(isPng(red), isTrue);
@@ -79,7 +79,7 @@ void main() {
       ),
       isTrue,
     );
-    // Gen 1 hat keine Shiny-Sprites: Rückfall auf das Standard-Shiny.
+    // Gen 1 has no shiny sprites: fall back to the default shiny.
     expect(media.has(pikachu, slot: 'red-blue', shiny: true), isFalse);
     expect(
       identical(
@@ -94,12 +94,12 @@ void main() {
     );
   });
 
-  test('Alola-Raichu hat keine Gen-1-Sprites', () {
+  test('Alolan Raichu has no Gen 1 sprites', () {
     expect(media.has(const FormId('raichu-alola'), slot: 'red-blue'), isFalse);
     expect(media.has(const FormId('raichu-alola')), isTrue);
   });
 
-  test('Galerie: Artwork, Standard, dann Spiele in Reihenfolge', () {
+  test('gallery: artwork, default, then games in order', () {
     final keys = media.spritesOf(const FormId('pikachu'));
     expect(keys.first, (
       form: const FormId('pikachu'),
@@ -112,18 +112,18 @@ void main() {
     expect(media.versionsOf('red-blue'), contains(const GameVersionId('blue')));
   });
 
-  test('Hauptfarbe aus dem Artwork', () {
+  test('main colour from the artwork', () {
     final rgb = media.artworkColor(const FormId('pikachu'))!;
     final (r, g, b) = (rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF);
     expect(
       r > 180 && g > 140 && b < 140,
       isTrue,
-      reason: 'gelb: #${rgb.toRadixString(16)}',
+      reason: 'yellow: #${rgb.toRadixString(16)}',
     );
     expect(media.artworkColor(const FormId('gibt-es-nicht')), isNull);
   });
 
-  test('ohne Medienpaket bleibt alles leer', () {
+  test('without a media pack everything stays empty', () {
     const empty = EmptyMediaLibrary();
     expect(empty.artworkColor(const FormId('pikachu')), isNull);
     expect(empty.sprite(const FormId('pikachu')), isNull);

@@ -38,8 +38,8 @@ void main() {
   );
   Set<IssueKind> kinds(MemberCheck c) => {for (final i in c.issues) i.kind};
 
-  group('Prüfung', () {
-    test('gültiges Gen-1-Team', () {
+  group('Validation', () {
+    test('valid Gen 1 team', () {
       final check = evaluator('red').check(
         team('red', const [
           TeamMember(
@@ -52,7 +52,7 @@ void main() {
       expect(check.status, CheckStatus.valid);
     });
 
-    test('Fähigkeiten, Items und Wesen gibt es in Gen 1 nicht', () {
+    test('abilities, items and natures do not exist in Gen 1', () {
       final c = evaluator('red').checkMember(
         const TeamMember(
           form: FormId('pikachu'),
@@ -72,7 +72,7 @@ void main() {
       );
     });
 
-    test('Fähigkeit muss zur Form passen', () {
+    test('ability must match the form', () {
       final ok = evaluator('x').checkMember(
         const TeamMember(
           form: FormId('pikachu'),
@@ -89,7 +89,7 @@ void main() {
       expect(kinds(wrong), contains(IssueKind.abilityNotAvailable));
     });
 
-    test('Items: tragbar je Generation, Basis-Items nie', () {
+    test('items: holdable per generation, base items never', () {
       expect(
         evaluator('gold')
             .checkMember(
@@ -112,7 +112,7 @@ void main() {
     });
 
     test(
-      'Attacken: nicht im Spiel = ungültig, nicht erfasst erlernbar = teilweise geprüft',
+      'moves: not in the game = invalid, not recorded as learnable = partially checked',
       () {
         final notInGame = evaluator('red').checkMember(
           const TeamMember(
@@ -142,14 +142,14 @@ void main() {
       },
     );
 
-    test('Form muss im Spiel existieren', () {
+    test('form must exist in the game', () {
       final c = evaluator(
         'red',
       ).checkMember(const TeamMember(form: FormId('raichu-alola')));
       expect(kinds(c), contains(IssueKind.formNotInGame));
     });
 
-    test('ungültige Werte und zu große Teams', () {
+    test('invalid values and oversized teams', () {
       final evs = evaluator('x').checkMember(
         const TeamMember(
           form: FormId('pikachu'),
@@ -170,7 +170,7 @@ void main() {
     });
   });
 
-  test('Werte mit Wesen (Pikachu, X, Lv. 50, Mäßig)', () {
+  test('stats with nature (Pikachu, X, Lv. 50, Modest)', () {
     final stats = evaluator('x').stats(
       const TeamMember(form: FormId('pikachu'), nature: NatureId('modest')),
     )!;
@@ -179,7 +179,7 @@ void main() {
     expect(stats[Stat.attack], 67);
   });
 
-  test('Wesen haben Namen und Effekte', () {
+  test('natures have names and effects', () {
     final modest = catalog.natures[const NatureId('modest')]!;
     expect(modest.name('de'), 'Mäßig');
     expect(modest.increased, Stat.specialAttack);
@@ -187,7 +187,7 @@ void main() {
     expect(catalog.natures[const NatureId('hardy')]!.isNeutral, isTrue);
   });
 
-  test('Vorschläge schließen Abdeckungslücken mit erlernbaren Attacken', () {
+  test('suggestions close coverage gaps with learnable moves', () {
     final t = team('x', const [
       TeamMember(form: FormId('pikachu'), moves: [MoveId('thunder-shock')]),
     ]);
@@ -197,7 +197,7 @@ void main() {
     );
     expect(gaps, contains(PokemonType.ground));
     expect(insights.suggestions, isNotEmpty);
-    // Inkl. Vorentwicklung (Pichu).
+    // Including the pre-evolution (Pichu).
     final learnable = evaluator(
       'x',
     ).learnable(const FormId('pikachu')).keys.toSet();
@@ -207,8 +207,8 @@ void main() {
     }
   });
 
-  group('Vorentwicklungen', () {
-    test('Kette rückwärts im Spiel', () {
+  group('Pre-evolutions', () {
+    test('chain backwards in the game', () {
       expect(
         preEvolutionsOf(
           catalog,
@@ -224,11 +224,11 @@ void main() {
           const VersionGroupId('red-blue'),
         ),
         [const FormId('pikachu')],
-        reason: 'Pichu gibt es erst ab Gen 2',
+        reason: 'Pichu only exists from Gen 2',
       );
     });
 
-    test('Attacken der Vorentwicklung sind legal (Ei- und Zuchtattacken)', () {
+    test('moves of the pre-evolution are legal (egg and breeding moves)', () {
       final glurak = evaluator('x').checkMember(
         const TeamMember(
           form: FormId('charizard'),
@@ -238,7 +238,7 @@ void main() {
       expect(
         glurak.status,
         CheckStatus.valid,
-        reason: 'Drachenpuls ist Glumandas Ei-Attacke',
+        reason: 'Dragon Pulse is Charmander\'s egg move',
       );
       final pikachu = evaluator('x').checkMember(
         const TeamMember(
@@ -249,7 +249,7 @@ void main() {
       expect(
         pikachu.status,
         CheckStatus.valid,
-        reason: 'Volttackle über Pichu (Kugelblitz-Zucht)',
+        reason: 'Volt Tackle via Pichu (Light Ball breeding)',
       );
       expect(
         evaluator('x').learnable(const FormId('pikachu'))[const MoveId(
