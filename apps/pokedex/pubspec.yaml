@@ -21,6 +21,7 @@ dependencies:
   mydex_catalog_store: any
   mydex_domain: any
   mydex_game_rules: any
+  mydex_sync: any
   mydex_user_store: any
   flutter_tts: ^4.2.5
 

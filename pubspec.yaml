@@ -10,5 +10,7 @@ workspace:
   - packages/application
   - packages/catalog_store
   - packages/user_store
+  - packages/sync
   - apps/pokedex
   - tools/data_pipeline
+  - tools/sync_server

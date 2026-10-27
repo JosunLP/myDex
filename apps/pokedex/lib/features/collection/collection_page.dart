@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
+import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
 import '../../app/providers.dart';
@@ -31,7 +32,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     final catalog = ref.watch(readyCatalogProvider);
     final lang = dataLanguageOf(context, ref);
     final entries = ref.watch(collectionProvider).value ?? const {};
-    final storage = ref.watch(appStorageProvider).collection;
+    var storage = ref.watch(appStorageProvider).collection;
+    if (storage is SyncingCollectionRepository) storage = storage.inner;
     final quarantined = storage is FileCollectionRepository
         ? storage.quarantinedPath
         : null;

@@ -1,0 +1,109 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'protocol.dart';
+import 'server_core.dart';
+
+/// Ordnet einem Zugangsschlüssel ein Konto zu; `null` = unbekannt.
+typedef SyncAuthenticator = String? Function(String token);
+
+/// HTTP-Schnittstelle des Sync-Servers:
+/// - `GET  /v1/health`  – Erreichbarkeit und Protokollversion
+/// - `POST /v1/sync`    – Änderungen senden und abholen
+/// - `DELETE /v1/account` – alle Daten des Kontos löschen
+///
+/// TLS übernimmt ein vorgeschalteter Reverse-Proxy; ohne ihn nur lokal betreiben.
+class SyncHttpHandler {
+  SyncHttpHandler(this.core, this.authenticate);
+
+  final SyncServerCore core;
+  final SyncAuthenticator authenticate;
+
+  Future<void> call(HttpRequest request) async {
+    final response = request.response;
+    response.headers
+      ..contentType = ContentType.json
+      ..set('cache-control', 'no-store');
+    try {
+      final path = request.uri.path;
+      if (path == '/v1/health' && request.method == 'GET') {
+        return await _send(response, 200, {
+          'ok': true,
+          'protocol': syncProtocolVersion,
+        });
+      }
+      final account = _account(request);
+      if (path == '/v1/sync' && request.method == 'POST') {
+        final body = await _readBody(request);
+        final syncRequest = SyncRequest.fromJson(
+          jsonDecode(body) as Map<String, Object?>,
+        );
+        return await _send(
+          response,
+          200,
+          core.handle(account, syncRequest).toJson(),
+        );
+      }
+      if (path == '/v1/account' && request.method == 'DELETE') {
+        core.wipe(account);
+        return await _send(response, 200, {'ok': true});
+      }
+      return await _send(response, 404, {'error': 'notFound'});
+    } on SyncProtocolException catch (e) {
+      final status = switch (e.code) {
+        'unauthorized' => 401,
+        'tooLarge' => 413,
+        _ => 400,
+      };
+      return await _send(response, status, {'error': e.code});
+    } on FormatException {
+      return await _send(response, 400, {'error': 'invalidRequest'});
+    } on TypeError {
+      return await _send(response, 400, {'error': 'invalidRequest'});
+    } on Object catch (e, s) {
+      stderr.writeln(
+        'Fehler bei ${request.method} ${request.uri.path}: $e\n$s',
+      );
+      return await _send(response, 500, {'error': 'server'});
+    }
+  }
+
+  String _account(HttpRequest request) {
+    final header = request.headers.value(HttpHeaders.authorizationHeader);
+    const prefix = 'Bearer ';
+    if (header == null || !header.startsWith(prefix)) {
+      throw const SyncProtocolException('unauthorized');
+    }
+    final account = authenticate(header.substring(prefix.length).trim());
+    if (account == null) throw const SyncProtocolException('unauthorized');
+    return account;
+  }
+
+  static Future<String> _readBody(HttpRequest request) async {
+    final declared = request.contentLength;
+    if (declared > SyncLimits.requestBytes) {
+      throw const SyncProtocolException('tooLarge');
+    }
+    final bytes = BytesBuilder(copy: false);
+    await for (final chunk in request) {
+      bytes.add(chunk);
+      if (bytes.length > SyncLimits.requestBytes) {
+        throw const SyncProtocolException('tooLarge');
+      }
+    }
+    return utf8.decode(bytes.takeBytes());
+  }
+
+  static Future<void> _send(
+    HttpResponse response,
+    int status,
+    Map<String, Object?> body,
+  ) async {
+    response
+      ..statusCode = status
+      ..write(jsonEncode(body));
+    await response.close();
+  }
+}

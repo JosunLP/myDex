@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'providers.dart';
 import 'router.dart';
+import 'sync_controller.dart';
 import 'theme.dart';
 
 class MyDexApp extends ConsumerStatefulWidget {
@@ -28,6 +29,8 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     final uiLanguage = ref.watch(settingsProvider.select((s) => s.uiLanguage));
+    // Hält den Abgleich aktiv (automatisch nach Änderungen und beim Start).
+    if (ref.watch(syncSupportedProvider)) ref.listen(syncProvider, (_, _) {});
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
@@ -58,6 +61,7 @@ class CatalogGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final catalog = ref.watch(catalogProvider);
     final l10n = AppLocalizations.of(context);
+    ref.read(appStorageProvider).conflictLabel = l10n.syncConflictLabel;
     return switch (catalog) {
       AsyncData() => child,
       AsyncError(:final error) => Scaffold(
