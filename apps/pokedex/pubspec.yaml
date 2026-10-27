@@ -1,5 +1,5 @@
 name: mydex_app
-description: Offline-first Pokémon-Enzyklopädie.
+description: Offline-first Pokémon encyclopedia.
 publish_to: none
 version: 1.0.0+100000
 resolution: workspace

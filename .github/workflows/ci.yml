@@ -14,7 +14,7 @@ env:
 
 jobs:
   checks:
-    name: Analyse und Tests
+    name: Analysis and tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,26 +23,26 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
-      - name: Abhängigkeiten
+      - name: Dependencies
         run: flutter pub get
-      - name: Formatierung
+      - name: Formatting
         run: dart format --output=none --set-exit-if-changed packages tools apps/pokedex/lib apps/pokedex/test
-      - name: Analyse (Pakete)
+      - name: Analysis (packages)
         run: dart analyze --fatal-infos packages tools
-      - name: Analyse (App)
+      - name: Analysis (app)
         working-directory: apps/pokedex
         run: flutter analyze --fatal-infos
-      - name: Tests (Pakete)
+      - name: Tests (packages)
         run: |
           for p in packages/domain packages/game_rules packages/application packages/catalog_store packages/user_store packages/sync tools/data_pipeline tools/sync_server; do
             (cd $p && dart test)
           done
-      - name: Tests (App)
+      - name: Tests (app)
         working-directory: apps/pokedex
         run: flutter test
 
   catalog:
-    name: Katalog reproduzierbar
+    name: Reproducible catalog
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,23 +51,23 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
-      - name: Quellstand-Cache
+      - name: Source snapshot cache
         uses: actions/cache@v4
         with:
           path: .dart_tool/pokeapi
           key: pokeapi-${{ hashFiles('data/source_manifests/pokeapi.json') }}
       - run: flutter pub get
-      - name: Sprite-Cache
+      - name: Sprite cache
         uses: actions/cache@v4
         with:
           path: .dart_tool/sprites
           key: sprites-${{ hashFiles('tools/data_pipeline/lib/src/media.dart') }}
           restore-keys: sprites-
-      - name: Katalog neu bauen
+      - name: Rebuild catalog
         run: dart run tools/data_pipeline/bin/data_pipeline.dart build
-      - name: Medienpakete neu bauen
+      - name: Rebuild media packs
         run: dart run tools/data_pipeline/bin/data_pipeline.dart media
-      - name: Eingecheckte Pakete stimmen überein
+      - name: Committed packs match
         run: git diff --exit-code -- apps/pokedex/assets/catalog apps/pokedex/assets/media data/fixtures
 
   build:
@@ -105,8 +105,8 @@ jobs:
           case "${{ matrix.target }}" in
             ios) flutter build ios --debug --no-codesign ;;
             apk)
-              # Release-Pakete, damit die geprüften Berechtigungen denen der
-              # Veröffentlichung entsprechen (Debug fügt INTERNET hinzu).
+              # Release packages, so the checked permissions match the
+              # published ones (debug builds add INTERNET).
               flutter build apk --release --flavor offline
               flutter build apk --release --flavor sync
               ../../tools/ci/check_apk_permissions.sh \

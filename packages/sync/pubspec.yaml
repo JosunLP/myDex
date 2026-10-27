@@ -1,5 +1,5 @@
 name: mydex_sync
-description: Optionaler Abgleich persönlicher Daten (Outbox, Revisionen, Konfliktkopien).
+description: Optional sync of personal data (outbox, revisions, conflict copies, encryption).
 publish_to: none
 version: 0.1.0
 resolution: workspace
