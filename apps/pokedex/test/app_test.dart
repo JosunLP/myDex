@@ -424,6 +424,9 @@ void main() {
       scrollable: scrollable,
     );
     expect(find.text('Fundorte und Beschaffung'), findsOneWidget);
+    // Nach oben holen, damit die Navigationsleiste ihn nicht verdeckt.
+    await tester.ensureVisible(find.text('Vertania-Wald'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Vertania-Wald'));
     await tester.pumpAndSettle();
     expect(find.text('Kanto'), findsOneWidget);

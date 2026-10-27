@@ -26,7 +26,8 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
   Sync-Passwort; Android-Ausgabe „sync“.
 - Katalog-Updates über den eigenen Sync-Server, mit Ed25519 signiert und gegen den in der App
   hinterlegten Schlüssel geprüft; ältere Stände werden nicht eingespielt.
-- Galerie mit offiziellem Artwork und Sprites je Spiel (Gen 1–5), Standard und Shiny;
+- Galerie mit offiziellem Artwork und Bildern je Spiel: Sprites Gen 1–6 mit Shiny, ab Gen 7
+  Einzelbilder bzw. Box-Symbole der Spiele bis Champions;
   Vorschaubilder in Dex, Sammlung und Teams – vollständig offline.
 - Gestaltung im Stil des Pokédex: gedämpftes rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit
   Artwork vor der Farbe des jeweiligen Pokémon (aus dem Artwork abgeleitet) und Digitalnummer;

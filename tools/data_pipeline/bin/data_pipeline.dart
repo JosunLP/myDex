@@ -165,7 +165,7 @@ Future<void> _media(Directory root) async {
   final catalogDir = Directory('${root.path}/build/catalog');
   final cache = Directory('${root.path}/.dart_tool/sprites/$spritesCommit');
   final revision =
-      'sprites-${spritesCommit.substring(0, 7)}-m$mediaSchemaVersion-$artworkProcess-$artworkColorProcess';
+      'sprites-${spritesCommit.substring(0, 7)}-m$mediaSchemaVersion-$artworkProcess-$artworkColorProcess-$stillProcess';
   for (final (catalog, rev, pack, manifest) in [
     (
       'catalog.sqlite',

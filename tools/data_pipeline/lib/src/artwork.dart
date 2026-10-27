@@ -20,12 +20,54 @@ const artworkProcess = 'a256-v1';
 Uint8List shrinkArtwork(List<int> png) {
   final decoded = img.decodePng(Uint8List.fromList(png));
   if (decoded == null) throw const FormatException('Kein lesbares PNG');
-  final src = img.copyResize(
-    decoded.convert(numChannels: 4),
-    width: artworkSize,
-    height: artworkSize,
-    interpolation: img.Interpolation.average,
+  return _palettePng(
+    img.copyResize(
+      decoded.convert(numChannels: 4),
+      width: artworkSize,
+      height: artworkSize,
+      interpolation: img.Interpolation.average,
+    ),
   );
+}
+
+/// Größte Kantenlänge der Spiel-Bilder ab Gen 7 (Einzelbild bzw. Symbol).
+const stillSize = 96;
+
+/// Version des Einzelbild-Verfahrens (Teil von Cache-Pfad und Revision).
+const stillProcess = 's96-v1';
+
+/// Einzelbild aus einem Spiel-Bild ab Gen 7 (animiertes GIF/WebP oder
+/// Symbol): erstes Bild, transparenter Rand abgeschnitten, auf höchstens
+/// [stillSize] px verkleinert (nie vergrößert), PNG mit Palette wie beim
+/// Artwork. Deterministisch.
+Uint8List shrinkStill(List<int> bytes) {
+  // Nur das erste Bild dekodieren: schneller, und manche Animationen der
+  // Quelle sind in späteren Bildern fehlerhaft.
+  final data = Uint8List.fromList(bytes);
+  final decoder = img.findDecoderForData(data);
+  if (decoder == null || decoder.startDecode(data) == null) {
+    throw const FormatException('Kein lesbares Bild');
+  }
+  final first = decoder.decodeFrame(0);
+  if (first == null) throw const FormatException('Kein lesbares Bild');
+  var src = img.trim(
+    first.convert(numChannels: 4),
+    mode: img.TrimMode.transparent,
+  );
+  final longest = src.width > src.height ? src.width : src.height;
+  if (longest > stillSize) {
+    src = img.copyResize(
+      src,
+      width: src.width * stillSize ~/ longest,
+      height: src.height * stillSize ~/ longest,
+      interpolation: img.Interpolation.average,
+    );
+  }
+  return _palettePng(src);
+}
+
+/// PNG mit 256-Farben-Palette inkl. halbtransparenter Kanten (siehe oben).
+Uint8List _palettePng(img.Image src) {
   final w = src.width, h = src.height;
 
   final rgb = img.Image(width: w, height: h);

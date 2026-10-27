@@ -20,6 +20,8 @@ class SpriteSlot {
     this.dir,
     this.versions, {
     this.shiny = true,
+    this.ext = 'png',
+    this.still = false,
   });
 
   /// Kennung im Medienpaket, z. B. `gold`.
@@ -32,6 +34,12 @@ class SpriteSlot {
   final String dir;
   final List<String> versions;
   final bool shiny;
+
+  /// Dateiendung in der Quelle.
+  final String ext;
+
+  /// Ab Gen 7: als Einzelbild verkleinern (siehe `shrinkStill`).
+  final bool still;
 }
 
 /// Spiele mit eigenen Sprites (Gen 1–5). Gen 1 und 2 in der transparenten
@@ -82,6 +90,94 @@ const spriteSlots = [
     'black-2',
     'white-2',
   ]),
+  SpriteSlot('x-y', 'x-y', 'generation-vi/x-y', ['x', 'y']),
+  SpriteSlot(
+    'omega-ruby-alpha-sapphire',
+    'omega-ruby-alpha-sapphire',
+    'generation-vi/omega-ruby-alpha-sapphire',
+    ['omega-ruby', 'alpha-sapphire'],
+  ),
+  // Ab Gen 7 gibt es nur animierte 3D-Modelle (0,1–6 MB je Bild) bzw.
+  // Box-Symbole; gespeichert wird ein verkleinertes Einzelbild, ohne Shiny.
+  SpriteSlot(
+    'ultra-sun-ultra-moon',
+    'ultra-sun-ultra-moon',
+    'generation-vii/ultra-sun-ultra-moon',
+    ['sun', 'moon', 'ultra-sun', 'ultra-moon'],
+    shiny: false,
+    ext: 'gif',
+    still: true,
+  ),
+  SpriteSlot(
+    'lets-go',
+    'lets-go-pikachu-lets-go-eevee',
+    'generation-vii/lets-go-pikachu-lets-go-eevee/icons',
+    ['lets-go-pikachu', 'lets-go-eevee'],
+    shiny: false,
+    still: true,
+  ),
+  SpriteSlot(
+    'sword-shield',
+    'sword-shield',
+    'generation-viii/sword-shield/icons',
+    [
+      'sword',
+      'shield',
+      'the-isle-of-armor-sword',
+      'the-isle-of-armor-shield',
+      'the-crown-tundra-sword',
+      'the-crown-tundra-shield',
+    ],
+    shiny: false,
+    still: true,
+  ),
+  SpriteSlot(
+    'brilliant-diamond-shining-pearl',
+    'brilliant-diamond-shining-pearl',
+    'generation-viii/brilliant-diamond-shining-pearl/icons',
+    ['brilliant-diamond', 'shining-pearl'],
+    shiny: false,
+    still: true,
+  ),
+  SpriteSlot(
+    'legends-arceus',
+    'legends-arceus',
+    'generation-viii/legends-arceus/icons',
+    ['legends-arceus'],
+    shiny: false,
+    still: true,
+  ),
+  SpriteSlot(
+    'scarlet-violet',
+    'scarlet-violet',
+    'generation-ix/scarlet-violet/icons',
+    [
+      'scarlet',
+      'violet',
+      'the-teal-mask-scarlet',
+      'the-teal-mask-violet',
+      'the-indigo-disk-scarlet',
+      'the-indigo-disk-violet',
+    ],
+    shiny: false,
+    still: true,
+  ),
+  SpriteSlot(
+    'legends-za',
+    'legends-za',
+    'generation-ix/legends-za/icons',
+    ['legends-za', 'mega-dimension'],
+    shiny: false,
+    still: true,
+  ),
+  SpriteSlot(
+    'champions',
+    'champions',
+    'generation-ix/champions/icons',
+    ['champions'],
+    shiny: false,
+    still: true,
+  ),
 ];
 
 /// Offizielles Artwork je Form (kein Spiel-Sprite, daher kein Eintrag in `slot`).
@@ -89,11 +185,18 @@ const artworkSlot = 'artwork';
 
 /// Eine zu ladende Datei und ihr Ziel im Medienpaket.
 class _Wanted {
-  const _Wanted(this.form, this.slot, this.shiny, this.path);
+  const _Wanted(
+    this.form,
+    this.slot,
+    this.shiny,
+    this.path, {
+    this.still = false,
+  });
   final String form;
   final String slot; // '' = Standard-Sprite
   final bool shiny;
   final String path;
+  final bool still;
 }
 
 class MediaReport {
@@ -150,11 +253,23 @@ class MediaBuilder {
           final rid = f['rid'] as int;
           final id = f['id'] as String;
           wanted.add(
-            _Wanted(id, slot.id, false, 'versions/${slot.dir}/$rid.png'),
+            _Wanted(
+              id,
+              slot.id,
+              false,
+              'versions/${slot.dir}/$rid.${slot.ext}',
+              still: slot.still,
+            ),
           );
           if (slot.shiny) {
             wanted.add(
-              _Wanted(id, slot.id, true, 'versions/${slot.dir}/shiny/$rid.png'),
+              _Wanted(
+                id,
+                slot.id,
+                true,
+                'versions/${slot.dir}/shiny/$rid.${slot.ext}',
+                still: slot.still,
+              ),
             );
           }
         }
@@ -170,7 +285,9 @@ class MediaBuilder {
     final queue = Queue.of(
       wanted.where((w) {
         final f = File('${cache.path}/${w.path}');
-        return !f.existsSync() && !File('${f.path}.missing').existsSync();
+        return !f.existsSync() &&
+            !File('${f.path}.missing').existsSync() &&
+            !(w.still && _stillFile(w.path).existsSync());
       }),
     );
     if (queue.isEmpty) return;
@@ -181,6 +298,7 @@ class MediaBuilder {
       while (queue.isNotEmpty) {
         final w = queue.removeFirst();
         await _download(client, w.path);
+        if (w.still) _still(w.path);
         if (++done % 500 == 0) log?.call('  $done');
       }
     }
@@ -209,7 +327,7 @@ class MediaBuilder {
         final bytes = BytesBuilder(copy: false);
         await response.forEach(bytes.add);
         final data = bytes.takeBytes();
-        if (!_isPng(data)) throw FormatException('Kein PNG: $path');
+        if (!_isImage(data)) throw FormatException('Kein Bild: $path');
         await target.parent.create(recursive: true);
         final tmp = File('${target.path}.part');
         await tmp.writeAsBytes(data, flush: true);
@@ -222,12 +340,28 @@ class MediaBuilder {
     }
   }
 
-  static bool _isPng(List<int> b) =>
-      b.length > 8 &&
-      b[0] == 0x89 &&
-      b[1] == 0x50 &&
-      b[2] == 0x4E &&
-      b[3] == 0x47;
+  /// PNG, GIF oder WebP (RIFF…WEBP).
+  static bool _isImage(List<int> b) =>
+      b.length > 12 &&
+      ((b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) ||
+          (b[0] == 0x47 && b[1] == 0x49 && b[2] == 0x46) ||
+          (b[0] == 0x52 && b[8] == 0x57 && b[9] == 0x45 && b[10] == 0x42));
+
+  File _stillFile(String path) => File('${cache.path}/$stillProcess/$path.png');
+
+  /// Einzelbild ab Gen 7; das (große) Original wird danach gelöscht, im
+  /// Cache bleibt nur das Ergebnis.
+  List<int>? _still(String path) {
+    final cached = _stillFile(path);
+    if (cached.existsSync()) return cached.readAsBytesSync();
+    final original = File('${cache.path}/$path');
+    if (!original.existsSync()) return null;
+    final png = shrinkStill(original.readAsBytesSync());
+    cached.parent.createSync(recursive: true);
+    cached.writeAsBytesSync(png);
+    original.deleteSync();
+    return png;
+  }
 
   /// Verkleinertes Artwork, zwischengespeichert neben dem Original.
   List<int> _shrunk(String path, File original) {
@@ -285,13 +419,22 @@ class MediaBuilder {
       db.execute('BEGIN');
       for (final w in wanted) {
         final file = File('${cache.path}/${w.path}');
-        if (!file.existsSync()) {
+        final List<int> png;
+        if (w.still) {
+          final still = _still(w.path);
+          if (still == null) {
+            report.missing++;
+            continue;
+          }
+          png = still;
+        } else if (!file.existsSync()) {
           report.missing++;
           continue;
+        } else {
+          png = w.slot == artworkSlot
+              ? _shrunk(w.path, file)
+              : file.readAsBytesSync();
         }
-        final png = w.slot == artworkSlot
-            ? _shrunk(w.path, file)
-            : file.readAsBytesSync();
         insert.execute([w.form, w.slot, w.shiny ? 1 : 0, png]);
         if (w.slot == artworkSlot && !w.shiny) {
           insertColor.execute([w.form, artworkColor(png)]);
