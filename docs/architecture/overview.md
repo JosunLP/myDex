@@ -102,5 +102,5 @@ Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen
 | 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
 | 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (abgeschlossen) |
 | 3 | Sammlung und Teams: 3a Teams, 3b Sammlung, Filter, Export/Import (abgeschlossen) |
-| 4 | Referenzparität: 4a Sprachen, Hilfe, Vorlesen (abgeschlossen); 4b Sync (abgeschlossen); Galerie nach Rechteklärung |
+| 4 | Referenzparität: 4a Sprachen, Hilfe, Vorlesen (abgeschlossen); 4b Sync (abgeschlossen); Galerie (Rechte für private Nutzung geklärt) |
 | 5 | Stabilisierung und Veröffentlichung: Barrierefreiheit, Signatur, Release-Workflow, Abnahme (laufend) |

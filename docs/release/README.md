@@ -51,5 +51,5 @@ Debug-Zertifikat im Paket steckt.
 - **iOS:** braucht ein Apple-Entwicklerkonto (Signatur, TestFlight/App Store).
 - **macOS:** das Paket ist nicht signiert/notarisiert; Gatekeeper fragt beim ersten Start.
 - **Windows:** nicht signiert; SmartScreen kann warnen.
-- **F-Droid:** Metadaten liegen unter `fastlane/metadata/android/`; Voraussetzung für die
-  Aufnahme ist eine freie Lizenz für den Quellcode (noch nicht festgelegt).
+- **Verteilung:** myDex ist eine private App. Releases sind GitHub-Releases (APK direkt
+  installieren, z. B. per Obtainium); keine Store- oder F-Droid-Veröffentlichung.

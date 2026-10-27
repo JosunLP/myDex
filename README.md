@@ -6,7 +6,7 @@ spielversionsabhängige Daten und optionaler Sync.
 
 > Inoffizielles Fanprojekt. Pokémon und alle zugehörigen Namen sind Marken ihrer jeweiligen
 > Inhaber. Dieses Projekt ist nicht mit Nintendo, Game Freak oder The Pokémon Company verbunden.
-> Medien werden erst nach geklärter Rechtelage aufgenommen (siehe `data/license_inventory/`).
+> Private App, nicht zur öffentlichen Verbreitung bestimmt. Rechte je Quelle: `data/license_inventory/`.
 
 ## Stand
 
@@ -62,7 +62,7 @@ Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
 - [x] Spieldaten in allen elf Katalogsprachen
 - [x] Offline-Hilfe zu Spielauswahl, Datenlücken, Suche, Fundorten, Sammlung, Teams, Sicherung, Datenschutz
 - [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
-- [ ] Galerie – erst nach geklärten Bildrechten
+- [ ] Galerie (Bildrechte für die private Nutzung geklärt, siehe Rechteinventar)
 
 Phase 4b – Optionaler Sync (abgeschlossen):
 
@@ -78,9 +78,8 @@ Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
 - [x] Einheitlicher App-Name „myDex“ auf allen Plattformen
 - [x] Android-Release-Signatur über GitHub-Secrets; CI prüft die Berechtigungen der Release-APKs
 - [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
-- [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog, F-Droid-Metadaten
+- [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog
 - [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
-- [ ] Lizenz für den Quellcode festlegen (Voraussetzung u. a. für F-Droid)
 - [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
 - [ ] iOS/macOS/Windows signieren (Entwicklerkonten)
 
