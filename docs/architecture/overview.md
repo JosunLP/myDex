@@ -24,6 +24,7 @@ Windows, macOS, Linux.
 9. Team-Prüfung mit vier Zuständen, ohne Legalitätsgarantie (ADR 0009).
 10. Datensicherung als versionierte, optional verschlüsselte Datei (ADR 0010).
 11. Vorlesen über die System-Sprachausgabe, fünf Oberflächensprachen (ADR 0011).
+12. Optionaler Sync über einen selbst gehosteten Server (ADR 0012).
 
 ## Schichten
 
@@ -32,7 +33,7 @@ Windows, macOS, Linux.
 | Presentation | `apps/pokedex` | Widgets, Navigation, Darstellungszustände |
 | Application | `packages/application` | Anwendungsfälle, Repository-Schnittstellen, Suche |
 | Domain | `packages/domain`, `packages/game_rules` | Modelle, Regelwerke, Berechnungen |
-| Infrastructure | `packages/catalog_store`, `packages/user_store` | Katalogpaket, Nutzerdaten |
+| Infrastructure | `packages/catalog_store`, `packages/user_store`, `packages/sync` | Katalogpaket, Nutzerdaten, Abgleich |
 
 Regel: innere Schichten kennen keine äußeren. Infrastruktur implementiert Schnittstellen aus
 `application`.
@@ -80,11 +81,13 @@ Drei getrennte Stufen: Basistypen-Analyse (implementiert), kontextabhängige Ana
 `gültig`, `ungültig`, `teilweise geprüft` oder `Datenlage unzureichend` – nie eine
 ungedeckte Garantie.
 
-## Sync (geplant)
+## Sync (optional)
 
-Optional. Outbox-basiert und revisionskontrolliert, Tombstones für Löschungen,
-Konfliktkopien statt stillem Überschreiben. TLS und verschlüsselte Datenträger; keine
-Ende-zu-Ende-Verschlüsselung, sofern nicht vor Implementierung anders entschieden.
+Selbst gehosteter Server (`tools/sync_server`) und Client-Logik in `packages/sync` (ADR 0012).
+Outbox je Gerät, kontoweite Revisionen mit optimistischer Nebenläufigkeit, Grabsteine für
+Löschungen, Konfliktkopien statt stillem Überschreiben. HTTPS über einen Reverse-Proxy; keine
+Ende-zu-Ende-Verschlüsselung in Version 1. Die Android-Standardausgabe enthält keinen Sync und
+keine Internet-Berechtigung.
 
 ## GrapheneOS
 
@@ -99,5 +102,5 @@ Push-Zwang; signierte APK zusätzlich zum Store; keine unnötigen Berechtigungen
 | 1 | Fundament, vertikaler Durchstich (abgeschlossen) |
 | 2 | Vollständiger Wissenskatalog: 2a Pipeline, Attacken, Fähigkeiten, Historie (abgeschlossen); 2b Fundorte und Beschaffung (abgeschlossen) |
 | 3 | Sammlung und Teams: 3a Teams, 3b Sammlung, Filter, Export/Import (abgeschlossen) |
-| 4 | Referenzparität: 4a Sprachen, Hilfe, Vorlesen (laufend); 4b Sync; Galerie nach Rechteklärung |
+| 4 | Referenzparität: 4a Sprachen, Hilfe, Vorlesen (abgeschlossen); 4b Sync (laufend); Galerie nach Rechteklärung |
 | 5 | Stabilisierung und Veröffentlichung |

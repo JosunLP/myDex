@@ -29,6 +29,20 @@ android {
         versionName = flutter.versionName
     }
 
+    // „offline“: Standardausgabe ohne Internet-Berechtigung (GrapheneOS-Abnahme).
+    // „sync“: zusätzlich Internet für den optionalen Abgleich (ADR 0012).
+    flavorDimensions += "edition"
+    productFlavors {
+        create("offline") {
+            dimension = "edition"
+        }
+        create("sync") {
+            dimension = "edition"
+            applicationIdSuffix = ".sync"
+            versionNameSuffix = "-sync"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

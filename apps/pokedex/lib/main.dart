@@ -22,6 +22,7 @@ Future<void> main() async {
     '${(await getApplicationSupportDirectory()).path}/mydex',
   );
   final storage = AppStorage(dir);
+  await storage.sync.open();
   // Einstellungen vor dem ersten Frame laden, damit Theme und Spiel nicht springen.
   final settings = AppSettings.fromJson(await storage.preferences.load());
   runApp(

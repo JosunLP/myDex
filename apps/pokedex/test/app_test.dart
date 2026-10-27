@@ -11,9 +11,11 @@ import 'package:mydex_app/app/backup_files.dart';
 import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
 import 'package:mydex_app/app/speech.dart';
+import 'package:mydex_app/app/sync_controller.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_domain/mydex_domain.dart';
+import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
 const _fixtureDir = '../../data/fixtures';
@@ -46,6 +48,7 @@ class _Harness {
   final presets = MemoryFilterPresetRepository();
   final files = _MemoryFiles();
   final speaker = _FakeSpeaker();
+  final syncCore = SyncServerCore(MemorySyncStore());
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
 
   Widget build() => ProviderScope(
@@ -53,6 +56,9 @@ class _Harness {
       catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
       backupFilesProvider.overrideWithValue(files),
       speakerProvider.overrideWithValue(speaker),
+      syncTransportFactoryProvider.overrideWithValue(
+        (config) => _CoreTransport(syncCore, config.token),
+      ),
       appStorageProvider.overrideWithValue(
         AppStorage.custom(
           collection: collection,
@@ -65,6 +71,31 @@ class _Harness {
     ],
     child: const MyDexApp(),
   );
+}
+
+/// Sync-Server im Speicher; nur der Schlüssel „geheim“ ist gültig.
+class _CoreTransport implements SyncTransport {
+  _CoreTransport(this.core, this.token);
+  final SyncServerCore core;
+  final String token;
+
+  void _check() {
+    if (token != 'geheim') throw const SyncProtocolException('unauthorized');
+  }
+
+  @override
+  Future<SyncResponse> sync(SyncRequest request) async {
+    _check();
+    return SyncResponse.fromJson(
+      core.handle('konto', SyncRequest.fromJson(request.toJson())).toJson(),
+    );
+  }
+
+  @override
+  Future<void> deleteAccountData() async {
+    _check();
+    core.wipe('konto');
+  }
 }
 
 /// Merkt sich Vorlesetexte; die Ausgabe läuft, bis [finish] oder `stop`.
@@ -629,5 +660,81 @@ void main() {
     await tester.pumpAndSettle();
     await _search(tester, 'glurak');
     expect(find.text('Dracaufeu'), findsOneWidget);
+  });
+
+  testWidgets('Synchronisierung: verbinden, empfangen, trennen', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(500, 1600));
+    // Ein anderes Gerät hat bereits ein Team hochgeladen.
+    final other = Team(
+      id: 'fremd',
+      name: 'Vom Tablet',
+      version: const GameVersionId('red'),
+      updatedAt: DateTime.utc(2026, 3, 1),
+    );
+    h.syncCore.handle(
+      'konto',
+      SyncRequest(
+        since: 0,
+        changes: [
+          SyncChange(
+            kind: SyncKinds.team,
+            id: other.id,
+            updatedAt: other.updatedAt,
+            data: other.toJson(),
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(find.text('Mehr'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Synchronisierung').last);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('ohne Ende-zu-Ende'), findsOneWidget);
+
+    // Unverschlüsselt ins Netz ist nicht erlaubt.
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Serveradresse'),
+      'http://sync.example.org',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Zugangsschlüssel'),
+      'falsch',
+    );
+    await tester.tap(find.text('Verbinden'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Nur HTTPS'), findsWidgets);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Serveradresse'),
+      'https://sync.example.org',
+    );
+    await tester.tap(find.text('Verbinden'));
+    await tester.pumpAndSettle();
+    expect(find.text('Der Zugangsschlüssel ist ungültig.'), findsWidgets);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Zugangsschlüssel'),
+      'geheim',
+    );
+    await tester.tap(find.text('Verbinden'));
+    await tester.pumpAndSettle();
+    expect(find.text('https://sync.example.org'), findsOneWidget);
+    expect(find.textContaining('1 empfangen'), findsOneWidget);
+    expect((await h.teams.loadAll()).single.name, 'Vom Tablet');
+
+    await tester.tap(find.text('Teams'));
+    await tester.pumpAndSettle();
+    expect(find.text('Vom Tablet'), findsOneWidget);
+
+    await tester.tap(find.text('Mehr'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Trennen'));
+    await tester.pumpAndSettle();
+    expect(find.text('Verbinden'), findsOneWidget);
+    // Lokale Daten bleiben nach dem Trennen.
+    expect(await h.teams.loadAll(), hasLength(1));
   });
 }

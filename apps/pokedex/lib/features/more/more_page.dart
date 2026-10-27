@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../app/sync_controller.dart';
 import 'backup_section.dart';
 
 class MorePage extends ConsumerWidget {
@@ -93,6 +94,10 @@ class MorePage extends ConsumerWidget {
           ),
           heading(l10n.backupTitle),
           const BackupSection(),
+          if (ref.watch(syncSupportedProvider)) ...[
+            heading(l10n.syncTitle),
+            const _SyncTile(),
+          ],
           heading(l10n.aboutData),
           ListTile(
             leading: const Icon(Icons.help_outline),
@@ -171,4 +176,27 @@ class _LanguageTile extends StatelessWidget {
       onChanged: onChanged,
     ),
   );
+}
+
+class _SyncTile extends ConsumerWidget {
+  const _SyncTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final status = ref.watch(syncProvider);
+    return ListTile(
+      leading: Icon(
+        status.connected ? Icons.cloud_sync_outlined : Icons.cloud_off_outlined,
+      ),
+      title: Text(l10n.syncTitle),
+      subtitle: Text(
+        status.connected
+            ? l10n.syncSubtitleOn(Uri.parse(status.config!.serverUrl).host)
+            : l10n.syncSubtitleOff,
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => context.go('/more/sync'),
+    );
+  }
 }

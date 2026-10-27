@@ -4,39 +4,70 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
+import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
 import 'catalog_loader.dart';
 import 'settings.dart';
+import 'sync_config.dart';
 
-/// Ablageort der persönlichen Daten.
+/// Ablageort der persönlichen Daten. Sammlung, Teams und Vorlagen laufen über
+/// den Abgleich (ADR 0012); ohne Verbindung zeichnet er nichts auf.
 class AppStorage {
-  AppStorage(Directory dir)
-    : collection = FileCollectionRepository(
-        File('${dir.path}/collection.json'),
-      ),
-      preferences = JsonPreferencesRepository(
-        File('${dir.path}/preferences.json'),
-      ),
-      teams = FileTeamRepository(File('${dir.path}/teams.json')),
-      presets = FileFilterPresetRepository(
-        File('${dir.path}/filter_presets.json'),
-      ),
-      catalogDirectory = Directory('${dir.path}/catalog');
+  factory AppStorage(Directory dir) => AppStorage.custom(
+    collection: FileCollectionRepository(File('${dir.path}/collection.json')),
+    preferences: JsonPreferencesRepository(
+      File('${dir.path}/preferences.json'),
+    ),
+    teams: FileTeamRepository(File('${dir.path}/teams.json')),
+    presets: FileFilterPresetRepository(
+      File('${dir.path}/filter_presets.json'),
+    ),
+    catalogDirectory: Directory('${dir.path}/catalog'),
+    syncState: FileSyncStateStore(File('${dir.path}/sync_state.json')),
+    syncConfig: FileSyncConfigStore(File('${dir.path}/sync_config.json')),
+  );
 
   AppStorage.custom({
-    required this.collection,
+    required CollectionRepository collection,
     required this.preferences,
     required this.catalogDirectory,
     TeamRepository? teams,
     FilterPresetRepository? presets,
-  }) : teams = teams ?? MemoryTeamRepository(),
-       presets = presets ?? MemoryFilterPresetRepository();
+    SyncStateStore? syncState,
+    SyncConfigStore? syncConfig,
+  }) : syncConfig = syncConfig ?? MemorySyncConfigStore() {
+    final rawTeams = teams ?? MemoryTeamRepository();
+    final rawPresets = presets ?? MemoryFilterPresetRepository();
+    String conflictName(String name) => '$name ($conflictLabel)';
+    sync = SyncClient(
+      stateStore: syncState ?? MemorySyncStateStore(),
+      adapters: [
+        CollectionSyncAdapter(collection),
+        DocumentSyncAdapter.teams(rawTeams, conflictName: conflictName),
+        DocumentSyncAdapter.filterPresets(
+          rawPresets,
+          conflictName: conflictName,
+        ),
+      ],
+    );
+    this.collection = SyncingCollectionRepository(collection, sync);
+    this.teams = SyncingTeamRepository(rawTeams, sync);
+    this.presets = SyncingFilterPresetRepository(rawPresets, sync);
+  }
 
-  final CollectionRepository collection;
+  late final CollectionRepository collection;
   final JsonPreferencesRepository preferences;
-  final TeamRepository teams;
-  final FilterPresetRepository presets;
+  late final TeamRepository teams;
+  late final FilterPresetRepository presets;
+  late final SyncClient sync;
+
+  /// Serveradresse und Zugangsschlüssel – bewusst nicht in den Einstellungen,
+  /// damit sie nie in einer Datensicherung landen.
+  final SyncConfigStore syncConfig;
+
+  /// Zusatz für Konfliktkopien, in der App-Sprache (wird von der App gesetzt).
+  String conflictLabel = 'Konflikt';
 
   /// Getrennt von den Nutzerdaten (ADR 0003).
   final Directory catalogDirectory;

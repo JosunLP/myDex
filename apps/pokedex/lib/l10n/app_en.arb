@@ -796,5 +796,76 @@
   "helpBackupTitle": "Backup",
   "helpBackupBody": "Export your collection, teams, filter presets and settings as one file, optionally encrypted with a password. Before importing you see what changes, and you choose to merge or replace. Keep the password safe – it cannot be recovered.",
   "helpPrivacyTitle": "Privacy and offline use",
-  "helpPrivacyBody": "myDex works without an account and without internet. The Android app does not even request internet permission. Your data stays on this device unless you export it yourself."
+  "helpPrivacyBody": "myDex works without an account and without internet. The standard Android edition does not even request internet permission. Your data stays on this device unless you export it yourself or turn on sync with your own server.",
+  "syncTitle": "Sync",
+  "syncSubtitleOff": "Off – your data stays on this device",
+  "syncSubtitleOn": "Connected to {server}",
+  "@syncSubtitleOn": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "syncIntro": "Optionally keep your collection, teams and filter presets in sync between your devices through your own myDex sync server. Without it, everything keeps working offline.",
+  "syncPrivacyNote": "Data is sent encrypted (HTTPS) but stored on the server without end-to-end encryption. Only use a server you run yourself or trust. Settings and the catalog are not synced.",
+  "syncServerUrl": "Server address",
+  "syncToken": "Access key",
+  "syncShowToken": "Show access key",
+  "syncConnect": "Connect",
+  "syncConnected": "Connected and synced.",
+  "syncNow": "Sync now",
+  "syncRunning": "Syncing…",
+  "syncDisconnect": "Disconnect",
+  "syncDisconnected": "Disconnected. Your data stays on this device.",
+  "syncWipe": "Delete my data on the server",
+  "syncWipeConfirm": "All data of this account is deleted from the server and this device is disconnected. Data on your devices stays. Other devices will upload their data again on their next sync.",
+  "syncWiped": "Data on the server deleted.",
+  "syncLastSync": "Last synced {time}",
+  "@syncLastSync": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "syncNever": "Not synced yet",
+  "syncPending": "{count} changes waiting",
+  "@syncPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncReport": "Last time: {sent} sent, {received} received",
+  "@syncReport": {
+    "placeholders": {
+      "sent": {
+        "type": "int"
+      },
+      "received": {
+        "type": "int"
+      }
+    }
+  },
+  "syncCopies": "{count} conflict copies kept",
+  "@syncCopies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncError": "{error, select, unauthorized{The access key is not valid.} insecureConnection{Only HTTPS connections are allowed (except to this device).} network{The server cannot be reached. Changes are kept and sent later.} tooLarge{Too much data for one request.} unsupportedProtocol{The server uses a different version.} invalidRequest{The server address is not valid.} notFound{No myDex sync server at this address.} other{The server reported an error. Changes are kept.}}",
+  "@syncError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "syncConflictLabel": "conflict",
+  "helpSyncTitle": "Sync (optional)",
+  "helpSyncBody": "Sync uses your own server: run the myDex sync server (see the project documentation), create an account and enter the address and access key under More → Sync. Changes are sent automatically a few seconds after you make them. If two devices change the same team or preset, both versions are kept – one as a copy marked \"conflict\". For collection marks, the newer change wins. On Android, sync is only available in the \"sync\" edition; the standard edition has no internet permission."
 }

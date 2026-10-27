@@ -12,6 +12,7 @@ import '../features/locations/locations_page.dart';
 import '../features/more/data_page.dart';
 import '../features/more/help_page.dart';
 import '../features/more/more_page.dart';
+import '../features/more/sync_page.dart';
 import '../features/teams/member_editor_page.dart';
 import '../features/teams/team_editor_page.dart';
 import '../features/teams/teams_page.dart';
@@ -119,6 +120,7 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
               routes: [
                 GoRoute(path: 'data', builder: (_, _) => const DataPage()),
                 GoRoute(path: 'help', builder: (_, _) => const HelpPage()),
+                GoRoute(path: 'sync', builder: (_, _) => const SyncPage()),
               ],
             ),
           ],

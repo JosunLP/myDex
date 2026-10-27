@@ -23,6 +23,7 @@ class HelpPage extends StatelessWidget {
       (Icons.groups_outlined, l10n.helpTeamsTitle, l10n.helpTeamsBody),
       (Icons.volume_up_outlined, l10n.helpSpeechTitle, l10n.helpSpeechBody),
       (Icons.save_alt, l10n.helpBackupTitle, l10n.helpBackupBody),
+      (Icons.cloud_sync_outlined, l10n.helpSyncTitle, l10n.helpSyncBody),
       (Icons.shield_outlined, l10n.helpPrivacyTitle, l10n.helpPrivacyBody),
     ];
     return Scaffold(

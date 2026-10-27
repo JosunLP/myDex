@@ -56,14 +56,21 @@ Phase 3b – Sammlung und Datensicherung (abgeschlossen):
 - [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
 
-Phase 4a – Sprachen, Hilfe, Vorlesen (dieser Stand):
+Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
 
 - [x] Oberfläche auf Deutsch, Englisch, Französisch, Spanisch und Italienisch, wählbar oder nach System
 - [x] Spieldaten in allen elf Katalogsprachen
 - [x] Offline-Hilfe zu Spielauswahl, Datenlücken, Suche, Fundorten, Sammlung, Teams, Sicherung, Datenschutz
 - [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
-- [ ] Optionaler Sync (Phase 4b)
 - [ ] Galerie – erst nach geklärten Bildrechten
+
+Phase 4b – Optionaler Sync (dieser Stand):
+
+- [x] Abgleich von Sammlung, Teams und Filtervorlagen über einen selbst gehosteten Server (ADR 0012)
+- [x] Outbox, Revisionen, Grabsteine für Löschungen, Konfliktkopien statt Überschreiben
+- [x] Server mit SQLite und Kommandozeile für Konten (`tools/sync_server`)
+- [x] Android: Standardausgabe `offline` ohne Internet-Berechtigung, Ausgabe `sync` mit Abgleich
+- [ ] Ende-zu-Ende-Verschlüsselung der Datensätze
 
 ## Struktur
 
@@ -74,7 +81,9 @@ packages/game_rules/    Typentabellen, Statuswerte, Teamanalyse – reines Dart
 packages/application/   Anwendungsfälle, Repository-Schnittstellen, Suche
 packages/catalog_store/ SQLite-Katalog: Schema, Lesen, Prüfen, Installieren
 packages/user_store/    Persönliche Daten (Sammlung, Teams, Vorlagen, Sicherung)
+packages/sync/          Optionaler Abgleich: Protokoll, Client, Serverkern
 tools/data_pipeline/    Quellstand laden, normalisieren, prüfen, Katalog bauen
+tools/sync_server/      Selbst gehosteter Sync-Server (SQLite)
 data/source_manifests/  Festgehaltener Quellstand mit Prüfsummen
 data/fixtures/          Kleiner Testkatalog (von der Pipeline erzeugt)
 docs/                   Architektur, Entscheidungen (ADRs), Paritätsmatrix
@@ -90,7 +99,8 @@ noch eine Datenbank.
 flutter pub get                      # löst den gesamten Workspace auf
 (cd packages/domain && dart test)   # usw. für jedes reine Dart-Paket
 cd apps/pokedex && flutter test
-cd apps/pokedex && flutter run -d linux   # oder android, ios, macos, windows
+cd apps/pokedex && flutter run -d linux   # oder ios, macos, windows
+cd apps/pokedex && flutter run --flavor offline   # Android (oder --flavor sync)
 ```
 
 Katalog neu bauen (lädt den festgehaltenen Quellstand einmalig nach `.dart_tool/`):
@@ -104,5 +114,7 @@ Das erzeugt `apps/pokedex/assets/catalog/catalog.sqlite.gz` (+ Manifest) und den
 eingecheckten Pakete exakt übereinstimmen. Regeln und bekannte Lücken: ADR 0008.
 
 Datenquelle: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), Lizenzhinweis in der App.
+
+Sync-Server selbst betreiben: `tools/sync_server/README.md`.
 
 Siehe `docs/architecture/overview.md`, `docs/decisions/` und `docs/parity/`.

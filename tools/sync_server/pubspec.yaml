@@ -1,0 +1,17 @@
+name: mydex_sync_server
+description: Selbst hostbarer Sync-Server für myDex (SQLite, ein Prozess).
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  crypto: ^3.0.0
+  mydex_sync: any
+  sqlite3: ^3.8.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.0

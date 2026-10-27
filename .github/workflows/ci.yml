@@ -34,7 +34,7 @@ jobs:
         run: flutter analyze --fatal-infos
       - name: Tests (Pakete)
         run: |
-          for p in packages/domain packages/game_rules packages/application packages/catalog_store packages/user_store tools/data_pipeline; do
+          for p in packages/domain packages/game_rules packages/application packages/catalog_store packages/user_store packages/sync tools/data_pipeline tools/sync_server; do
             (cd $p && dart test)
           done
       - name: Tests (App)
@@ -96,6 +96,9 @@ jobs:
         run: |
           case "${{ matrix.target }}" in
             ios) flutter build ios --debug --no-codesign ;;
-            apk) flutter build apk --debug ;;
+            apk)
+              flutter build apk --debug --flavor offline
+              flutter build apk --debug --flavor sync
+              ;;
             *) flutter build ${{ matrix.target }} --debug ;;
           esac
