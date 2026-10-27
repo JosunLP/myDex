@@ -21,6 +21,8 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
 - Vorlesen über die Sprachausgabe des Systems; Offline-Hilfe.
 - Optionaler Abgleich über einen selbst gehosteten Server, Ende-zu-Ende-verschlüsselt mit
   Sync-Passwort; Android-Ausgabe „sync“.
+- Katalog-Updates über den eigenen Sync-Server, mit Ed25519 signiert und gegen den in der App
+  hinterlegten Schlüssel geprüft; ältere Stände werden nicht eingespielt.
 - Galerie mit offiziellem Artwork und Sprites je Spiel (Gen 1–5), Standard und Shiny;
   Vorschaubilder in Dex, Sammlung und Teams – vollständig offline.
 - Gestaltung im Stil des Pokédex: rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit Artwork,

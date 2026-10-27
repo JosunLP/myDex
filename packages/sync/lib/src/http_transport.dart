@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'protocol.dart';
 
@@ -12,9 +13,18 @@ abstract interface class SyncTransport {
   Future<void> deleteAccountData();
 }
 
+/// Quelle für signierte Katalog-Updates (der eigene Sync-Server).
+abstract interface class CatalogUpdateSource {
+  /// Signierte Update-Beschreibung oder `null`, wenn keine angeboten wird.
+  Future<Map<String, Object?>?> catalogUpdate();
+
+  /// Das gzip-komprimierte Katalogpaket.
+  Future<List<int>> catalogPack();
+}
+
 /// HTTPS-Verbindung mit Zugangsschlüssel. Unverschlüsseltes HTTP ist nur für
 /// lokale Adressen (eigener Rechner, Android-Emulator) erlaubt.
-class HttpSyncTransport implements SyncTransport {
+class HttpSyncTransport implements SyncTransport, CatalogUpdateSource {
   HttpSyncTransport(
     this.baseUrl,
     this.token, {
@@ -57,6 +67,48 @@ class HttpSyncTransport implements SyncTransport {
   @override
   Future<void> deleteAccountData() async {
     await _send('DELETE', '/v1/account', null);
+  }
+
+  @override
+  Future<Map<String, Object?>?> catalogUpdate() async {
+    try {
+      return await _send('GET', '/v1/catalog/update', null);
+    } on SyncProtocolException catch (e) {
+      if (e.code == 'notFound') return null;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<int>> catalogPack({int maxBytes = 256 * 1024 * 1024}) async {
+    try {
+      final req = await _client
+          .openUrl('GET', _endpoint('/v1/catalog/pack'))
+          .timeout(timeout);
+      req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
+      final res = await req.close().timeout(timeout);
+      if (res.statusCode != 200) {
+        await res.drain<void>();
+        throw SyncProtocolException(
+          res.statusCode == 401 ? 'unauthorized' : 'server',
+          'HTTP ${res.statusCode}',
+        );
+      }
+      final bytes = BytesBuilder(copy: false);
+      await for (final chunk in res.timeout(const Duration(minutes: 5))) {
+        bytes.add(chunk);
+        if (bytes.length > maxBytes) {
+          throw const SyncProtocolException('tooLarge');
+        }
+      }
+      return bytes.takeBytes();
+    } on SyncProtocolException {
+      rethrow;
+    } on IOException catch (e) {
+      throw SyncProtocolException('network', '$e');
+    } on TimeoutException {
+      throw const SyncProtocolException('network', 'timeout');
+    }
   }
 
   Future<Map<String, Object?>> _send(

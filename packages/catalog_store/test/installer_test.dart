@@ -37,6 +37,19 @@ void main() {
     );
   });
 
+  test('Reihenfolgenummer wird gespeichert, Verzeichnis angelegt', () async {
+    expect(fixtureManifest.sequence, greaterThan(0));
+    final nested = Directory('${dir.path}/neu/katalog');
+    final installer = CatalogInstaller(nested);
+    final installed = await installer.install(fixtureManifest, fixturePack());
+    expect(installed.sequence, fixtureManifest.sequence);
+    expect((await installer.current())!.sequence, fixtureManifest.sequence);
+    expect(
+      CatalogPackManifest.fromJson(fixtureManifest.toJson()).sequence,
+      fixtureManifest.sequence,
+    );
+  });
+
   test('gleiche Revision wird nicht erneut entpackt', () async {
     final installer = CatalogInstaller(dir);
     await installer.ensureInstalled(fixtureManifest, fixturePack);

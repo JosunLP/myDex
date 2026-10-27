@@ -284,5 +284,9 @@
   "syncUnlocking": "Conectando…",
   "galleryArtwork": "Ilustración oficial",
   "acquireByTrade": "Por intercambio desde {games}",
-  "acquireByEvent": "Pokémon singular: normalmente solo se obtiene en distribuciones de eventos."
+  "acquireByEvent": "Pokémon singular: normalmente solo se obtiene en distribuciones de eventos.",
+  "catalogUpdateTitle": "Actualizaciones del catálogo",
+  "catalogUpdateHint": "Las actualizaciones firmadas del catálogo llegan desde tu propio servidor de sincronización. Cada actualización se comprueba con la clave integrada en la app antes de instalarse.",
+  "catalogUpdateCheck": "Comprobar",
+  "catalogUpdateResult": "{result, select, installed{Catálogo actualizado a {revision}.} upToDate{El catálogo está actualizado ({revision}).} noUpdate{Tu servidor no ofrece ninguna actualización del catálogo.} notConfigured{Las actualizaciones del catálogo no están configuradas en esta edición.} notConnected{Conéctate primero a tu servidor de sincronización.} incompatible{La actualización ({revision}) necesita una versión más reciente de la app.} badSignature{La actualización no está firmada con una clave de confianza y se ha rechazado.} invalid{La actualización no se puede leer y se ha rechazado.} network{No se puede acceder al servidor.} other{No se pudo instalar la actualización; el catálogo anterior sigue activo.}}"
 }

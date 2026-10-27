@@ -20,6 +20,7 @@ class CatalogPackManifest {
     required this.size,
     this.source = '',
     this.sourceRevision = '',
+    this.sequence = 0,
   });
 
   factory CatalogPackManifest.fromJson(Map<String, Object?> j) =>
@@ -30,6 +31,7 @@ class CatalogPackManifest {
         size: j['size']! as int,
         source: (j['source'] as String?) ?? '',
         sourceRevision: (j['sourceRevision'] as String?) ?? '',
+        sequence: (j['sequence'] as int?) ?? 0,
       );
 
   final String revision;
@@ -43,6 +45,10 @@ class CatalogPackManifest {
   final String source;
   final String sourceRevision;
 
+  /// Fortlaufende Reihenfolge der Pakete (höher = neuer). Verhindert, dass ein
+  /// älteres Paket ein neueres ersetzt. 0 = unbekannt.
+  final int sequence;
+
   Map<String, Object?> toJson() => {
     'revision': revision,
     'schemaVersion': schemaVersion,
@@ -50,6 +56,7 @@ class CatalogPackManifest {
     'size': size,
     'source': source,
     'sourceRevision': sourceRevision,
+    if (sequence > 0) 'sequence': sequence,
   };
 }
 
@@ -62,10 +69,18 @@ class CatalogInstallException implements Exception {
 
 @immutable
 class InstalledCatalog {
-  const InstalledCatalog(this.path, this.revision, {this.installError});
+  const InstalledCatalog(
+    this.path,
+    this.revision, {
+    this.installError,
+    this.sequence = 0,
+  });
 
   final String path;
   final String revision;
+
+  /// Reihenfolge des installierten Pakets (siehe [CatalogPackManifest.sequence]).
+  final int sequence;
 
   /// Gesetzt, wenn ein neues Paket verworfen wurde und die vorherige
   /// funktionierende Version weiterverwendet wird (Rollback).
@@ -130,7 +145,12 @@ class CatalogInstaller {
     } on Object catch (e) {
       // Rückfall nur auf eine Vorversion, die diese App-Version lesen kann.
       if (active != null && _isUsable(active.path)) {
-        return InstalledCatalog(active.path, active.revision, installError: e);
+        return InstalledCatalog(
+          active.path,
+          active.revision,
+          installError: e,
+          sequence: active.sequence,
+        );
       }
       rethrow;
     }
@@ -148,6 +168,7 @@ class CatalogInstaller {
     if (!RegExp(r'^[A-Za-z0-9._-]+$').hasMatch(manifest.revision)) {
       throw CatalogInstallException('Ungültige Revision: ${manifest.revision}');
     }
+    await directory.create(recursive: true);
     final tmp = File('${directory.path}/incoming-${manifest.revision}.tmp');
     final target = File(
       '${directory.path}/${format.name}-${manifest.revision}.sqlite',
@@ -178,9 +199,18 @@ class CatalogInstaller {
     }
 
     final previous = await _readActive();
-    await _writeActive(manifest.revision, target.path, previous?.path);
+    await _writeActive(
+      manifest.revision,
+      target.path,
+      previous?.path,
+      manifest.sequence,
+    );
     await _cleanup(keep: {target.path, ?previous?.path});
-    return InstalledCatalog(target.path, manifest.revision);
+    return InstalledCatalog(
+      target.path,
+      manifest.revision,
+      sequence: manifest.sequence,
+    );
   }
 
   bool _isUsable(String path) {
@@ -232,7 +262,11 @@ class CatalogInstaller {
       if (!await _activeFile.exists()) return null;
       final j =
           jsonDecode(await _activeFile.readAsString()) as Map<String, Object?>;
-      return InstalledCatalog(j['path']! as String, j['revision']! as String);
+      return InstalledCatalog(
+        j['path']! as String,
+        j['revision']! as String,
+        sequence: (j['sequence'] as int?) ?? 0,
+      );
     } on Object catch (_) {
       return null;
     }
@@ -242,10 +276,16 @@ class CatalogInstaller {
     String revision,
     String path,
     String? previous,
+    int sequence,
   ) async {
     final tmp = File('${_activeFile.path}.tmp');
     await tmp.writeAsString(
-      jsonEncode({'revision': revision, 'path': path, 'previous': ?previous}),
+      jsonEncode({
+        'revision': revision,
+        'path': path,
+        'previous': ?previous,
+        if (sequence > 0) 'sequence': sequence,
+      }),
       flush: true,
     );
     await tmp.rename(_activeFile.path);

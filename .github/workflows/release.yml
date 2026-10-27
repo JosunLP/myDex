@@ -88,10 +88,13 @@ jobs:
           MYDEX_KEYSTORE_PASSWORD: ${{ secrets.MYDEX_KEYSTORE_PASSWORD }}
           MYDEX_KEY_ALIAS: ${{ secrets.MYDEX_KEY_ALIAS }}
           MYDEX_KEY_PASSWORD: ${{ secrets.MYDEX_KEY_PASSWORD }}
+          # Öffentlicher Schlüssel für Katalog-Updates (ADR 0015), optional.
+          MYDEX_CATALOG_KEY: ${{ secrets.MYDEX_CATALOG_PUBLIC_KEY }}
         shell: bash
         run: |
           for flavor in offline sync; do
             flutter build apk --release --flavor $flavor \
+              --dart-define=MYDEX_CATALOG_KEY="$MYDEX_CATALOG_KEY" \
               --build-name ${{ needs.version.outputs.name }} \
               --build-number ${{ needs.version.outputs.number }}
           done
@@ -140,10 +143,13 @@ jobs:
       - run: flutter pub get
       - name: Bauen und packen
         working-directory: apps/pokedex
+        env:
+          MYDEX_CATALOG_KEY: ${{ secrets.MYDEX_CATALOG_PUBLIC_KEY }}
         shell: bash
         run: |
           v=${{ needs.version.outputs.name }}
           flutter build ${{ matrix.target }} --release \
+            --dart-define=MYDEX_CATALOG_KEY="$MYDEX_CATALOG_KEY" \
             --build-name $v --build-number ${{ needs.version.outputs.number }}
           mkdir -p ../../dist
           case "${{ matrix.target }}" in
@@ -186,6 +192,23 @@ jobs:
           cp tools/sync_server/README.md dist/mydex-sync-server-$v/
           tar -C dist -czf dist/mydex-sync-server-$v-linux-x64.tar.gz mydex-sync-server-$v
           rm -r dist/mydex-sync-server-$v
+      - name: Katalog-Update signieren
+        env:
+          SIGNING_KEY: ${{ secrets.MYDEX_CATALOG_SIGNING_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "$SIGNING_KEY" ]]; then
+            echo "Kein MYDEX_CATALOG_SIGNING_KEY – kein Katalog-Update in diesem Release."
+            exit 0
+          fi
+          v=${{ needs.version.outputs.name }}
+          umask 077
+          printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/catalog.key"
+          dart run tools/data_pipeline/bin/data_pipeline.dart sign-update \
+            --key "$RUNNER_TEMP/catalog.key" --out "dist/catalog-update"
+          rm "$RUNNER_TEMP/catalog.key"
+          tar -C dist/catalog-update -czf dist/mydex-catalog-update-$v.tar.gz .
+          rm -r dist/catalog-update
       - uses: actions/upload-artifact@v4
         with:
           name: sync-server
@@ -220,6 +243,9 @@ jobs:
             echo
             echo "Prüfsummen: \`SHA256SUMS\`. Android-Zertifikat: \`android-certificates.txt\`."
             echo "„mydex“ ist die Standardausgabe ohne Internet-Berechtigung, „mydex-sync“ enthält den optionalen Abgleich."
+            if ls dist/mydex-catalog-update-* >/dev/null 2>&1; then
+              echo "„mydex-catalog-update“ ist das signierte Katalog-Update für den eigenen Sync-Server (\`--catalog-dir\`)."
+            fi
           } >> notes.md
       - uses: softprops/action-gh-release@v2
         with:

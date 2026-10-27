@@ -1,6 +1,7 @@
 /// Optionaler Abgleich persönlicher Daten zwischen Geräten (ADR 0012).
 library;
 
+export 'src/catalog_update.dart';
 export 'src/client.dart';
 export 'src/encryption.dart';
 export 'src/http_handler.dart';

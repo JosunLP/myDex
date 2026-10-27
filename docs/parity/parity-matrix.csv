@@ -38,3 +38,4 @@ P-036,Sprachen,Datensprachen,Japanisch,"Namen in allen 11 Katalogsprachen; fehle
 P-037,Hilfe,Offline-Hilfe,Datenlücken,"Themen zu Spielauswahl, Verfügbarkeit, Suche, Fundorten, Sammlung, Teams, Vorlesen, Sicherung, Datenschutz",alle,App,n/a,automatisiert,implementiert,
 P-038,Barrierefreiheit,Tippflächen/Beschriftung/Kontrast,Dex/Detail/Teams/Mehr,"Material- und iOS-Tippflächen, beschriftete Bedienelemente, Textkontrast in hell und dunkel",alle,App,n/a,automatisiert,implementiert,
 P-039,Veröffentlichung,Berechtigungen der Android-Pakete,Release-APKs,"offline: keine Berechtigung; sync: nur INTERNET",Android,CI,n/a,automatisiert,implementiert,
+P-040,Updates,Signierte Katalog-Updates,Update vom Sync-Server,"Nur mit vertrauenswürdiger Signatur, passender Schemaversion und höherer Reihenfolgenummer; sonst bleibt der Katalog",Android (sync) + Desktop,Sync-Server + Pipeline,n/a,automatisiert,implementiert,

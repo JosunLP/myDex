@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_data_pipeline/mydex_data_pipeline.dart';
+import 'package:mydex_sync/mydex_sync.dart';
 
 /// Arten des kleinen Testkatalogs (u. a. Piepi Normal→Fee, Alola-Raichu, Evoli,
 /// Rettan/Sandan als Versionsexklusive, Pichu für Zucht).
@@ -10,12 +12,18 @@ const testSubset = {
   135, 136, 151, 172, 462,
 };
 
+/// Reihenfolge der Katalogpakete: Quellstand-Zeit und Schemaversion.
+const catalogSequence = pokeApiCommitTime * 100 + catalogSchemaVersion;
+
 const usage = '''
 Verwendung: dart run mydex_data_pipeline <befehl> [optionen]
 
   fetch [--update-manifest]   Quelltabellen laden und gegen das Manifest prüfen
   build                       Vollständigen Katalog und Testkatalog erzeugen
   media                       Sprites laden und Medienpakete erzeugen (nach build)
+  keygen --out <datei>        Signaturschlüssel für Katalog-Updates erzeugen
+  sign-update --key <datei> --out <dir>
+                              Katalog-Update (update.json + Paket) signieren
 
 Optionen:
   --cache <dir>   Quell-Cache (Standard: .dart_tool/pokeapi/<commit>)
@@ -83,6 +91,7 @@ Future<void> main(List<String> args) async {
         revision: '$revision-test',
         source: 'PokéAPI',
         sourceRevision: pokeApiCommit,
+        sequence: catalogSequence,
       );
 
       final manifest = packCatalog(
@@ -96,12 +105,38 @@ Future<void> main(List<String> args) async {
         revision: revision,
         source: 'PokéAPI',
         sourceRevision: pokeApiCommit,
+        sequence: catalogSequence,
       );
       stdout.writeln(
         'Paket ${manifest.revision}: ${manifest.size} Bytes, sha256 ${manifest.sha256}',
       );
     case 'media':
       await _media(root);
+    case 'keygen':
+      final out = option('--out');
+      if (out == null) {
+        stderr.writeln('--out fehlt.');
+        exit(64);
+      }
+      final key = CatalogSigningKey.generate();
+      final file = File(out);
+      if (file.existsSync()) {
+        stderr.writeln('$out existiert bereits – nicht überschrieben.');
+        exit(1);
+      }
+      file.writeAsStringSync('${key.toBase64()}\n');
+      if (!Platform.isWindows) await Process.run('chmod', ['600', out]);
+      stdout
+        ..writeln('Privater Schlüssel: $out (geheim halten, z. B. als Secret)')
+        ..writeln('Öffentlicher Schlüssel: ${await key.publicKeyBase64()}');
+    case 'sign-update':
+      final keyFile = option('--key');
+      final out = option('--out');
+      if (keyFile == null || out == null) {
+        stderr.writeln('--key und --out sind nötig.');
+        exit(64);
+      }
+      await _signUpdate(root, File(keyFile), Directory(out));
     default:
       stdout.write(usage);
       exit(command.isEmpty ? 0 : 64);
@@ -164,4 +199,32 @@ Future<void> _media(Directory root) async {
     );
     stdout.writeln('Paket ${m.revision}: ${m.size} Bytes, sha256 ${m.sha256}');
   }
+}
+
+/// Signiert das gebaute App-Katalogpaket für die Verteilung über den
+/// Sync-Server (ADR 0015).
+Future<void> _signUpdate(Directory root, File keyFile, Directory out) async {
+  final manifestFile = File(
+    '${root.path}/apps/pokedex/assets/catalog/catalog.manifest.json',
+  );
+  final pack = File(
+    '${root.path}/apps/pokedex/assets/catalog/catalog.sqlite.gz',
+  );
+  final manifest =
+      jsonDecode(manifestFile.readAsStringSync()) as Map<String, Object?>;
+  if (((manifest['sequence'] as int?) ?? 0) <= 0) {
+    stderr.writeln('Das Manifest hat keine Reihenfolge (sequence).');
+    exit(1);
+  }
+  final key = CatalogSigningKey.fromBase64(keyFile.readAsStringSync());
+  final update = await signCatalogUpdate(manifest, key);
+  out.createSync(recursive: true);
+  File('${out.path}/update.json').writeAsStringSync(
+    '${const JsonEncoder.withIndent('  ').convert(update)}\n',
+  );
+  pack.copySync('${out.path}/catalog.sqlite.gz');
+  stdout.writeln(
+    'Update ${manifest['revision']} (Reihenfolge ${manifest['sequence']}) '
+    'signiert mit ${update['keyId']} → ${out.path}',
+  );
 }

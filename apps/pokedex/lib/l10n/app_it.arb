@@ -284,5 +284,9 @@
   "syncUnlocking": "Connessione…",
   "galleryArtwork": "Illustrazione ufficiale",
   "acquireByTrade": "Tramite scambio da {games}",
-  "acquireByEvent": "Pokémon misterioso – di solito ottenibile solo tramite distribuzioni evento."
+  "acquireByEvent": "Pokémon misterioso – di solito ottenibile solo tramite distribuzioni evento.",
+  "catalogUpdateTitle": "Aggiornamenti del catalogo",
+  "catalogUpdateHint": "Gli aggiornamenti firmati del catalogo arrivano dal tuo server di sincronizzazione. Ogni aggiornamento viene verificato con la chiave integrata nell’app prima dell’installazione.",
+  "catalogUpdateCheck": "Verifica",
+  "catalogUpdateResult": "{result, select, installed{Catalogo aggiornato a {revision}.} upToDate{Il catalogo è aggiornato ({revision}).} noUpdate{Il tuo server non offre aggiornamenti del catalogo.} notConfigured{Gli aggiornamenti del catalogo non sono configurati in questa edizione.} notConnected{Connettiti prima al tuo server di sincronizzazione.} incompatible{L’aggiornamento ({revision}) richiede una versione più recente dell’app.} badSignature{L’aggiornamento non è firmato con una chiave attendibile ed è stato rifiutato.} invalid{L’aggiornamento non è leggibile ed è stato rifiutato.} network{Il server non è raggiungibile.} other{Impossibile installare l’aggiornamento; il catalogo precedente resta attivo.}}"
 }

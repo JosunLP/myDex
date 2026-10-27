@@ -14,6 +14,7 @@ dependencies:
   mydex_catalog_store: any
   mydex_domain: any
   mydex_game_rules: any
+  mydex_sync: any
   sqlite3: ^3.8.0
 
 dev_dependencies:

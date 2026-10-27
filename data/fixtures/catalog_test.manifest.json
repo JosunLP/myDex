@@ -4,5 +4,6 @@
   "sha256": "c5e38a7c8517e428e5e6e4805331e47d89f69369f81cc9696926e9b014f6bece",
   "size": 5120000,
   "source": "PokéAPI",
-  "sourceRevision": "2bf639e5572812a67d2b94903fdcb9d095f5aeb2"
+  "sourceRevision": "2bf639e5572812a67d2b94903fdcb9d095f5aeb2",
+  "sequence": 179250036405
 }
