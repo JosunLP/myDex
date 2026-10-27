@@ -24,6 +24,7 @@ class AppStorage {
       File('${dir.path}/filter_presets.json'),
     ),
     catalogDirectory: Directory('${dir.path}/catalog'),
+    mediaDirectory: Directory('${dir.path}/media'),
     syncState: FileSyncStateStore(File('${dir.path}/sync_state.json')),
     syncConfig: FileSyncConfigStore(File('${dir.path}/sync_config.json')),
   );
@@ -32,11 +33,15 @@ class AppStorage {
     required CollectionRepository collection,
     required this.preferences,
     required this.catalogDirectory,
+    Directory? mediaDirectory,
     TeamRepository? teams,
     FilterPresetRepository? presets,
     SyncStateStore? syncState,
     SyncConfigStore? syncConfig,
-  }) : syncConfig = syncConfig ?? MemorySyncConfigStore() {
+  }) : syncConfig = syncConfig ?? MemorySyncConfigStore(),
+       mediaDirectory =
+           mediaDirectory ??
+           Directory('${catalogDirectory.parent.path}/media') {
     final rawTeams = teams ?? MemoryTeamRepository();
     final rawPresets = presets ?? MemoryFilterPresetRepository();
     String conflictName(String name) => '$name ($conflictLabel)';
@@ -71,6 +76,9 @@ class AppStorage {
 
   /// Getrennt von den Nutzerdaten (ADR 0003).
   final Directory catalogDirectory;
+
+  /// Installiertes Medienpaket (Sprites).
+  final Directory mediaDirectory;
 }
 
 final appStorageProvider = Provider<AppStorage>(
@@ -87,6 +95,17 @@ final catalogRepositoryProvider = Provider<CatalogRepository>(
   (ref) =>
       BundledCatalogRepository(ref.watch(appStorageProvider).catalogDirectory),
 );
+
+final mediaLoaderProvider = Provider<MediaLoader>(
+  (ref) => BundledMediaLoader(ref.watch(appStorageProvider).mediaDirectory),
+);
+
+/// Bilder; bis zum Laden und bei Fehlern leer (die App wartet nicht darauf).
+final mediaProvider = FutureProvider<MediaLibrary>((ref) async {
+  final media = await ref.watch(mediaLoaderProvider).load();
+  ref.onDispose(media.close);
+  return media;
+}, retry: (_, _) => null);
 
 final catalogProvider = FutureProvider<LoadedCatalog>((ref) async {
   final loaded = await ref.watch(catalogRepositoryProvider).load();

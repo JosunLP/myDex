@@ -273,5 +273,10 @@
   "syncError": "{error, select, unauthorized{Der Zugangsschlüssel ist ungültig.} insecureConnection{Nur HTTPS-Verbindungen sind erlaubt (außer zu diesem Gerät).} network{Der Server ist nicht erreichbar. Änderungen bleiben erhalten und werden später gesendet.} tooLarge{Zu viele Daten für eine Anfrage.} unsupportedProtocol{Der Server nutzt eine andere Version.} invalidRequest{Die Serveradresse ist ungültig.} notFound{Unter dieser Adresse läuft kein myDex-Sync-Server.} other{Der Server meldet einen Fehler. Änderungen bleiben erhalten.}}",
   "syncConflictLabel": "Konflikt",
   "helpSyncTitle": "Synchronisierung (optional)",
-  "helpSyncBody": "Der Abgleich nutzt einen eigenen Server: Betreibe den myDex-Sync-Server (siehe Projektdokumentation), lege ein Konto an und trage Adresse und Zugangsschlüssel unter Mehr → Synchronisierung ein. Änderungen werden wenige Sekunden später automatisch gesendet. Ändern zwei Geräte dasselbe Team oder dieselbe Vorlage, bleiben beide Fassungen erhalten – eine als Kopie mit dem Zusatz „Konflikt“. Bei Sammlungsmarkierungen gewinnt die neuere Änderung. Unter Android gibt es den Abgleich nur in der Ausgabe „sync“; die Standardausgabe hat keine Internet-Berechtigung."
+  "helpSyncBody": "Der Abgleich nutzt einen eigenen Server: Betreibe den myDex-Sync-Server (siehe Projektdokumentation), lege ein Konto an und trage Adresse und Zugangsschlüssel unter Mehr → Synchronisierung ein. Änderungen werden wenige Sekunden später automatisch gesendet. Ändern zwei Geräte dasselbe Team oder dieselbe Vorlage, bleiben beide Fassungen erhalten – eine als Kopie mit dem Zusatz „Konflikt“. Bei Sammlungsmarkierungen gewinnt die neuere Änderung. Unter Android gibt es den Abgleich nur in der Ausgabe „sync“; die Standardausgabe hat keine Internet-Berechtigung.",
+  "sectionGallery": "Galerie",
+  "galleryDefault": "Standard",
+  "galleryEmpty": "Für diese Form gibt es keine Bilder.",
+  "gallerySprite": "{name} – {game}",
+  "gallerySpriteShiny": "{name} (Shiny) – {game}"
 }

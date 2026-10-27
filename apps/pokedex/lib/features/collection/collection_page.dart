@@ -10,6 +10,7 @@ import '../../app/providers.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/form_sprite.dart';
 import '../../widgets/game_context_selector.dart';
 
 enum _View { game, global, allGames }
@@ -138,13 +139,20 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
               final status = overview[form.id];
               final games = _shiny ? status?.shinyCaughtIn : status?.caughtIn;
               return ListTile(
-                leading: Icon(
-                  done(form.id)
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: done(form.id)
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
+                leading: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      done(form.id)
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: done(form.id)
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    const SizedBox(width: Space.s),
+                    FormSprite(form.id, size: 40, shiny: _shiny),
+                  ],
                 ),
                 title: Text(catalog.displayName(form)(lang)),
                 subtitle: games == null || games.isEmpty
@@ -192,7 +200,13 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                 value: entry?.caught ?? false,
                 onChanged: (v) =>
                     controller.setCaught(keyFor(item.form.id), v ?? false),
-                title: Text(catalog.displayName(item.form)(lang)),
+                title: Row(
+                  children: [
+                    FormSprite(item.form.id, size: 40, shiny: _shiny),
+                    const SizedBox(width: Space.s),
+                    Expanded(child: Text(catalog.displayName(item.form)(lang))),
+                  ],
+                ),
                 subtitle: entry?.caughtAt == null
                     ? null
                     : Text(

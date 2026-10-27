@@ -10,10 +10,12 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
 import '../../widgets/evolution_text.dart';
+import '../../widgets/form_sprite.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/stat_bars.dart';
 import '../../widgets/type_badge.dart';
 import 'acquisition_section.dart';
+import 'gallery_section.dart';
 import 'learnset_section.dart';
 import 'pokemon_speech.dart';
 
@@ -75,34 +77,53 @@ class PokemonDetailView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(Space.l),
       children: [
-        Text(
-          '#${d.species.nationalNumber.toString().padLeft(4, '0')}',
-          style: textTheme.labelLarge?.copyWith(fontFeatures: tabularFigures),
-        ),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Flexible(
-              child: Semantics(
-                header: true,
-                child: Text(name.text, style: textTheme.headlineMedium),
-              ),
-            ),
-            if (name.isFallback)
-              Padding(
-                padding: const EdgeInsets.only(left: Space.s),
-                child: Tooltip(
-                  message: l10n.translationMissing(name.language),
-                  child: const Icon(Icons.translate, size: 20),
-                ),
-              ),
-            const SizedBox(width: Space.s),
-            SpeakButton(
-              id: 'pokemon:${d.form.id.value}:${ctx.version.id.value}',
-              text: () => pokemonSpeechText(
-                d,
-                l10n,
-                catalog,
-                Localizations.localeOf(context).languageCode,
+            FormSprite(d.form.id, size: 96),
+            const SizedBox(width: Space.m),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '#${d.species.nationalNumber.toString().padLeft(4, '0')}',
+                    style: textTheme.labelLarge?.copyWith(
+                      fontFeatures: tabularFigures,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            name.text,
+                            style: textTheme.headlineMedium,
+                          ),
+                        ),
+                      ),
+                      if (name.isFallback)
+                        Padding(
+                          padding: const EdgeInsets.only(left: Space.s),
+                          child: Tooltip(
+                            message: l10n.translationMissing(name.language),
+                            child: const Icon(Icons.translate, size: 20),
+                          ),
+                        ),
+                      const SizedBox(width: Space.s),
+                      SpeakButton(
+                        id: 'pokemon:${d.form.id.value}:${ctx.version.id.value}',
+                        text: () => pokemonSpeechText(
+                          d,
+                          l10n,
+                          catalog,
+                          Localizations.localeOf(context).languageCode,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -193,6 +214,10 @@ class PokemonDetailView extends ConsumerWidget {
                       ),
                   ],
                 ),
+        ),
+        section(
+          l10n.sectionGallery,
+          GallerySection(form: d.form.id, name: name.text),
         ),
         if (profile.availability != DataAvailability.confirmedUnavailable) ...[
           section(l10n.sectionAcquisition, AcquisitionSection(form: d.form.id)),

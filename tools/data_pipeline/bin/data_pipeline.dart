@@ -15,6 +15,7 @@ Verwendung: dart run mydex_data_pipeline <befehl> [optionen]
 
   fetch [--update-manifest]   Quelltabellen laden und gegen das Manifest prüfen
   build                       Vollständigen Katalog und Testkatalog erzeugen
+  media                       Sprites laden und Medienpakete erzeugen (nach build)
 
 Optionen:
   --cache <dir>   Quell-Cache (Standard: .dart_tool/pokeapi/<commit>)
@@ -99,6 +100,8 @@ Future<void> main(List<String> args) async {
       stdout.writeln(
         'Paket ${manifest.revision}: ${manifest.size} Bytes, sha256 ${manifest.sha256}',
       );
+    case 'media':
+      await _media(root);
     default:
       stdout.write(usage);
       exit(command.isEmpty ? 0 : 64);
@@ -113,4 +116,52 @@ bool _build(SourceTables tables, BuildOptions options, File out) {
   );
   stdout.writeln(report);
   return report.problems.isEmpty;
+}
+
+/// Medienpaket (Sprites) für App und Tests, abgeleitet aus den gebauten Katalogen.
+Future<void> _media(Directory root) async {
+  final catalogDir = Directory('${root.path}/build/catalog');
+  final cache = Directory('${root.path}/.dart_tool/sprites/$spritesCommit');
+  final revision =
+      'sprites-${spritesCommit.substring(0, 7)}-m$mediaSchemaVersion';
+  for (final (catalog, rev, pack, manifest) in [
+    (
+      'catalog.sqlite',
+      revision,
+      'apps/pokedex/assets/media/media.sqlite.gz',
+      'apps/pokedex/assets/media/media.manifest.json',
+    ),
+    (
+      'catalog_test.sqlite',
+      '$revision-test',
+      'data/fixtures/media_test.sqlite.gz',
+      'data/fixtures/media_test.manifest.json',
+    ),
+  ]) {
+    final source = File('${catalogDir.path}/$catalog');
+    if (!source.existsSync()) {
+      stderr.writeln('${source.path} fehlt – zuerst „build“ ausführen.');
+      exit(1);
+    }
+    final out = File(
+      '${catalogDir.path}/${catalog.replaceFirst('catalog', 'media')}',
+    );
+    final report = await MediaBuilder(
+      catalog: source,
+      cache: cache,
+      log: stdout.writeln,
+    ).build(out, revision: rev);
+    stdout.writeln('== ${out.path}: $report');
+    File('${root.path}/$pack').parent.createSync(recursive: true);
+    final m = packCatalog(
+      database: out,
+      packOut: File('${root.path}/$pack'),
+      manifestOut: File('${root.path}/$manifest'),
+      revision: rev,
+      source: 'PokeAPI/sprites',
+      sourceRevision: spritesCommit,
+      schemaVersion: mediaSchemaVersion,
+    );
+    stdout.writeln('Paket ${m.revision}: ${m.size} Bytes, sha256 ${m.sha256}');
+  }
 }

@@ -21,6 +21,7 @@ import 'package:mydex_user_store/mydex_user_store.dart';
 
 const _fixtureDir = '../../data/fixtures';
 late String _catalogPath;
+late String _mediaPath;
 late Directory _tmp;
 
 /// Liefert den Testkatalog aus, als wäre er ein App-Asset.
@@ -36,6 +37,11 @@ class _FixtureBundle extends CachingAssetBundle {
     };
     return ByteData.sublistView(File(file).readAsBytesSync());
   }
+}
+
+class _FixtureMedia implements MediaLoader {
+  @override
+  Future<MediaLibrary> load() async => SqliteMediaLibrary.open(_mediaPath);
 }
 
 class _FixtureRepository implements CatalogRepository {
@@ -55,6 +61,7 @@ class _Harness {
   Widget build() => ProviderScope(
     overrides: [
       catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
+      mediaLoaderProvider.overrideWithValue(_FixtureMedia()),
       backupFilesProvider.overrideWithValue(files),
       speakerProvider.overrideWithValue(speaker),
       syncTransportFactoryProvider.overrideWithValue(
@@ -188,6 +195,21 @@ void main() {
       manifest,
       File('$_fixtureDir/catalog_test.sqlite.gz').readAsBytesSync(),
     )).path;
+    final mediaManifest = CatalogPackManifest.fromJson(
+      jsonDecode(
+            File('$_fixtureDir/media_test.manifest.json').readAsStringSync(),
+          )
+          as Map<String, Object?>,
+    );
+    _mediaPath =
+        (await CatalogInstaller(
+              Directory.systemTemp.createTempSync('mydex_app_media'),
+              format: PackFormat.media,
+            ).install(
+              mediaManifest,
+              File('$_fixtureDir/media_test.sqlite.gz').readAsBytesSync(),
+            ))
+            .path;
   });
   tearDownAll(() => _tmp.deleteSync(recursive: true));
 
@@ -282,6 +304,8 @@ void main() {
       scrollable: scrollable,
     );
     expect(find.textContaining('Levelaufstieg'), findsOneWidget);
+    await tester.ensureVisible(find.text('Donnerschock'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Donnerschock'));
     await tester.pumpAndSettle();
 
@@ -737,5 +761,48 @@ void main() {
     expect(find.text('Verbinden'), findsOneWidget);
     // Lokale Daten bleiben nach dem Trennen.
     expect(await h.teams.loadAll(), hasLength(1));
+  });
+
+  testWidgets('Galerie: Sprites je Spiel, Kopfbild folgt dem Spiel', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'pikachu');
+    // Vorschaubilder in der Liste.
+    expect(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'Pikachu'),
+        matching: find.byType(Image),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+
+    Uint8List headerBytes() =>
+        (tester.widget<Image>(find.byType(Image).first).image as MemoryImage)
+            .bytes;
+    final modern = headerBytes();
+
+    await tester.scrollUntilVisible(
+      find.text('Galerie'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Standard'), findsOneWidget);
+    expect(find.text('Rot / Blau'), findsOneWidget);
+    expect(find.text('Schwarz / Weiß / Schwarz 2 / Weiß 2'), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    expect(find.bySemanticsLabel('Pikachu – Rot / Blau'), findsOneWidget);
+    expect(find.bySemanticsLabel('Pikachu (Shiny) – Gold'), findsOneWidget);
+    semantics.dispose();
+
+    await _selectGame(tester, 'Rot');
+    await tester.scrollUntilVisible(
+      find.text('#0025'),
+      -300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(identical(headerBytes(), modern), isFalse);
   });
 }

@@ -273,5 +273,10 @@
   "syncError": "{error, select, unauthorized{La chiave di accesso non è valida.} insecureConnection{Sono consentite solo connessioni HTTPS (tranne verso questo dispositivo).} network{Il server non è raggiungibile. Le modifiche restano e verranno inviate più tardi.} tooLarge{Troppi dati per una richiesta.} unsupportedProtocol{Il server usa un’altra versione.} invalidRequest{L’indirizzo del server non è valido.} notFound{Nessun server di sincronizzazione myDex a questo indirizzo.} other{Il server segnala un errore. Le modifiche restano.}}",
   "syncConflictLabel": "conflitto",
   "helpSyncTitle": "Sincronizzazione (facoltativa)",
-  "helpSyncBody": "La sincronizzazione usa il tuo server: installa il server di sincronizzazione myDex (vedi la documentazione del progetto), crea un account e inserisci indirizzo e chiave di accesso in Altro → Sincronizzazione. Le modifiche vengono inviate automaticamente pochi secondi dopo. Se due dispositivi modificano la stessa squadra o lo stesso modello, restano entrambe le versioni: una come copia contrassegnata «conflitto». Per i segni della collezione vince la modifica più recente. Su Android la sincronizzazione esiste solo nell’edizione «sync»; l’edizione standard non ha il permesso internet."
+  "helpSyncBody": "La sincronizzazione usa il tuo server: installa il server di sincronizzazione myDex (vedi la documentazione del progetto), crea un account e inserisci indirizzo e chiave di accesso in Altro → Sincronizzazione. Le modifiche vengono inviate automaticamente pochi secondi dopo. Se due dispositivi modificano la stessa squadra o lo stesso modello, restano entrambe le versioni: una come copia contrassegnata «conflitto». Per i segni della collezione vince la modifica più recente. Su Android la sincronizzazione esiste solo nell’edizione «sync»; l’edizione standard non ha il permesso internet.",
+  "sectionGallery": "Galleria",
+  "galleryDefault": "Standard",
+  "galleryEmpty": "Nessuna immagine per questa forma.",
+  "gallerySprite": "{name} – {game}",
+  "gallerySpriteShiny": "{name} (cromatico) – {game}"
 }

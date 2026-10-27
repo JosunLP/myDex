@@ -19,6 +19,8 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
 - Oberfläche auf Deutsch, Englisch, Französisch, Spanisch und Italienisch; Namen in elf Sprachen.
 - Vorlesen über die Sprachausgabe des Systems; Offline-Hilfe.
 - Optionaler Abgleich über einen selbst gehosteten Server; Android-Ausgabe „sync“.
+- Galerie mit Sprites je Spiel (Gen 1–5), Standard und Shiny; Vorschaubilder in Dex,
+  Sammlung und Teams – vollständig offline.
 - Barrierefreiheit automatisch geprüft (Tippflächen, Beschriftungen, Kontrast).
 
 ### Sicherheit und Datenschutz

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mydex_app/app/app.dart';
+import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
 import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_app/widgets/search_field.dart';
@@ -14,6 +15,12 @@ import 'package:mydex_user_store/mydex_user_store.dart';
 
 const _fixtureDir = '../../data/fixtures';
 late String _catalogPath;
+late String _mediaPath;
+
+class _FixtureMedia implements MediaLoader {
+  @override
+  Future<MediaLibrary> load() async => SqliteMediaLibrary.open(_mediaPath);
+}
 
 class _FixtureRepository implements CatalogRepository {
   @override
@@ -37,6 +44,7 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
+        mediaLoaderProvider.overrideWithValue(_FixtureMedia()),
         speakerProvider.overrideWithValue(const NoSpeaker()),
         appStorageProvider.overrideWithValue(
           AppStorage.custom(
@@ -72,6 +80,21 @@ void main() {
       manifest,
       File('$_fixtureDir/catalog_test.sqlite.gz').readAsBytesSync(),
     )).path;
+    final mediaManifest = CatalogPackManifest.fromJson(
+      jsonDecode(
+            File('$_fixtureDir/media_test.manifest.json').readAsStringSync(),
+          )
+          as Map<String, Object?>,
+    );
+    _mediaPath =
+        (await CatalogInstaller(
+              Directory.systemTemp.createTempSync('mydex_app_media'),
+              format: PackFormat.media,
+            ).install(
+              mediaManifest,
+              File('$_fixtureDir/media_test.sqlite.gz').readAsBytesSync(),
+            ))
+            .path;
   });
 
   for (final brightness in Brightness.values) {

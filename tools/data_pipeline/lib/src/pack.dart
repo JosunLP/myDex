@@ -12,11 +12,12 @@ CatalogPackManifest packCatalog({
   required String revision,
   required String source,
   required String sourceRevision,
+  int schemaVersion = catalogSchemaVersion,
 }) {
   final bytes = database.readAsBytesSync();
   final manifest = CatalogPackManifest(
     revision: revision,
-    schemaVersion: catalogSchemaVersion,
+    schemaVersion: schemaVersion,
     sha256: sha256.convert(bytes).toString(),
     size: bytes.length,
     source: source,
