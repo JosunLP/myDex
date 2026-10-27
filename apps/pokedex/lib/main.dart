@@ -17,6 +17,9 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(const [
       'PokéAPI (Katalogdaten)',
     ], await rootBundle.loadString('assets/licenses/pokeapi.txt'));
+    yield LicenseEntryWithLineBreaks(const [
+      'PokeAPI/sprites (Bilder)',
+    ], await rootBundle.loadString('assets/licenses/sprites.txt'));
   });
   final dir = Directory(
     '${(await getApplicationSupportDirectory()).path}/mydex',

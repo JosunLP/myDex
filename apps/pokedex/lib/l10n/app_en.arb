@@ -867,5 +867,30 @@
   },
   "syncConflictLabel": "conflict",
   "helpSyncTitle": "Sync (optional)",
-  "helpSyncBody": "Sync uses your own server: run the myDex sync server (see the project documentation), create an account and enter the address and access key under More → Sync. Changes are sent automatically a few seconds after you make them. If two devices change the same team or preset, both versions are kept – one as a copy marked \"conflict\". For collection marks, the newer change wins. On Android, sync is only available in the \"sync\" edition; the standard edition has no internet permission."
+  "helpSyncBody": "Sync uses your own server: run the myDex sync server (see the project documentation), create an account and enter the address and access key under More → Sync. Changes are sent automatically a few seconds after you make them. If two devices change the same team or preset, both versions are kept – one as a copy marked \"conflict\". For collection marks, the newer change wins. On Android, sync is only available in the \"sync\" edition; the standard edition has no internet permission.",
+  "sectionGallery": "Gallery",
+  "galleryDefault": "Standard",
+  "galleryEmpty": "No pictures for this form.",
+  "gallerySprite": "{name} – {game}",
+  "@gallerySprite": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "gallerySpriteShiny": "{name} (shiny) – {game}",
+  "@gallerySpriteShiny": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "game": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -62,7 +62,7 @@ Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
 - [x] Spieldaten in allen elf Katalogsprachen
 - [x] Offline-Hilfe zu Spielauswahl, Datenlücken, Suche, Fundorten, Sammlung, Teams, Sicherung, Datenschutz
 - [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
-- [ ] Galerie (Bildrechte für die private Nutzung geklärt, siehe Rechteinventar)
+- [x] Galerie: Sprites je Spiel (ADR 0013)
 
 Phase 4b – Optionaler Sync (abgeschlossen):
 
@@ -80,6 +80,7 @@ Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
 - [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
 - [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog
 - [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
+- [x] Galerie: Standard-, Shiny- und Spiel-Sprites (Gen 1–5) offline; Vorschaubilder in Dex, Sammlung und Teams
 - [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
 - [ ] iOS/macOS/Windows signieren (Entwicklerkonten)
 
@@ -121,7 +122,8 @@ dart run tools/data_pipeline/bin/data_pipeline.dart build
 ```
 
 Das erzeugt `apps/pokedex/assets/catalog/catalog.sqlite.gz` (+ Manifest) und den Testkatalog in
-`data/fixtures/`. Der Build ist deterministisch; die CI baut neu und prüft, dass die
+`data/fixtures/`. Danach baut `dart run tools/data_pipeline/bin/data_pipeline.dart media` die
+Medienpakete (Sprites, ADR 0013). Der Build ist deterministisch; die CI baut neu und prüft, dass die
 eingecheckten Pakete exakt übereinstimmen. Regeln und bekannte Lücken: ADR 0008.
 
 Datenquelle: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), Lizenzhinweis in der App.

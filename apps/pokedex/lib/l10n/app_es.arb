@@ -273,5 +273,10 @@
   "syncError": "{error, select, unauthorized{La clave de acceso no es válida.} insecureConnection{Solo se permiten conexiones HTTPS (salvo a este dispositivo).} network{No se puede acceder al servidor. Los cambios se guardan y se enviarán más tarde.} tooLarge{Demasiados datos para una solicitud.} unsupportedProtocol{El servidor usa otra versión.} invalidRequest{La dirección del servidor no es válida.} notFound{No hay ningún servidor de sincronización de myDex en esta dirección.} other{El servidor informa de un error. Los cambios se conservan.}}",
   "syncConflictLabel": "conflicto",
   "helpSyncTitle": "Sincronización (opcional)",
-  "helpSyncBody": "La sincronización usa tu propio servidor: instala el servidor de sincronización de myDex (consulta la documentación del proyecto), crea una cuenta e introduce la dirección y la clave de acceso en Más → Sincronización. Los cambios se envían automáticamente unos segundos después. Si dos dispositivos cambian el mismo equipo o la misma plantilla, se conservan ambas versiones: una como copia marcada como «conflicto». En las marcas de la colección gana el cambio más reciente. En Android, la sincronización solo está en la edición «sync»; la edición estándar no tiene permiso de internet."
+  "helpSyncBody": "La sincronización usa tu propio servidor: instala el servidor de sincronización de myDex (consulta la documentación del proyecto), crea una cuenta e introduce la dirección y la clave de acceso en Más → Sincronización. Los cambios se envían automáticamente unos segundos después. Si dos dispositivos cambian el mismo equipo o la misma plantilla, se conservan ambas versiones: una como copia marcada como «conflicto». En las marcas de la colección gana el cambio más reciente. En Android, la sincronización solo está en la edición «sync»; la edición estándar no tiene permiso de internet.",
+  "sectionGallery": "Galería",
+  "galleryDefault": "Estándar",
+  "galleryEmpty": "No hay imágenes de esta forma.",
+  "gallerySprite": "{name} – {game}",
+  "gallerySpriteShiny": "{name} (variocolor) – {game}"
 }

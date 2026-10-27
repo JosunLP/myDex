@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:meta/meta.dart';
 
+import 'package:sqlite3/sqlite3.dart';
+
+import 'media.dart';
 import 'schema.dart';
 import 'sqlite_catalog.dart';
 
@@ -69,12 +72,42 @@ class InstalledCatalog {
   final Object? installError;
 }
 
+/// Art eines installierbaren Pakets: Katalog oder Medien.
+@immutable
+class PackFormat {
+  const PackFormat({
+    required this.name,
+    required this.schemaVersion,
+    required this.readMeta,
+  });
+
+  /// Präfix der installierten Dateien.
+  final String name;
+  final int schemaVersion;
+
+  /// Liest die Metadaten und prüft die Schemaversion (wirft sonst).
+  final Map<String, String> Function(Database db) readMeta;
+
+  static const catalog = PackFormat(
+    name: 'catalog',
+    schemaVersion: catalogSchemaVersion,
+    readMeta: readCatalogMeta,
+  );
+
+  static const media = PackFormat(
+    name: 'media',
+    schemaVersion: mediaSchemaVersion,
+    readMeta: readMediaMeta,
+  );
+}
+
 /// Installiert Katalogpakete so, dass ein Abbruch nie einen halben Stand
 /// hinterlässt: entpacken → prüfen → atomar aktivieren → Vorgänger behalten.
 class CatalogInstaller {
-  CatalogInstaller(this.directory);
+  CatalogInstaller(this.directory, {this.format = PackFormat.catalog});
 
   final Directory directory;
+  final PackFormat format;
 
   File get _activeFile => File('${directory.path}/active.json');
 
@@ -107,7 +140,7 @@ class CatalogInstaller {
     CatalogPackManifest manifest,
     List<int> compressed,
   ) async {
-    if (manifest.schemaVersion != catalogSchemaVersion) {
+    if (manifest.schemaVersion != format.schemaVersion) {
       throw CatalogInstallException(
         'Schemaversion ${manifest.schemaVersion} wird nicht unterstützt',
       );
@@ -117,7 +150,7 @@ class CatalogInstaller {
     }
     final tmp = File('${directory.path}/incoming-${manifest.revision}.tmp');
     final target = File(
-      '${directory.path}/catalog-${manifest.revision}.sqlite',
+      '${directory.path}/${format.name}-${manifest.revision}.sqlite',
     );
     try {
       final List<int> bytes;
@@ -150,12 +183,12 @@ class CatalogInstaller {
     return InstalledCatalog(target.path, manifest.revision);
   }
 
-  static bool _isUsable(String path) {
+  bool _isUsable(String path) {
     if (!File(path).existsSync()) return false;
     try {
       final db = openCatalogDatabase(path);
       try {
-        readCatalogMeta(db);
+        format.readMeta(db);
         return true;
       } finally {
         db.close();
@@ -172,7 +205,7 @@ class CatalogInstaller {
       if (check.length != 1 || check.first.values.first != 'ok') {
         throw CatalogInstallException('Integritätsprüfung fehlgeschlagen');
       }
-      final meta = readCatalogMeta(db);
+      final meta = format.readMeta(db);
       if (meta['revision'] != revision) {
         throw CatalogInstallException(
           'Revision im Paket passt nicht zum Manifest',

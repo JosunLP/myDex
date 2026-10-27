@@ -51,3 +51,47 @@ Future<LoadedCatalog> openInstalledCatalog(String path) async {
   final snapshot = await Isolate.run(() => loadCatalogSnapshot(path));
   return LoadedCatalog(snapshot, SqliteCatalogDetails.open(path));
 }
+
+const _mediaManifestAsset = 'assets/media/media.manifest.json';
+const _mediaPackAsset = 'assets/media/media.sqlite.gz';
+
+/// Lädt Bilder (Sprites). Getrennt vom Katalog: Fehlt oder scheitert das
+/// Medienpaket, läuft die App ohne Bilder weiter.
+abstract interface class MediaLoader {
+  Future<MediaLibrary> load();
+}
+
+class BundledMediaLoader implements MediaLoader {
+  BundledMediaLoader(this.directory, {AssetBundle? bundle})
+    : _bundle = bundle ?? rootBundle;
+
+  final Directory directory;
+  final AssetBundle _bundle;
+
+  @override
+  Future<MediaLibrary> load() async {
+    try {
+      final manifest = CatalogPackManifest.fromJson(
+        jsonDecode(await _bundle.loadString(_mediaManifestAsset))
+            as Map<String, Object?>,
+      );
+      final installer = CatalogInstaller(directory, format: PackFormat.media);
+      final current = await installer.current();
+      if (current != null && current.revision == manifest.revision) {
+        return SqliteMediaLibrary.open(current.path);
+      }
+      final pack = (await _bundle.load(_mediaPackAsset)).buffer.asUint8List();
+      final dir = directory;
+      final installed = await Isolate.run(
+        () => CatalogInstaller(
+          dir,
+          format: PackFormat.media,
+        ).ensureInstalled(manifest, () => pack),
+      );
+      return SqliteMediaLibrary.open(installed.path);
+    } on Object catch (e) {
+      debugPrint('Medienpaket nicht verfügbar: $e');
+      return const EmptyMediaLibrary();
+    }
+  }
+}

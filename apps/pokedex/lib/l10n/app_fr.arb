@@ -273,5 +273,10 @@
   "syncError": "{error, select, unauthorized{La clé d’accès n’est pas valide.} insecureConnection{Seules les connexions HTTPS sont autorisées (sauf vers cet appareil).} network{Le serveur est injoignable. Les modifications sont conservées et envoyées plus tard.} tooLarge{Trop de données pour une requête.} unsupportedProtocol{Le serveur utilise une autre version.} invalidRequest{L’adresse du serveur n’est pas valide.} notFound{Aucun serveur de synchronisation myDex à cette adresse.} other{Le serveur signale une erreur. Les modifications sont conservées.}}",
   "syncConflictLabel": "conflit",
   "helpSyncTitle": "Synchronisation (facultative)",
-  "helpSyncBody": "La synchronisation utilise votre propre serveur : installez le serveur de synchronisation myDex (voir la documentation du projet), créez un compte et saisissez l’adresse et la clé d’accès sous Plus → Synchronisation. Les modifications sont envoyées automatiquement quelques secondes plus tard. Si deux appareils modifient la même équipe ou le même modèle, les deux versions sont conservées – l’une comme copie marquée « conflit ». Pour les marques de collection, la modification la plus récente l’emporte. Sur Android, la synchronisation n’existe que dans l’édition « sync » ; l’édition standard n’a pas d’autorisation internet."
+  "helpSyncBody": "La synchronisation utilise votre propre serveur : installez le serveur de synchronisation myDex (voir la documentation du projet), créez un compte et saisissez l’adresse et la clé d’accès sous Plus → Synchronisation. Les modifications sont envoyées automatiquement quelques secondes plus tard. Si deux appareils modifient la même équipe ou le même modèle, les deux versions sont conservées – l’une comme copie marquée « conflit ». Pour les marques de collection, la modification la plus récente l’emporte. Sur Android, la synchronisation n’existe que dans l’édition « sync » ; l’édition standard n’a pas d’autorisation internet.",
+  "sectionGallery": "Galerie",
+  "galleryDefault": "Standard",
+  "galleryEmpty": "Aucune image pour cette forme.",
+  "gallerySprite": "{name} – {game}",
+  "gallerySpriteShiny": "{name} (chromatique) – {game}"
 }

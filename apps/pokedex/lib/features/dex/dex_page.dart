@@ -11,6 +11,7 @@ import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
+import '../../widgets/form_sprite.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/search_field.dart';
 import '../../widgets/type_badge.dart';
@@ -237,14 +238,20 @@ class _DexList extends ConsumerWidget {
     return ListTile(
       selected: item.form.id == selected,
       onTap: () => onOpen(item.form.id),
-      leading: SizedBox(
-        width: 52,
-        child: Text(
-          '#${item.species.nationalNumber.toString().padLeft(4, '0')}',
-          style: Theme.of(
-            context,
-          ).textTheme.labelMedium?.copyWith(fontFeatures: tabularFigures),
-        ),
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 48,
+            child: Text(
+              '#${item.species.nationalNumber.toString().padLeft(4, '0')}',
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(fontFeatures: tabularFigures),
+            ),
+          ),
+          FormSprite(item.form.id, size: 48),
+        ],
       ),
       title: Text(name.text),
       subtitle: Padding(

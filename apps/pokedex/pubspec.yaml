@@ -37,3 +37,6 @@ flutter:
     - assets/catalog/catalog.manifest.json
     - assets/catalog/catalog.sqlite.gz
     - assets/licenses/pokeapi.txt
+    - assets/licenses/sprites.txt
+    - assets/media/media.manifest.json
+    - assets/media/media.sqlite.gz

@@ -57,10 +57,18 @@ jobs:
           path: .dart_tool/pokeapi
           key: pokeapi-${{ hashFiles('data/source_manifests/pokeapi.json') }}
       - run: flutter pub get
+      - name: Sprite-Cache
+        uses: actions/cache@v4
+        with:
+          path: .dart_tool/sprites
+          key: sprites-${{ hashFiles('tools/data_pipeline/lib/src/media.dart') }}
+          restore-keys: sprites-
       - name: Katalog neu bauen
         run: dart run tools/data_pipeline/bin/data_pipeline.dart build
+      - name: Medienpakete neu bauen
+        run: dart run tools/data_pipeline/bin/data_pipeline.dart media
       - name: Eingecheckte Pakete stimmen überein
-        run: git diff --exit-code -- apps/pokedex/assets/catalog data/fixtures
+        run: git diff --exit-code -- apps/pokedex/assets/catalog apps/pokedex/assets/media data/fixtures
 
   build:
     name: Build ${{ matrix.target }}
