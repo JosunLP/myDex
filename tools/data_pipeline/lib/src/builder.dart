@@ -178,6 +178,8 @@ class CatalogBuilder {
   final _encounterForms = <int, Set<int>>{}; // VG → Formen mit Begegnungen
   final _encounterEntries = <int, int>{}; // VG → Anzahl
   final _regions = <int, String>{};
+  final _speciesMythical = <int>{};
+  final _formBattleOnly = <int>{};
 
   BuildReport build(File out) {
     if (out.existsSync()) out.deleteSync();
@@ -384,6 +386,7 @@ class CatalogBuilder {
       final id = r.integer('id');
       _speciesGen[id] = r.integer('generation_id');
       _speciesIdent[id] = r['identifier']!;
+      if (r.flag('is_mythical')) _speciesMythical.add(id);
       if (!_speciesIncluded(id)) continue;
       // Schlüpfbar, wenn ein Mitglied der Entwicklungsfamilie Eier legen kann
       // (Babys wie Pichu sind selbst „unbekannt“, schlüpfen aber aus Eiern).
@@ -448,6 +451,7 @@ class CatalogBuilder {
           ? 0
           : _groups[introduced]!.order;
       if (r.flag('is_default')) _defaultForm[species] = id;
+      if (pf?.flag('is_battle_only') ?? false) _formBattleOnly.add(id);
       if (!_speciesIncluded(species)) continue;
       final names = ownNames[id];
       _insert('form', [
@@ -602,6 +606,189 @@ class CatalogBuilder {
     return best?.$2;
   }
 
+  /// Spielgruppen, deren Erlernbarkeitsdaten aus dem Spiel ausgelesen und
+  /// vollständig sind: Jede Art im Spiel – auch die nur über HOME
+  /// übertragbaren – hat dort Einträge. Mysteriöse Pokémon fehlen teils
+  /// (z. B. Darkrai in Strahlender Diamant/Leuchtende Perle) und sind
+  /// ausgenommen (ADR 0008).
+  static const _completeRosterGroups = {
+    'lets-go-pikachu-lets-go-eevee',
+    'sword-shield',
+    'brilliant-diamond-shining-pearl',
+    'legends-arceus',
+    'scarlet-violet',
+  };
+
+  /// Spielgruppen, deren Kader genau ihr Regional-Pokédex ist.
+  static const _dexRosterGroups = {'champions', 'legends-za'};
+
+  /// Erweiterungen enthalten das Hauptspiel: Was dort feststeht, gilt auch
+  /// mit der Erweiterung.
+  static const _expansionBase = {
+    'the-isle-of-armor': 'sword-shield',
+    'the-crown-tundra': 'sword-shield',
+    'the-teal-mask': 'scarlet-violet',
+    'the-indigo-disk': 'scarlet-violet',
+    'mega-dimension': 'legends-za',
+  };
+
+  /// Regelwerke mit Mega-Entwicklung (inkl. Proto-Formen).
+  static const _megaRulesets = {'gen6', 'gen7', 'lgpe', 'champions', 'lza'};
+
+  /// Spielgruppen mit Gigadynamax.
+  static const _gmaxGroups = {
+    'sword-shield',
+    'the-isle-of-armor',
+    'the-crown-tundra',
+  };
+
+  /// Formen, die es nur in bestimmten Spielgruppen gibt.
+  static const _exclusiveForms = <bool Function(String), Set<String>>{
+    _isCosplayPikachu: {'omega-ruby-alpha-sapphire'},
+    _isPartnerForm: {'lets-go-pikachu-lets-go-eevee'},
+    _isTotemForm: {'sun-moon', 'ultra-sun-ultra-moon'},
+  };
+
+  static bool _isCosplayPikachu(String id) => const {
+    'pikachu-cosplay',
+    'pikachu-rock-star',
+    'pikachu-belle',
+    'pikachu-pop-star',
+    'pikachu-phd',
+    'pikachu-libre',
+  }.contains(id);
+
+  static bool _isPartnerForm(String id) =>
+      id == 'pikachu-starter' || id == 'eevee-starter';
+
+  static bool _isTotemForm(String id) => id.contains('-totem');
+
+  /// Verfügbarkeit je (Form, Spielgruppe) nach ADR 0008.
+  Map<(int, int), DataAvailability> _derivedAvailability(
+    List<int> forms,
+    List<_Group> groups,
+  ) {
+    final dexSpecies = <int, Set<int>>{}; // VG → Arten im Regional-Dex
+    final dexes = <int, Set<int>>{};
+    for (final r in t['pokemon_dex_numbers']) {
+      dexes
+          .putIfAbsent(r.integer('pokedex_id'), () => {})
+          .add(r.integer('species_id'));
+    }
+    for (final r in t['pokedex_version_groups']) {
+      dexSpecies
+          .putIfAbsent(r.integer('version_group_id'), () => {})
+          .addAll(dexes[r.integer('pokedex_id')] ?? const {});
+    }
+    final formsOf = <int, List<int>>{};
+    for (final f in forms) {
+      formsOf.putIfAbsent(_formSpecies[f]!, () => []).add(f);
+    }
+
+    final result = <(int, int), DataAvailability>{};
+    final derived = <String, int>{};
+    final groupRid = {for (final g in groups) g.id: g.rid};
+    for (final g in groups) {
+      final baseRid = groupRid[_expansionBase[g.id]];
+      final inDex = {
+        ...?dexSpecies[g.rid],
+        if (baseRid != null) ...?dexSpecies[baseRid],
+      };
+      final complete =
+          _completeRosterGroups.contains(g.id) ||
+          _completeRosterGroups.contains(_expansionBase[g.id]);
+      final dexRoster =
+          _dexRosterGroups.contains(g.id) ||
+          _dexRosterGroups.contains(_expansionBase[g.id]);
+      for (final MapEntry(key: species, value: speciesForms)
+          in formsOf.entries) {
+        final state = <int, DataAvailability>{};
+        for (final form in speciesForms) {
+          if ((_learnsetForms[g.rid]?.contains(form) ?? false) ||
+              (_encounterForms[g.rid]?.contains(form) ?? false)) {
+            state[form] = DataAvailability.confirmedAvailable;
+          } else if (_speciesGen[species]! > g.generation ||
+              _formIntroducedOrder[form]! > g.order) {
+            state[form] = DataAvailability.confirmedUnavailable;
+          } else {
+            state[form] = DataAvailability.notResearched;
+          }
+        }
+        // Erweiterung: bestätigte Aussagen des Hauptspiels übernehmen.
+        if (baseRid != null) {
+          for (final form in speciesForms) {
+            final base = result[(form, baseRid)];
+            if (state[form] == DataAvailability.notResearched &&
+                base != null &&
+                base != DataAvailability.notResearched) {
+              state[form] = base;
+              derived['expansion'] = (derived['expansion'] ?? 0) + 1;
+            }
+          }
+        }
+        void set(int form, DataAvailability a, String rule) {
+          if (state[form] != DataAvailability.notResearched) return;
+          state[form] = a;
+          derived[rule] = (derived[rule] ?? 0) + 1;
+        }
+
+        // Art im Regional-Dex mit nur einer möglichen Form → diese Form.
+        if (inDex.contains(species)) {
+          final candidates = [
+            for (final f in speciesForms)
+              if (!_formBattleOnly.contains(f) &&
+                  state[f] != DataAvailability.confirmedUnavailable)
+                f,
+          ];
+          if (candidates.length == 1) {
+            set(candidates.single, DataAvailability.confirmedAvailable, 'dex');
+          }
+        }
+        // Vollständiger Kader: Art ohne Daten und nicht im Dex → nicht im Spiel.
+        final speciesPresent =
+            inDex.contains(species) ||
+            speciesForms.any(
+              (f) => state[f] == DataAvailability.confirmedAvailable,
+            );
+        if ((complete || dexRoster) &&
+            !speciesPresent &&
+            !_speciesMythical.contains(species)) {
+          for (final f in speciesForms) {
+            set(f, DataAvailability.confirmedUnavailable, 'roster');
+          }
+        }
+        // Kampfformen ohne die zugehörige Spielmechanik.
+        for (final f in speciesForms) {
+          final ident = _formIdent[f]!;
+          final mega = ident.contains('-mega') || ident.endsWith('-primal');
+          if (mega && !_megaRulesets.contains(g.ruleset.id) ||
+              ident.endsWith('-gmax') && !_gmaxGroups.contains(g.id)) {
+            set(f, DataAvailability.confirmedUnavailable, 'mechanic');
+          }
+          for (final MapEntry(key: matches, value: only)
+              in _exclusiveForms.entries) {
+            if (matches(ident) && !only.contains(g.id)) {
+              set(f, DataAvailability.confirmedUnavailable, 'exclusive');
+            }
+          }
+          // Kampfformen einer Art, die nicht im Spiel ist.
+          if (_formBattleOnly.contains(f) &&
+              state[_defaultForm[species]] ==
+                  DataAvailability.confirmedUnavailable) {
+            set(f, DataAvailability.confirmedUnavailable, 'battle');
+          }
+        }
+        for (final e in state.entries) {
+          result[(e.key, g.rid)] = e.value;
+        }
+      }
+    }
+    for (final e in derived.entries) {
+      report.counts['Verfügbarkeit abgeleitet (${e.key})'] = e.value;
+    }
+    return result;
+  }
+
   void _formProfiles() {
     final stats = <int, Map<int, int>>{};
     for (final r in t['pokemon_stats']) {
@@ -659,19 +846,10 @@ class CatalogBuilder {
           ..sort();
     final groups = _groups.values.toList()
       ..sort((a, b) => a.order.compareTo(b.order));
+    final derived = _derivedAvailability(forms, groups);
     for (final form in forms) {
-      final species = _formSpecies[form]!;
       for (final g in groups) {
-        final DataAvailability availability;
-        if ((_learnsetForms[g.rid]?.contains(form) ?? false) ||
-            (_encounterForms[g.rid]?.contains(form) ?? false)) {
-          availability = DataAvailability.confirmedAvailable;
-        } else if (_speciesGen[species]! > g.generation ||
-            _formIntroducedOrder[form]! > g.order) {
-          availability = DataAvailability.confirmedUnavailable;
-        } else {
-          availability = DataAvailability.notResearched;
-        }
+        final availability = derived[(form, g.rid)]!;
         _availability[(form, g.rid)] = availability;
         if (availability == DataAvailability.confirmedUnavailable) {
           stmt.execute([

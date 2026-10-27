@@ -197,6 +197,65 @@ void main() {
       );
       expect(coverage.formsGaps, gaps.length);
     });
+
+    DataAvailability at(String form, String group) =>
+        profile(form, group).availability;
+
+    test('vollständiger Kader: Art ohne Daten ist nicht im Spiel', () {
+      // Rettan gibt es in Schwert/Schild nicht, Pikachu schon.
+      expect(
+        at('ekans', 'sword-shield'),
+        DataAvailability.confirmedUnavailable,
+      );
+      expect(
+        at('pikachu', 'sword-shield'),
+        DataAvailability.confirmedAvailable,
+      );
+      // Mysteriöse Pokémon fehlen teils in den Daten: bleiben Lücken.
+      expect(at('mew', 'legends-arceus').isGap, isTrue);
+    });
+
+    test('Kader nach Regional-Dex (Champions)', () {
+      expect(at('clefable', 'champions'), DataAvailability.confirmedAvailable);
+      expect(
+        at('clefairy', 'champions'),
+        DataAvailability.confirmedUnavailable,
+      );
+    });
+
+    test('Kampfformen nur mit ihrer Spielmechanik', () {
+      expect(
+        at('venusaur-mega', 'scarlet-violet'),
+        DataAvailability.confirmedUnavailable,
+      );
+      expect(
+        at('venusaur-gmax', 'scarlet-violet'),
+        DataAvailability.confirmedUnavailable,
+      );
+      expect(at('venusaur-gmax', 'sword-shield').isGap, isTrue);
+    });
+
+    test('spielexklusive Formen', () {
+      expect(
+        at('pikachu-starter', 'sword-shield'),
+        DataAvailability.confirmedUnavailable,
+      );
+      expect(
+        at('pikachu-cosplay', 'sun-moon'),
+        DataAvailability.confirmedUnavailable,
+      );
+    });
+
+    test('Erweiterungen übernehmen das Hauptspiel', () {
+      expect(
+        at('pikachu', 'the-isle-of-armor'),
+        DataAvailability.confirmedAvailable,
+      );
+      expect(
+        at('ekans', 'the-crown-tundra'),
+        DataAvailability.confirmedUnavailable,
+      );
+    });
   });
 
   group('Entwicklungen', () {

@@ -12,6 +12,9 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
 - Fundorte je Spielversion, Beschaffung über Entwicklung, Zucht, Tausch zwischen Spielen und
   Events (Mysteriöse Pokémon); Datenlücken werden als
   solche gezeigt, nie als „nicht fangbar“.
+- Welche Pokémon in neueren Spielen fehlen, wird aus vollständigen Spieldaten, Regional-Pokédexen
+  und Spielmechaniken abgeleitet (Let's Go bis Champions); Erweiterungen übernehmen ihr
+  Hauptspiel. Datenlücken in diesen Spielen sinken dadurch insgesamt um über 90 %.
 - Sammlung je Spiel und spielübergreifend, mit Shiny und Fangdatum; kombinierbare Filter und
   Vorlagen.
 - Teams mit Werteberechnung, Prüfung (gültig / teilweise / Datenlage unzureichend / ungültig),

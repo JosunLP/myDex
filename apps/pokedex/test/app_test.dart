@@ -292,6 +292,8 @@ void main() {
     tester,
   ) async {
     await _pump(tester, const Size(500, 1600));
+    // Piepi ist nicht im Kader von Champions (neuestes Spiel).
+    await _selectGame(tester, 'Rot');
     await _search(tester, 'Piepi');
     await tester.tap(find.widgetWithText(ListTile, 'Piepi'));
     await tester.pumpAndSettle();
@@ -370,6 +372,7 @@ void main() {
     expect(find.text('Offline verfügbar'), findsOneWidget);
     expect(find.text('Wähle ein Pokémon aus der Liste.'), findsOneWidget);
 
+    await _selectGame(tester, 'Rot');
     await _search(tester, 'Evoli');
     await tester.tap(find.widgetWithText(ListTile, 'Evoli'));
     await tester.pumpAndSettle();
@@ -530,6 +533,7 @@ void main() {
 
   testWidgets('Filter kombinieren und als Vorlage speichern', (tester) async {
     final h = await _pump(tester, const Size(500, 1400));
+    await _selectGame(tester, 'Rot');
     await tester.tap(find.text('Filter'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilterChip, 'Feuer'));
@@ -669,6 +673,8 @@ void main() {
     tester,
   ) async {
     final h = await _pump(tester, const Size(400, 860));
+    // Pichu gibt es in Champions nicht; Entwicklung nur in Spielen mit Pichu.
+    await _selectGame(tester, 'Gold');
     await _search(tester, 'pikachu');
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
