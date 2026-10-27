@@ -4,16 +4,16 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:meta/meta.dart';
 
-/// Signierte Beschreibung eines Katalog-Updates (ADR 0015).
+/// Signed description of a catalog update (ADR 0015).
 ///
 /// ```json
 /// {"format":"mydex-catalog-update","version":1,
-///  "manifest":{...Katalogpaket-Manifest...},
+///  "manifest":{...catalog pack manifest...},
 ///  "keyId":"…","signature":"…"}
 /// ```
-/// Signiert wird die kanonische JSON-Form von `manifest` (Schlüssel sortiert,
-/// ohne Leerzeichen) mit Ed25519. Das Manifest enthält Prüfsumme, Größe,
-/// Schemaversion, Revision und Reihenfolge des Pakets.
+/// The canonical JSON form of `manifest` (sorted keys, no whitespace) is
+/// signed with Ed25519. The manifest contains checksum, size, schema version,
+/// revision and sequence of the pack.
 abstract final class CatalogUpdateFormat {
   static const format = 'mydex-catalog-update';
   static const version = 1;
@@ -29,12 +29,12 @@ class CatalogUpdateException implements Exception {
   String toString() => 'CatalogUpdateException($code)';
 }
 
-/// Schlüsselpaar zum Signieren (nur in der Release-Umgebung vorhanden).
+/// Key pair for signing (only present in the release environment).
 @immutable
 class CatalogSigningKey {
   const CatalogSigningKey(this.seed);
 
-  /// 32 zufällige Byte.
+  /// 32 random bytes.
   factory CatalogSigningKey.generate([Random? random]) {
     final rnd = random ?? Random.secure();
     return CatalogSigningKey(List.generate(32, (_) => rnd.nextInt(256)));
@@ -53,13 +53,13 @@ class CatalogSigningKey {
   }
 }
 
-/// Kurze Kennung eines öffentlichen Schlüssels (erste 8 Byte von SHA-256).
+/// Short identifier of a public key (first 8 bytes of SHA-256).
 Future<String> catalogKeyId(String publicKeyBase64) async {
   final hash = await Sha256().hash(base64Decode(publicKeyBase64));
   return base64Url.encode(hash.bytes.sublist(0, 8)).replaceAll('=', '');
 }
 
-/// JSON mit sortierten Schlüsseln, ohne Leerzeichen.
+/// JSON with sorted keys, without whitespace.
 String canonicalJson(Object? value) {
   Object? sort(Object? v) => switch (v) {
     final Map<Object?, Object?> m => {
@@ -72,7 +72,7 @@ String canonicalJson(Object? value) {
   return jsonEncode(sort(value));
 }
 
-/// Erstellt die signierte Update-Beschreibung zu [manifest].
+/// Creates the signed update description for [manifest].
 Future<Map<String, Object?>> signCatalogUpdate(
   Map<String, Object?> manifest,
   CatalogSigningKey key,
@@ -92,8 +92,8 @@ Future<Map<String, Object?>> signCatalogUpdate(
   };
 }
 
-/// Prüft Format und Signatur gegen die vertrauenswürdigen öffentlichen
-/// Schlüssel und liefert das Manifest. Wirft [CatalogUpdateException].
+/// Checks format and signature against the trusted public keys and returns
+/// the manifest. Throws [CatalogUpdateException].
 Future<Map<String, Object?>> verifyCatalogUpdate(
   Map<String, Object?> update,
   List<String> trustedPublicKeys,

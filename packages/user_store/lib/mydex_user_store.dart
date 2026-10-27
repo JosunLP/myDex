@@ -1,4 +1,4 @@
-/// Speicher für persönliche Daten.
+/// Storage for personal data.
 library;
 
 export 'src/atomic_file.dart';

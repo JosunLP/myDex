@@ -7,7 +7,7 @@ import '../../app/sync_controller.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Herkunft der Daten und Abdeckung je Spiel (Datenqualität als Produktmerkmal).
+/// Origin of the data and coverage per game (data quality as a feature).
 class DataPage extends ConsumerWidget {
   const DataPage({super.key});
 
@@ -61,7 +61,7 @@ class DataPage extends ConsumerWidget {
   }
 }
 
-/// Signierte Katalog-Updates über den eigenen Sync-Server (ADR 0015).
+/// Signed catalog updates via your own sync server (ADR 0015).
 class _CatalogUpdateTile extends ConsumerWidget {
   const _CatalogUpdateTile();
 

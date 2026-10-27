@@ -29,7 +29,7 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     final uiLanguage = ref.watch(settingsProvider.select((s) => s.uiLanguage));
-    // Hält den Abgleich aktiv (automatisch nach Änderungen und beim Start).
+    // Keeps sync active (automatically after changes and at startup).
     if (ref.watch(syncSupportedProvider)) ref.listen(syncProvider, (_, _) {});
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -51,7 +51,7 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
   }
 }
 
-/// Zeigt Laden/Fehler, bis der lokale Katalog bereitsteht.
+/// Shows loading/errors until the local catalog is ready.
 class CatalogGate extends ConsumerWidget {
   const CatalogGate({super.key, required this.child});
 

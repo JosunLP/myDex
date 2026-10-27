@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:meta/meta.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
-/// Individuelle Eingaben für die Statusberechnung.
+/// Individual inputs for the stat calculation.
 @immutable
 class StatInputs {
   const StatInputs({
@@ -16,10 +16,10 @@ class StatInputs {
 
   final int level;
 
-  /// Ab Gen 3: IVs 0–31. Gen 1–2: DVs 0–15.
+  /// From Gen 3: IVs 0–31. Gen 1–2: DVs 0–15.
   final Map<Stat, int> ivs;
 
-  /// Ab Gen 3: EVs 0–252 (Summe ≤ 510). Gen 1–2: Status-EP 0–65535.
+  /// From Gen 3: EVs 0–252 (total ≤ 510). Gen 1–2: stat exp 0–65535.
   final Map<Stat, int> evs;
   final Stat? natureUp;
   final Stat? natureDown;
@@ -51,14 +51,14 @@ class StatCalculator {
       case StatFormula.gen1to2:
         final dv = i.ivs[stat] ?? _gen12HpDv(i);
         final statExp = i.evs[stat] ?? 0;
-        // Das Spiel begrenzt die Wurzel aus den Status-EP auf 255.
+        // The game caps the square root of the stat experience at 255.
         final expTerm = math.min(255, math.sqrt(statExp).ceil()) ~/ 4;
         final core = (((base + dv) * 2 + expTerm) * level) ~/ 100;
         return stat == Stat.hp ? core + level + 10 : core + 5;
     }
   }
 
-  /// In Gen 1–2 leitet sich der KP-DV aus den anderen DVs ab.
+  /// In Gen 1–2 the HP DV is derived from the other DVs.
   int _gen12HpDv(StatInputs i) {
     int bit(Stat s, int shift) => ((i.ivs[s] ?? 15) & 1) << shift;
     return bit(Stat.attack, 3) |
@@ -69,7 +69,7 @@ class StatCalculator {
 
   void _validate(StatInputs i) {
     if (i.level < 1 || i.level > 100) {
-      throw ArgumentError.value(i.level, 'level', 'muss 1–100 sein');
+      throw ArgumentError.value(i.level, 'level', 'must be 1–100');
     }
     final (maxIv, maxEv) = switch (formula) {
       StatFormula.modern => (31, 252),
@@ -77,21 +77,21 @@ class StatCalculator {
     };
     for (final v in i.ivs.values) {
       if (v < 0 || v > maxIv) {
-        throw ArgumentError.value(v, 'iv', 'muss 0–$maxIv sein');
+        throw ArgumentError.value(v, 'iv', 'must be 0–$maxIv');
       }
     }
     for (final v in i.evs.values) {
       if (v < 0 || v > maxEv) {
-        throw ArgumentError.value(v, 'ev', 'muss 0–$maxEv sein');
+        throw ArgumentError.value(v, 'ev', 'must be 0–$maxEv');
       }
     }
     if (formula == StatFormula.modern) {
       final sum = i.evs.values.fold(0, (a, b) => a + b);
       if (sum > 510) {
-        throw ArgumentError.value(sum, 'evs', 'Summe muss ≤ 510 sein');
+        throw ArgumentError.value(sum, 'evs', 'sum must be ≤ 510');
       }
     } else if (i.natureUp != null || i.natureDown != null) {
-      throw ArgumentError('Wesen existieren erst ab Gen 3');
+      throw ArgumentError('Natures only exist from Gen 3');
     }
   }
 }

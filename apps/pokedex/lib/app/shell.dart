@@ -7,7 +7,7 @@ import '../widgets/dex_decor.dart';
 import 'providers.dart';
 import 'theme.dart';
 
-/// Adaptive Hülle: Bottom Navigation (< 600), Rail (600–999), Sidebar (≥ 1000).
+/// Adaptive shell: bottom navigation (< 600), rail (600–999), sidebar (≥ 1000).
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.shell});
 

@@ -6,7 +6,7 @@ import '../app/providers.dart';
 import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
 
-/// Beschreibt eine Begegnung: Methode, Level, Wahrscheinlichkeit, Bedingungen.
+/// Describes an encounter: method, level, rate, conditions.
 class EncounterDetails extends ConsumerWidget {
   const EncounterDetails({
     super.key,
@@ -16,7 +16,7 @@ class EncounterDetails extends ConsumerWidget {
 
   final Encounter encounter;
 
-  /// Gebietsname voranstellen (wenn ein Ort mehrere Gebiete hat).
+  /// Prefix the area name (when a location has several areas).
   final bool showArea;
 
   @override

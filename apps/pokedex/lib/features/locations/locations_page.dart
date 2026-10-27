@@ -10,7 +10,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/search_field.dart';
 import '../../widgets/game_context_selector.dart';
 
-/// Orte mit Begegnungen im gewählten Spiel, nach Region gruppiert.
+/// Locations with encounters in the selected game, grouped by region.
 class LocationsPage extends ConsumerStatefulWidget {
   const LocationsPage({super.key});
 

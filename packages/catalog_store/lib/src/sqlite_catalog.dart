@@ -7,8 +7,8 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'schema.dart';
 
-/// Öffnet eine Katalogdatei nur lesend. `immutable=1` verhindert Sperr- und
-/// Journaldateien neben dem Katalog.
+/// Opens a catalog file read-only. `immutable=1` prevents lock and journal
+/// files next to the catalog.
 Database openCatalogDatabase(String path) {
   final uri = Uri.file(
     File(path).absolute.path,
@@ -16,7 +16,7 @@ Database openCatalogDatabase(String path) {
   return sqlite3.open(uri.toString(), mode: OpenMode.readOnly, uri: true);
 }
 
-/// Liest Metadaten und prüft die Schemaversion.
+/// Reads the metadata and checks the schema version.
 Map<String, String> readCatalogMeta(Database db) {
   final meta = {
     for (final r in db.select('SELECT key, value FROM meta'))
@@ -24,13 +24,13 @@ Map<String, String> readCatalogMeta(Database db) {
   };
   final schema = int.tryParse(meta['schemaVersion'] ?? '');
   if (schema != catalogSchemaVersion) {
-    throw FormatException('Nicht unterstützte Katalog-Schemaversion: $schema');
+    throw FormatException('Unsupported catalog schema version: $schema');
   }
   return meta;
 }
 
-/// Lädt die Kerndaten vollständig in den Speicher. Kann in einem
-/// Hintergrund-Isolate laufen; das Ergebnis ist unveränderlich und übertragbar.
+/// Loads the core data completely into memory. Can run in a background
+/// isolate; the result is immutable and transferable.
 CatalogSnapshot loadCatalogSnapshot(String path) {
   final db = openCatalogDatabase(path);
   try {
@@ -46,7 +46,7 @@ class _SnapshotLoader {
   final Database db;
   final _names = <String, Map<int, Map<String, String>>>{};
 
-  // Gleiche Werte teilen sich eine Instanz (viele Spielgruppen sind identisch).
+  // Equal values share one instance (many version groups are identical).
   final _typeLists = <String, List<PokemonType>>{};
   final _stats = <String, BaseStats>{};
   final _abilityLists = <String, List<AbilitySlot>>{};
@@ -325,12 +325,12 @@ class _SnapshotLoader {
 Map<String, Object?> _decodeJsonObject(String s) {
   final decoded = jsonDecode(s);
   if (decoded is! Map<String, Object?>) {
-    throw const FormatException('Bedingung muss ein JSON-Objekt sein');
+    throw const FormatException('Condition must be a JSON object');
   }
   return decoded;
 }
 
-/// Bedarfsweise Abfragen. Eine Verbindung pro Isolate.
+/// On-demand queries. One connection per isolate.
 class SqliteCatalogDetails implements CatalogDetails {
   SqliteCatalogDetails._(this._db, this.source) {
     for (final r in _db.select('SELECT rid, id FROM form')) {
@@ -606,6 +606,6 @@ class SqliteCatalogDetails implements CatalogDetails {
   void close() => _db.close();
 }
 
-/// Lädt Snapshot und Detailverbindung zusammen (synchron, z. B. für Tests).
+/// Loads the snapshot and the details connection together (synchronously, e.g. for tests).
 LoadedCatalog openLoadedCatalog(String path) =>
     LoadedCatalog(loadCatalogSnapshot(path), SqliteCatalogDetails.open(path));

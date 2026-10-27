@@ -3,7 +3,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'pokemon_queries.dart';
 
-/// Filtert eine Dex-Liste. Der Sammlungsstatus bezieht sich auf [scope].
+/// Filters a Dex list. The collection status refers to [scope].
 List<PokemonListItem> applyDexFilter(
   List<PokemonListItem> items,
   DexFilter filter, {
@@ -31,7 +31,7 @@ List<PokemonListItem> applyDexFilter(
   ];
 }
 
-/// Fortschritt einer Form über alle Spiele.
+/// Progress of a form across all games.
 @immutable
 class CrossGameStatus {
   const CrossGameStatus({
@@ -48,8 +48,8 @@ class CrossGameStatus {
   bool get shinyCaught => shinyCaughtIn.isNotEmpty;
 }
 
-/// Fasst die Markierungen aller Spiele je Form zusammen (globale Checkliste).
-/// Die eigenständige „globale“ Liste zählt ebenfalls als gefangen.
+/// Combines the marks of all games per form (global checklist).
+/// The separate "global" list also counts as caught.
 Map<FormId, CrossGameStatus> crossGameOverview(
   Iterable<CollectionEntry> entries,
 ) {

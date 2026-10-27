@@ -4,9 +4,9 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import '../app/providers.dart';
 
-/// Sprite einer Form – im gewählten Spiel dessen Sprite, sonst das Standard-
-/// Sprite. Pixelgrafik wird ohne Glättung skaliert. Rein dekorativ: der Name
-/// steht immer daneben.
+/// Sprite of a form – in the selected game that game's sprite, otherwise the
+/// default sprite. Pixel art is scaled without smoothing. Purely decorative:
+/// the name is always shown next to it.
 class FormSprite extends ConsumerWidget {
   const FormSprite(
     this.form, {
@@ -22,13 +22,13 @@ class FormSprite extends ConsumerWidget {
   final double size;
   final bool shiny;
 
-  /// Spielversion; ohne Angabe die global gewählte.
+  /// Game version; if omitted, the globally selected one.
   final GameVersionId? version;
 
-  /// Fester Sprite-Satz (Galerie); `''` = Standard-Sprite.
+  /// Fixed sprite set (gallery); `''` = default sprite.
   final String? slot;
 
-  /// Nur setzen, wenn das Bild allein steht (z. B. in der Galerie).
+  /// Only set when the image stands alone (e.g. in the gallery).
   final String? semanticLabel;
 
   @override

@@ -6,18 +6,18 @@ import 'catalog_details.dart';
 import 'catalog_snapshot.dart';
 import 'pokemon_queries.dart';
 
-/// Ergebnis einer Prüfung. Reihenfolge = Schwere (höchste zuletzt).
+/// Result of a check. Order = severity (highest last).
 enum CheckStatus {
-  /// Alle erfassten Regeln sind erfüllt.
+  /// All recorded rules are satisfied.
   valid,
 
-  /// Etwas ist nur außerhalb der erfassten Wege möglich (z. B. Event/Transfer).
+  /// Something is only possible outside the recorded ways (e.g. event/transfer).
   partial,
 
-  /// Für eine Aussage fehlen Daten.
+  /// Data needed for a statement is missing.
   insufficientData,
 
-  /// Verstößt gegen eine erfasste Regel.
+  /// Violates a recorded rule.
   invalid;
 
   CheckStatus worst(CheckStatus other) => index >= other.index ? this : other;
@@ -50,7 +50,7 @@ class CheckIssue {
   final IssueKind kind;
   final CheckStatus status;
 
-  /// Betroffene Attacke, Fähigkeit oder Item (ID).
+  /// Affected move, ability or item (ID).
   final String? subject;
 }
 
@@ -75,7 +75,7 @@ class TeamCheck {
   ].fold(CheckStatus.valid, (s, i) => s.worst(i));
 }
 
-/// Vorschlag: eine im Spiel erlernbare Attacke schließt eine Abdeckungslücke.
+/// Suggestion: a move learnable in the game closes a coverage gap.
 @immutable
 class MoveSuggestion {
   const MoveSuggestion(this.memberIndex, this.move, this.covers);
@@ -91,9 +91,9 @@ class TeamInsights {
   final List<MoveSuggestion> suggestions;
 }
 
-/// Prüfung, Werte und Analyse eines Teams im Kontext seines Spiels.
-/// Geprüft werden nur die erfassten Wege (Level, Maschine, Zucht, Lehrer, …);
-/// Events, Transfers und Kombinationsbeschränkungen sind nicht modelliert.
+/// Validation, stats and analysis of a team in the context of its game.
+/// Only the recorded ways are checked (level, machine, egg, tutor, …);
+/// events, transfers and combination restrictions are not modelled.
 class TeamEvaluator {
   TeamEvaluator(this.catalog, this.details, this.context);
 
@@ -103,8 +103,8 @@ class TeamEvaluator {
 
   late final TypeChart chart = TypeChart.forEra(context.ruleset.typeChartEra);
 
-  /// Erlernbare Attacken inkl. Vorentwicklungen; Wert = Quelle (die Form selbst
-  /// oder die Vorentwicklung, über die die Attacke kommt).
+  /// Learnable moves including pre-evolutions; value = source (the form itself
+  /// or the pre-evolution the move comes from).
   Map<MoveId, FormId> learnable(FormId form) {
     final result = <MoveId, FormId>{};
     for (final source in [
@@ -241,7 +241,7 @@ class TeamEvaluator {
           ),
         );
       } else if (!learnset.contains(move)) {
-        // Nicht über erfasste Wege – Events/Transfers sind nicht modelliert.
+        // Not via recorded ways – events/transfers are not modelled.
         issues.add(
           CheckIssue(
             IssueKind.moveNotInLearnset,
@@ -278,7 +278,7 @@ class TeamEvaluator {
     );
   }
 
-  /// Berechnete Werte; `null` ohne Basiswerte oder bei ungültigen Eingaben.
+  /// Calculated stats; `null` without base stats or with invalid input.
   Map<Stat, int>? stats(TeamMember m) {
     final base = profileOf(m).baseStats;
     if (base == null) return null;
@@ -289,7 +289,7 @@ class TeamEvaluator {
     }
   }
 
-  /// Basistypen-Analyse plus erklärbare Attackenvorschläge für Abdeckungslücken.
+  /// Base type analysis plus explainable move suggestions for coverage gaps.
   TeamInsights insights(Team team, {int maxSuggestions = 5}) {
     final typings = [
       for (final m in team.members)
@@ -311,7 +311,7 @@ class TeamEvaluator {
     ];
     final analysis = TeamAnalyzer(chart).analyze(typings);
     final suggestions = <MoveSuggestion>[];
-    // Lernsets und Attackenwerte nur einmal abfragen.
+    // Query learnsets and move data only once.
     final profiles = <MoveId, MoveGameProfile?>{};
     MoveGameProfile? profile(MoveId id) => profiles.putIfAbsent(
       id,

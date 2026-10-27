@@ -3,9 +3,9 @@ import 'package:mydex_domain/mydex_domain.dart';
 import 'catalog_details.dart';
 import 'catalog_snapshot.dart';
 
-/// Tauschgruppen: Spiele derselben Gruppe können untereinander tauschen.
-/// Japanische Erstausgaben bilden eine eigene Gruppe (Sprachgrenze).
-/// Spiele ohne Eintrag (z. B. Legenden: Arceus) haben keinen Tauschpartner.
+/// Trade groups: games of the same group can trade with each other.
+/// Japanese first editions form their own group (language barrier).
+/// Games without an entry (e.g. Legends: Arceus) have no trade partner.
 const _tradeGroups = {
   'red-green-japan': 'g1jp',
   'blue-japan': 'g1jp',
@@ -37,20 +37,20 @@ const _tradeGroups = {
   'the-indigo-disk': 'sv',
 };
 
-/// Gen 1 und 2 tauschen über die Zeitkapsel.
+/// Gen 1 and 2 trade via the Time Capsule.
 const _linkedGroups = {
   'g1': {'g2'},
   'g2': {'g1'},
 };
 
-/// Weitere Beschaffungswege neben Fundorten, Entwicklung und Zucht.
+/// Further ways of acquisition besides locations, evolution and breeding.
 class AcquisitionQueries {
   AcquisitionQueries(this.catalog, this.details);
 
   final CatalogSnapshot catalog;
   final CatalogDetails details;
 
-  /// Versionen, mit denen [version] tauschen kann (ohne sich selbst).
+  /// Versions that [version] can trade with (excluding itself).
   List<GameVersion> tradePartners(GameVersionId version) {
     final own = catalog.versions.where((v) => v.id == version).firstOrNull;
     if (own == null) return const [];
@@ -65,9 +65,9 @@ class AcquisitionQueries {
     ];
   }
 
-  /// Versionen, in denen [form] laut Fundortdaten vorkommt und aus denen es
-  /// sich in das Spiel von [ctx] tauschen lässt. Leer, wenn die Form dort
-  /// bestätigt nicht existiert.
+  /// Versions in which [form] occurs according to the location data and from
+  /// which it can be traded into the game of [ctx]. Empty if the form is
+  /// confirmed not to exist there.
   List<GameVersion> tradeSources(FormId form, GameContext ctx) {
     final f = catalog.forms[form];
     if (f == null) return const [];
@@ -85,7 +85,7 @@ class AcquisitionQueries {
     ];
   }
 
-  /// Mysteriöses Pokémon, das es im Spiel gibt: in der Regel nur über Events.
+  /// Mythical Pokémon that exists in the game: usually only via events.
   bool isEventOnly(FormId form, GameContext ctx) {
     final f = catalog.forms[form];
     if (f == null) return false;

@@ -8,11 +8,11 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'artwork.dart';
 
-/// Festgehaltener Stand von `PokeAPI/sprites` (Dateien je Commit unveränderlich).
+/// Pinned state of `PokeAPI/sprites` (files at a commit are immutable).
 const spritesRepository = 'https://github.com/PokeAPI/sprites';
 const spritesCommit = 'd8c2fb78563e28ad7b3abe938cf6e79998d04e90';
 
-/// Sprite-Satz eines Spiels: Verzeichnis in der Quelle, Versionen, Shiny ja/nein.
+/// Sprite set of a game: directory in the source, versions, shiny yes/no.
 class SpriteSlot {
   const SpriteSlot(
     this.id,
@@ -24,26 +24,26 @@ class SpriteSlot {
     this.still = false,
   });
 
-  /// Kennung im Medienpaket, z. B. `gold`.
+  /// Identifier in the media pack, e.g. `gold`.
   final String id;
 
-  /// Spielgruppe, deren Verfügbarkeit die Kandidaten bestimmt.
+  /// Version group whose availability determines the candidates.
   final String versionGroup;
 
-  /// Verzeichnis unter `sprites/pokemon/versions/`.
+  /// Directory under `sprites/pokemon/versions/`.
   final String dir;
   final List<String> versions;
   final bool shiny;
 
-  /// Dateiendung in der Quelle.
+  /// File extension in the source.
   final String ext;
 
-  /// Ab Gen 7: als Einzelbild verkleinern (siehe `shrinkStill`).
+  /// From Gen 7: shrink to a still image (see `shrinkStill`).
   final bool still;
 }
 
-/// Spiele mit eigenen Sprites (Gen 1–5). Gen 1 und 2 in der transparenten
-/// Fassung, damit sie auf hellem und dunklem Hintergrund passen.
+/// Games with their own images. Gen 1 and 2 in the transparent version so that
+/// they fit on light and dark backgrounds.
 const spriteSlots = [
   SpriteSlot('red-blue', 'red-blue', 'generation-i/red-blue/transparent', [
     'red-japan',
@@ -97,8 +97,8 @@ const spriteSlots = [
     'generation-vi/omega-ruby-alpha-sapphire',
     ['omega-ruby', 'alpha-sapphire'],
   ),
-  // Ab Gen 7 gibt es nur animierte 3D-Modelle (0,1–6 MB je Bild) bzw.
-  // Box-Symbole; gespeichert wird ein verkleinertes Einzelbild, ohne Shiny.
+  // From Gen 7 there are only animated 3D models (0.1–6 MB per image) or box
+  // icons; a downscaled still image is stored, without shiny.
   SpriteSlot(
     'ultra-sun-ultra-moon',
     'ultra-sun-ultra-moon',
@@ -180,10 +180,10 @@ const spriteSlots = [
   ),
 ];
 
-/// Offizielles Artwork je Form (kein Spiel-Sprite, daher kein Eintrag in `slot`).
+/// Official artwork per form (not an in-game sprite, so no entry in `slot`).
 const artworkSlot = 'artwork';
 
-/// Eine zu ladende Datei und ihr Ziel im Medienpaket.
+/// A file to download and its target in the media pack.
 class _Wanted {
   const _Wanted(
     this.form,
@@ -193,7 +193,7 @@ class _Wanted {
     this.still = false,
   });
   final String form;
-  final String slot; // '' = Standard-Sprite
+  final String slot; // '' = default sprite
   final bool shiny;
   final String path;
   final bool still;
@@ -207,17 +207,17 @@ class MediaReport {
 
   @override
   String toString() =>
-      'Sprites: $stored gespeichert ($bytes Bytes), $missing in der Quelle nicht vorhanden';
+      'Sprites: $stored stored ($bytes bytes), $missing not present in the source';
 }
 
-/// Baut das Medienpaket aus einem fertigen Katalog: Kandidaten sind alle Formen,
-/// die im jeweiligen Spiel nicht bestätigt fehlen.
+/// Builds the media pack from a finished catalog: candidates are all forms not
+/// confirmed missing from the respective game.
 class MediaBuilder {
   MediaBuilder({required this.catalog, required this.cache, this.log});
 
   final File catalog;
 
-  /// Ablage geladener Dateien; fehlende Dateien als `.missing`-Marke.
+  /// Storage of downloaded files; missing files as a `.missing` marker.
   final Directory cache;
   final void Function(String)? log;
 
@@ -280,7 +280,7 @@ class MediaBuilder {
     }
   }
 
-  /// Lädt fehlende Dateien parallel in den Cache.
+  /// Downloads missing files into the cache in parallel.
   Future<void> _fetch(List<_Wanted> wanted, {int parallel = 16}) async {
     final queue = Queue.of(
       wanted.where((w) {
@@ -291,7 +291,7 @@ class MediaBuilder {
       }),
     );
     if (queue.isEmpty) return;
-    log?.call('lade ${queue.length} Sprites …');
+    log?.call('downloading ${queue.length} sprites …');
     final client = HttpClient()..maxConnectionsPerHost = parallel;
     var done = 0;
     Future<void> worker() async {
@@ -322,12 +322,12 @@ class MediaBuilder {
         }
         if (response.statusCode != 200) {
           await response.drain<void>();
-          throw HttpException('HTTP ${response.statusCode} für $path');
+          throw HttpException('HTTP ${response.statusCode} for $path');
         }
         final bytes = BytesBuilder(copy: false);
         await response.forEach(bytes.add);
         final data = bytes.takeBytes();
-        if (!_isImage(data)) throw FormatException('Kein Bild: $path');
+        if (!_isImage(data)) throw FormatException('Not an image: $path');
         await target.parent.create(recursive: true);
         final tmp = File('${target.path}.part');
         await tmp.writeAsBytes(data, flush: true);
@@ -340,7 +340,7 @@ class MediaBuilder {
     }
   }
 
-  /// PNG, GIF oder WebP (RIFF…WEBP).
+  /// PNG, GIF or WebP (RIFF…WEBP).
   static bool _isImage(List<int> b) =>
       b.length > 12 &&
       ((b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) ||
@@ -349,8 +349,8 @@ class MediaBuilder {
 
   File _stillFile(String path) => File('${cache.path}/$stillProcess/$path.png');
 
-  /// Einzelbild ab Gen 7; das (große) Original wird danach gelöscht, im
-  /// Cache bleibt nur das Ergebnis.
+  /// Still image from Gen 7; the (large) original is deleted afterwards, only
+  /// the result stays in the cache.
   List<int>? _still(String path) {
     final cached = _stillFile(path);
     if (cached.existsSync()) return cached.readAsBytesSync();
@@ -363,7 +363,7 @@ class MediaBuilder {
     return png;
   }
 
-  /// Verkleinertes Artwork, zwischengespeichert neben dem Original.
+  /// Downscaled artwork, cached next to the original.
   List<int> _shrunk(String path, File original) {
     final cached = File('${cache.path}/$artworkProcess/$path');
     if (cached.existsSync()) return cached.readAsBytesSync();
@@ -373,7 +373,7 @@ class MediaBuilder {
     return png;
   }
 
-  /// Lädt (falls nötig) und schreibt die Mediendatenbank nach [out].
+  /// Downloads (if needed) and writes the media database to [out].
   Future<MediaReport> build(
     File out, {
     required String revision,

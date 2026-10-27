@@ -9,7 +9,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'csv.dart';
 import 'source.dart';
 
-/// Quell-Sprach-ID → Sprachcode im Katalog.
+/// Source language ID → language code in the catalog.
 const languageCodes = {
   1: 'ja-Hrkt',
   11: 'ja',
@@ -24,14 +24,14 @@ const languageCodes = {
   13: 'pt',
 };
 
-/// Damage-Class-IDs der Quelle.
+/// Damage class IDs of the source.
 const _damageClasses = {
   1: DamageClass.status,
   2: DamageClass.physical,
   3: DamageClass.special,
 };
 
-/// Bis Gen 3 bestimmte der Typ die Schadensklasse.
+/// Up to Gen 3 the type determined the damage class.
 const _physicalTypesGen1to3 = {
   PokemonType.normal,
   PokemonType.fighting,
@@ -49,7 +49,7 @@ class BuildOptions {
 
   final String revision;
 
-  /// Nur diese Arten (nationale Nummern) – für kleine Testkataloge.
+  /// Only these species (national numbers) – for small test catalogs.
   final Set<int>? speciesFilter;
 }
 
@@ -63,10 +63,10 @@ class BuildReport {
   @override
   String toString() => [
     for (final e in counts.entries) '${e.key}: ${e.value}',
-    'Warnungen: ${warnings.length}',
+    'Warnings: ${warnings.length}',
     for (final w in warnings.take(30)) '  ⚠ $w',
-    if (warnings.length > 30) '  … ${warnings.length - 30} weitere',
-    'Probleme: ${problems.length}',
+    if (warnings.length > 30) '  … ${warnings.length - 30} more',
+    'Problems: ${problems.length}',
     for (final p in problems.take(50)) '  ✗ $p',
   ].join('\n');
 }
@@ -105,7 +105,7 @@ class _Ruleset {
 }
 
 _Ruleset _rulesetFor(String group, int gen) {
-  // Bekannte Sonderregeln einzelner Spiele.
+  // Known special rules of individual games.
   if (group == 'lets-go-pikachu-lets-go-eevee') {
     return const _Ruleset(
       'lgpe',
@@ -131,7 +131,7 @@ _Ruleset _rulesetFor(String group, int gen) {
   final era = gen == 1
       ? TypeChartEra.gen1
       : (gen <= 5 ? TypeChartEra.gen2to5 : TypeChartEra.gen6plus);
-  // Spiele ohne Pension/Zucht erhalten ein eigenes Regelwerk.
+  // Games without a day care/breeding get their own ruleset.
   final noBreeding = switch (group) {
     'colosseum' || 'xd' => 'orre',
     'legends-za' || 'mega-dimension' => 'lza',
@@ -150,7 +150,7 @@ _Ruleset _rulesetFor(String group, int gen) {
   );
 }
 
-/// Baut den Katalog aus den Quelltabellen.
+/// Builds the catalog from the source tables.
 class CatalogBuilder {
   CatalogBuilder(this.t, this.options);
 
@@ -159,24 +159,24 @@ class CatalogBuilder {
   final report = BuildReport();
 
   late final Database _db;
-  final _groups = <int, _Group>{}; // Quell-VG-ID → Gruppe
+  final _groups = <int, _Group>{}; // source VG ID → group
   final _typeKeys = <int, PokemonType>{};
   final _speciesGen = <int, int>{};
   final _speciesIdent = <int, String>{};
   final _formSpecies = <int, int>{};
   final _formIdent = <int, String>{};
   final _formIntroducedOrder = <int, int>{};
-  final _defaultForm = <int, int>{}; // Art → Standardform
+  final _defaultForm = <int, int>{}; // species → default form
   final _pokemonFormToPokemon = <int, int>{};
   final _moveGen = <int, int>{};
   final _abilityGen = <int, int>{};
-  final _availability = <(int, int), DataAvailability>{}; // (Form, VG)
-  final _learnsetForms = <int, Set<int>>{}; // VG → Formen mit Erlernbarkeit
-  final _usedMoves = <int, Set<int>>{}; // VG → Attacken
+  final _availability = <(int, int), DataAvailability>{}; // (form, VG)
+  final _learnsetForms = <int, Set<int>>{}; // VG → forms with learnsets
+  final _usedMoves = <int, Set<int>>{}; // VG → moves
   final _items = <int, String>{};
-  final _locations = <int, (String, int)>{}; // ID → (Bezeichner, Region)
-  final _encounterForms = <int, Set<int>>{}; // VG → Formen mit Begegnungen
-  final _encounterEntries = <int, int>{}; // VG → Anzahl
+  final _locations = <int, (String, int)>{}; // ID → (identifier, region)
+  final _encounterForms = <int, Set<int>>{}; // VG → forms with encounters
+  final _encounterEntries = <int, int>{}; // VG → count
   final _regions = <int, String>{};
   final _speciesMythical = <int>{};
   final _formBattleOnly = <int>{};
@@ -284,7 +284,7 @@ class CatalogBuilder {
   void _games() {
     for (final r in t['types']) {
       final id = r.integer('id');
-      // Nur die 18 Kampftypen; Sondertypen wie „stellar“ (Tera) bleiben außen vor.
+      // Only the 18 battle types; special types like "stellar" (Tera) are left out.
       final type = PokemonType.values
           .where((t) => t.key == r['identifier'])
           .firstOrNull;
@@ -327,7 +327,7 @@ class CatalogBuilder {
         rs.breeding ? 1 : 0,
       ]);
     }
-    // Spielgruppen werden in _coverage mit has_data ergänzt; hier nur anlegen.
+    // Version groups get has_data in _coverage; only created here.
     final versions = [...t['versions']]
       ..sort((a, b) {
         final g = _groups[a.integer('version_group_id')]!.order.compareTo(
@@ -343,7 +343,7 @@ class CatalogBuilder {
       ]);
     }
     _names('version', 'version_names', 'version_id');
-    // Namen der Spielgruppen: Versionsnamen mit „ / “ verbunden.
+    // Names of the version groups: version names joined with " / ".
     final versionNames = <int, Map<String, String>>{};
     for (final r in t['version_names']) {
       final lang = languageCodes[r.integer('local_language_id')];
@@ -388,8 +388,8 @@ class CatalogBuilder {
       _speciesIdent[id] = r['identifier']!;
       if (r.flag('is_mythical')) _speciesMythical.add(id);
       if (!_speciesIncluded(id)) continue;
-      // Schlüpfbar, wenn ein Mitglied der Entwicklungsfamilie Eier legen kann
-      // (Babys wie Pichu sind selbst „unbekannt“, schlüpfen aber aus Eiern).
+      // Hatchable if a member of the evolution family can lay eggs (babies
+      // like Pichu are "undiscovered" themselves but hatch from eggs).
       final hatchable = familyBreeds[r.optInt('evolution_chain_id')] ?? false;
       _insert('species', [
         id,
@@ -397,7 +397,7 @@ class CatalogBuilder {
         id,
         r.integer('generation_id'),
         hatchable ? 1 : 0,
-        // Mysteriöse Pokémon gibt es in der Regel nur über Events.
+        // Mythical Pokémon are usually only available via events.
         r.flag('is_mythical') ? 1 : 0,
       ]);
     }
@@ -501,8 +501,8 @@ class CatalogBuilder {
     ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
       var ident = r['identifier']!;
       if (!seen.add(ident)) {
-        // Die Quelle enthält doppelte Bezeichner; die stabile ID erhält die Quell-ID.
-        report.warn('Item-Bezeichner $ident doppelt (Quell-ID ${r['id']})');
+        // The source contains duplicate identifiers; the stable ID gets the source ID.
+        report.warn('Duplicate item identifier $ident (source ID ${r['id']})');
         ident = '$ident--${r['id']}';
       }
       _items[r.integer('id')] = ident;
@@ -526,7 +526,7 @@ class CatalogBuilder {
     ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
       final up = r.integer('increased_stat_id');
       final down = r.integer('decreased_stat_id');
-      // Neutrale Wesen erhöhen und senken denselben Wert – also keinen.
+      // Neutral natures raise and lower the same stat – i.e. none.
       _insert('nature', [
         r.integer('id'),
         r['identifier'],
@@ -542,7 +542,7 @@ class CatalogBuilder {
     for (final r in t['moves']) {
       final id = r.integer('id');
       if (id >= 10000) {
-        continue; // Schatten-Attacken (Colosseum/XD) folgen gesondert
+        continue; // shadow moves (Colosseum/XD) are handled separately
       }
       ids.add(id);
       _moveGen[id] = r.integer('generation_id');
@@ -595,7 +595,7 @@ class CatalogBuilder {
     }
   }
 
-  /// Wert aus „Vergangenheits“-Zeilen: gültig bis einschließlich deren Generation.
+  /// Value from "past" rows: valid up to and including their generation.
   static T? _past<T>(Iterable<(int, T)> rows, int generation) {
     (int, T)? best;
     for (final row in rows) {
@@ -606,11 +606,10 @@ class CatalogBuilder {
     return best?.$2;
   }
 
-  /// Spielgruppen, deren Erlernbarkeitsdaten aus dem Spiel ausgelesen und
-  /// vollständig sind: Jede Art im Spiel – auch die nur über HOME
-  /// übertragbaren – hat dort Einträge. Mysteriöse Pokémon fehlen teils
-  /// (z. B. Darkrai in Strahlender Diamant/Leuchtende Perle) und sind
-  /// ausgenommen (ADR 0008).
+  /// Version groups whose learnset data was extracted from the game and is
+  /// complete: every species in the game – including those only transferable
+  /// via HOME – has entries there. Mythical Pokémon are partly missing (e.g.
+  /// Darkrai in Brilliant Diamond/Shining Pearl) and are excluded (ADR 0008).
   static const _completeRosterGroups = {
     'lets-go-pikachu-lets-go-eevee',
     'sword-shield',
@@ -619,11 +618,11 @@ class CatalogBuilder {
     'scarlet-violet',
   };
 
-  /// Spielgruppen, deren Kader genau ihr Regional-Pokédex ist.
+  /// Version groups whose roster is exactly their regional Pokédex.
   static const _dexRosterGroups = {'champions', 'legends-za'};
 
-  /// Erweiterungen enthalten das Hauptspiel: Was dort feststeht, gilt auch
-  /// mit der Erweiterung.
+  /// Expansions contain the base game: what is confirmed there also holds
+  /// with the expansion.
   static const _expansionBase = {
     'the-isle-of-armor': 'sword-shield',
     'the-crown-tundra': 'sword-shield',
@@ -632,17 +631,17 @@ class CatalogBuilder {
     'mega-dimension': 'legends-za',
   };
 
-  /// Regelwerke mit Mega-Entwicklung (inkl. Proto-Formen).
+  /// Rulesets with Mega Evolution (including Primal forms).
   static const _megaRulesets = {'gen6', 'gen7', 'lgpe', 'champions', 'lza'};
 
-  /// Spielgruppen mit Gigadynamax.
+  /// Version groups with Gigantamax.
   static const _gmaxGroups = {
     'sword-shield',
     'the-isle-of-armor',
     'the-crown-tundra',
   };
 
-  /// Formen, die es nur in bestimmten Spielgruppen gibt.
+  /// Forms that only exist in certain version groups.
   static const _exclusiveForms = <bool Function(String), Set<String>>{
     _isCosplayPikachu: {'omega-ruby-alpha-sapphire'},
     _isPartnerForm: {'lets-go-pikachu-lets-go-eevee'},
@@ -663,12 +662,12 @@ class CatalogBuilder {
 
   static bool _isTotemForm(String id) => id.contains('-totem');
 
-  /// Verfügbarkeit je (Form, Spielgruppe) nach ADR 0008.
+  /// Availability per (form, version group) according to ADR 0008.
   Map<(int, int), DataAvailability> _derivedAvailability(
     List<int> forms,
     List<_Group> groups,
   ) {
-    final dexSpecies = <int, Set<int>>{}; // VG → Arten im Regional-Dex
+    final dexSpecies = <int, Set<int>>{}; // VG → species in the regional Dex
     final dexes = <int, Set<int>>{};
     for (final r in t['pokemon_dex_numbers']) {
       dexes
@@ -714,7 +713,7 @@ class CatalogBuilder {
             state[form] = DataAvailability.notResearched;
           }
         }
-        // Erweiterung: bestätigte Aussagen des Hauptspiels übernehmen.
+        // Expansion: inherit confirmed statements of the base game.
         if (baseRid != null) {
           for (final form in speciesForms) {
             final base = result[(form, baseRid)];
@@ -732,7 +731,7 @@ class CatalogBuilder {
           derived[rule] = (derived[rule] ?? 0) + 1;
         }
 
-        // Art im Regional-Dex mit nur einer möglichen Form → diese Form.
+        // Species in the regional Dex with only one possible form → that form.
         if (inDex.contains(species)) {
           final candidates = [
             for (final f in speciesForms)
@@ -744,7 +743,7 @@ class CatalogBuilder {
             set(candidates.single, DataAvailability.confirmedAvailable, 'dex');
           }
         }
-        // Vollständiger Kader: Art ohne Daten und nicht im Dex → nicht im Spiel.
+        // Complete roster: species without data and not in the Dex → not in the game.
         final speciesPresent =
             inDex.contains(species) ||
             speciesForms.any(
@@ -757,7 +756,7 @@ class CatalogBuilder {
             set(f, DataAvailability.confirmedUnavailable, 'roster');
           }
         }
-        // Kampfformen ohne die zugehörige Spielmechanik.
+        // Battle forms without the corresponding game mechanic.
         for (final f in speciesForms) {
           final ident = _formIdent[f]!;
           final mega = ident.contains('-mega') || ident.endsWith('-primal');
@@ -771,7 +770,7 @@ class CatalogBuilder {
               set(f, DataAvailability.confirmedUnavailable, 'exclusive');
             }
           }
-          // Kampfformen einer Art, die nicht im Spiel ist.
+          // Battle forms of a species that is not in the game.
           if (_formBattleOnly.contains(f) &&
               state[_defaultForm[species]] ==
                   DataAvailability.confirmedUnavailable) {
@@ -784,7 +783,7 @@ class CatalogBuilder {
       }
     }
     for (final e in derived.entries) {
-      report.counts['Verfügbarkeit abgeleitet (${e.key})'] = e.value;
+      report.counts['Availability derived (${e.key})'] = e.value;
     }
     return result;
   }
@@ -880,12 +879,12 @@ class CatalogBuilder {
             ? _past(pastStats[(form, 9)] ?? const [], 1)
             : null;
         if (g.ruleset.unifiedSpecial && special == null) {
-          report.warn('${_formIdent[form]}: kein Gen-1-Spezialwert');
+          report.warn('${_formIdent[form]}: no Gen 1 Special stat');
         }
-        // Fähigkeiten
+        // Abilities
         int? ability(int slot) {
           if (!g.ruleset.abilities) return null;
-          // Versteckte Fähigkeiten gibt es erst ab Gen 5.
+          // Hidden abilities only exist from Gen 5.
           if (slot == 3 && gen < 5) return null;
           final pastRows = pastAbilities[(form, slot)];
           if (pastRows != null) {
@@ -900,7 +899,7 @@ class CatalogBuilder {
           final a = abilities[form]?[slot];
           if (a != null && (_abilityGen[a] ?? 99) > gen) {
             report.warn(
-              '${_formIdent[form]} in ${g.id}: Fähigkeit $a erst ab Gen ${_abilityGen[a]}',
+              '${_formIdent[form]} in ${g.id}: ability $a only from Gen ${_abilityGen[a]}',
             );
             return null;
           }
@@ -950,7 +949,7 @@ class CatalogBuilder {
       final id = m.integer('id');
       for (final g in groups) {
         if (g.generation < _moveGen[id]!) continue;
-        // Je Feld: der früheste Änderungseintrag nach dieser Spielgruppe gilt.
+        // Per field: the earliest change entry after this version group applies.
         String? field(String column) {
           Map<String, String>? best;
           for (final c in changes[id] ?? const <Map<String, String>>[]) {
@@ -976,7 +975,7 @@ class CatalogBuilder {
         final typeId = optional('type_id');
         final type = typeId == null ? null : _typeKeys[typeId];
         if (type == null) {
-          report.warn('Attacke ${m['identifier']}: unbekannter Typ $typeId');
+          report.warn('Move ${m['identifier']}: unknown type $typeId');
           continue;
         }
         var damageClass =
@@ -1197,7 +1196,7 @@ class CatalogBuilder {
           ), () => {})
           .addAll(vgs);
     }
-    // Regionale Entwicklungen ersetzen die allgemeine in ihrer Region (z. B. Alola-Raichu).
+    // Regional evolutions replace the general one in their region (e.g. Alolan Raichu).
     for (final e in edges.entries.where((e) => e.key.$5 == null)) {
       for (final regional in edges.entries.where(
         (o) => o.key.$5 != null && o.key.$1 == e.key.$1 && o.key.$3 == e.key.$3,
@@ -1243,7 +1242,7 @@ class CatalogBuilder {
     ]..sort((a, b) => a.integer('id').compareTo(b.integer('id')))) {
       var ident = r['identifier']!;
       if (!seen.add(ident)) {
-        report.warn('Ort $ident doppelt (Quell-ID ${r['id']})');
+        report.warn('Duplicate location $ident (source ID ${r['id']})');
         ident = '$ident--${r['id']}';
       }
       _locations[r.integer('id')] = (ident, r.optInt('region_id') ?? 0);
@@ -1284,7 +1283,7 @@ class CatalogBuilder {
     );
   }
 
-  /// Begegnungen je Form, Version, Gebiet, Methode und Bedingungen.
+  /// Encounters per form, version, area, method and conditions.
   void _encounters() {
     final slots = {for (final r in t['encounter_slots']) r.integer('id'): r};
     final versionGroup = {
@@ -1349,7 +1348,7 @@ class CatalogBuilder {
       });
     for (final k in keys) {
       final v = rows[k]!;
-      // Mehrere Slots können zusammen über 100 % ergeben (z. B. Bedingungsvarianten).
+      // Several slots can add up to more than 100 % (e.g. condition variants).
       stmt.execute([
         k.$1,
         k.$2,
@@ -1405,10 +1404,10 @@ class CatalogBuilder {
         entries,
         _encounterEntries[g.rid] ?? 0,
       ]);
-      report.counts['Formen bestätigt in ${g.id}'] = confirmed;
+      report.counts['Forms confirmed in ${g.id}'] = confirmed;
     }
-    report.counts['Formen'] = formRids.length;
-    report.counts['Erlernbarkeitseinträge'] =
+    report.counts['Forms'] = formRids.length;
+    report.counts['Learnset entries'] =
         _db.select('SELECT count(*) AS n FROM learnset').first['n'] as int;
   }
 

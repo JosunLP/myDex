@@ -11,8 +11,8 @@ import 'catalog_loader.dart';
 import 'settings.dart';
 import 'sync_config.dart';
 
-/// Ablageort der persönlichen Daten. Sammlung, Teams und Vorlagen laufen über
-/// den Abgleich (ADR 0012); ohne Verbindung zeichnet er nichts auf.
+/// Storage location of personal data. Collection, teams and presets go
+/// through the sync (ADR 0012); without a connection it records nothing.
 class AppStorage {
   factory AppStorage(Directory dir) => AppStorage.custom(
     collection: FileCollectionRepository(File('${dir.path}/collection.json')),
@@ -70,33 +70,32 @@ class AppStorage {
   late final FilterPresetRepository presets;
   late final SyncClient sync;
 
-  /// Serveradresse und Zugangsschlüssel – bewusst nicht in den Einstellungen,
-  /// damit sie nie in einer Datensicherung landen.
+  /// Server address and access token – deliberately not in the settings so
+  /// that they never end up in a backup.
   final SyncConfigStore syncConfig;
 
-  /// Zuordnung verschlüsselter IDs (für Löschungen).
+  /// Mapping of encrypted IDs (for deletions).
   final SyncAliasStore syncAliases;
 
-  /// Zusatz für Konfliktkopien, in der App-Sprache (wird von der App gesetzt).
-  String conflictLabel = 'Konflikt';
+  /// Suffix for conflict copies, in the app language (set by the app).
+  String conflictLabel = 'conflict';
 
-  /// Getrennt von den Nutzerdaten (ADR 0003).
+  /// Separate from the user data (ADR 0003).
   final Directory catalogDirectory;
 
-  /// Installiertes Medienpaket (Sprites).
+  /// Installed media pack (sprites).
   final Directory mediaDirectory;
 }
 
 final appStorageProvider = Provider<AppStorage>(
-  (ref) =>
-      throw UnimplementedError('appStorageProvider muss überschrieben werden'),
+  (ref) => throw UnimplementedError('appStorageProvider must be overridden'),
 );
 
 final initialSettingsProvider = Provider<AppSettings>(
   (ref) => const AppSettings(),
 );
 
-/// Der gebündelte Katalog: Die App funktioniert ab dem ersten Start offline.
+/// The bundled catalog: the app works offline from the first start.
 final catalogRepositoryProvider = Provider<CatalogRepository>(
   (ref) =>
       BundledCatalogRepository(ref.watch(appStorageProvider).catalogDirectory),
@@ -106,7 +105,7 @@ final mediaLoaderProvider = Provider<MediaLoader>(
   (ref) => BundledMediaLoader(ref.watch(appStorageProvider).mediaDirectory),
 );
 
-/// Bilder; bis zum Laden und bei Fehlern leer (die App wartet nicht darauf).
+/// Images; empty until loaded and on errors (the app does not wait for them).
 final mediaProvider = FutureProvider<MediaLibrary>((ref) async {
   final media = await ref.watch(mediaLoaderProvider).load();
   ref.onDispose(media.close);
@@ -119,12 +118,12 @@ final catalogProvider = FutureProvider<LoadedCatalog>((ref) async {
   return loaded;
 }, retry: (_, _) => null);
 
-/// Nur innerhalb von [CatalogGate] verwenden, wo der Katalog geladen ist.
+/// Only use inside [CatalogGate], where the catalog is loaded.
 final readyCatalogProvider = Provider<CatalogSnapshot>(
   (ref) => ref.watch(catalogProvider).requireValue.snapshot,
 );
 
-/// Abfragen auf große Tabellen (Erlernbarkeit, Attacken, Suche).
+/// Queries on large tables (learnsets, moves, search).
 final catalogDetailsProvider = Provider<CatalogDetails>(
   (ref) => ref.watch(catalogProvider).requireValue.details,
 );
@@ -157,7 +156,7 @@ class SettingsController extends Notifier<AppSettings> {
   void setUiLanguage(String? language) =>
       _update(state.copyWith(uiLanguage: () => language));
 
-  /// Übernimmt Einstellungen aus einer Sicherung.
+  /// Applies settings from a backup.
   void replaceAll(AppSettings settings) => _update(settings);
 }
 
@@ -165,8 +164,8 @@ final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
   SettingsController.new,
 );
 
-/// Der aktuelle Spielkontext (ADR 0004). Alle spielabhängigen Ansichten hängen
-/// davon ab, daher aktualisiert ein Spielwechsel sie konsistent.
+/// The current game context (ADR 0004). All game-dependent views depend on
+/// it, so switching games updates them consistently.
 final gameContextProvider = Provider<GameContext>((ref) {
   final catalog = ref.watch(readyCatalogProvider);
   final selected = ref.watch(settingsProvider.select((s) => s.gameVersion));
@@ -177,7 +176,7 @@ final gameContextProvider = Provider<GameContext>((ref) {
   return catalog.defaultContext;
 });
 
-/// Sprache der Spieldaten: Einstellung oder App-Sprache.
+/// Language of the game data: setting or app language.
 String dataLanguageOf(BuildContext context, WidgetRef ref) =>
     ref.watch(settingsProvider.select((s) => s.dataLanguage)) ??
     Localizations.localeOf(context).languageCode;
@@ -210,7 +209,7 @@ class CollectionController
     try {
       await _repo.put(entry);
     } catch (_) {
-      state = previous; // Anzeige nie von gespeicherten Daten abweichen lassen
+      state = previous; // never let the display differ from the stored data
       rethrow;
     }
   }
@@ -230,7 +229,7 @@ class TeamsController extends AsyncNotifier<List<Team>> {
 
   Team? byId(String id) => state.value?.where((t) => t.id == id).firstOrNull;
 
-  /// Legt ein Team für das gewählte Spiel an.
+  /// Creates a team for the selected game.
   Future<Team> create(String name, GameVersionId version) async {
     final now = DateTime.now();
     final team = Team(
@@ -271,7 +270,7 @@ final teamsProvider = AsyncNotifierProvider<TeamsController, List<Team>>(
   TeamsController.new,
 );
 
-/// Prüfung und Analyse im Kontext des Team-Spiels (nicht des globalen Spiels).
+/// Validation and analysis in the context of the team's game (not the global one).
 TeamEvaluator evaluatorFor(WidgetRef ref, Team team) {
   final catalog = ref.watch(readyCatalogProvider);
   return TeamEvaluator(
@@ -318,7 +317,7 @@ class DexFilterController extends Notifier<DexFilter> {
   void set(DexFilter filter) => state = filter;
 }
 
-/// Aktiver Filter der Dex-Liste (nicht gespeichert; Vorlagen speichern ihn).
+/// Active filter of the Dex list (not stored; presets store it).
 final dexFilterProvider = NotifierProvider<DexFilterController, DexFilter>(
   DexFilterController.new,
 );

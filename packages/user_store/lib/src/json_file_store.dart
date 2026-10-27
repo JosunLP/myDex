@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'atomic_file.dart';
 
-/// Gemeinsame Basis für Nutzerdaten als JSON-Datei: atomares Schreiben,
-/// Schreibvorgänge nacheinander, beschädigte Dateien werden aufbewahrt.
+/// Shared base for user data as JSON files: atomic writes, writes one after
+/// another, corrupted files are kept.
 class JsonFileStore {
   JsonFileStore(this.file, {required this.schemaVersion});
 
@@ -12,10 +12,10 @@ class JsonFileStore {
   final int schemaVersion;
   Future<void> _queue = Future.value();
 
-  /// Pfad einer beschädigten Datei, die beim Laden beiseitegelegt wurde.
+  /// Path of a corrupted file that was set aside while loading.
   String? quarantinedPath;
 
-  /// Liefert die Einträge (`entries`) oder eine leere Liste.
+  /// Returns the entries (`entries`) or an empty list.
   Future<List<Map<String, Object?>>> read() async {
     if (!await file.exists()) return [];
     try {
@@ -23,7 +23,7 @@ class JsonFileStore {
           jsonDecode(await file.readAsString()) as Map<String, Object?>;
       if (json['schemaVersion'] != schemaVersion) {
         throw FormatException(
-          'Unbekannte Schemaversion: ${json['schemaVersion']}',
+          'Unknown schema version: ${json['schemaVersion']}',
         );
       }
       return [

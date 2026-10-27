@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 enum Stat { hp, attack, defense, specialAttack, specialDefense, speed }
 
-/// Basiswerte einer Form in einem Spielkontext.
+/// Base stats of a form in a game context.
 @immutable
 class BaseStats {
   const BaseStats({
@@ -14,7 +14,7 @@ class BaseStats {
     required this.speed,
   });
 
-  /// Gen-1-Werte: ein gemeinsamer Spezial-Wert.
+  /// Gen 1 stats: a single shared Special stat.
   const BaseStats.gen1({
     required this.hp,
     required this.attack,
@@ -60,7 +60,7 @@ class BaseStats {
     Stat.speed => speed,
   };
 
-  /// Summe. Bei vereinigtem Spezial-Wert wird dieser nur einmal gezählt.
+  /// Total. A unified Special stat is counted only once.
   int total({bool unifiedSpecial = false}) =>
       hp +
       attack +

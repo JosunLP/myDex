@@ -3,7 +3,7 @@ import 'package:mydex_application/mydex_application.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 
-/// Status mit Symbol und Text (nie nur Farbe).
+/// Status with an icon and text (never colour alone).
 class CheckStatusIcon extends StatelessWidget {
   const CheckStatusIcon(this.status, {super.key, this.showLabel = false});
 
@@ -44,7 +44,7 @@ class CheckStatusIcon extends StatelessWidget {
   }
 }
 
-/// Lokalisierter Text einer Prüfmeldung.
+/// Localized text of a validation message.
 String describeIssue(
   CheckIssue issue,
   AppLocalizations l10n,

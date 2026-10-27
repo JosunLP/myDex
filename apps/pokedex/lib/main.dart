@@ -12,13 +12,13 @@ import 'app/settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Lizenzhinweis der Datenquelle (BSD-3 verlangt ihn bei Weitergabe).
+  // License notice of the data source (BSD-3 requires it when redistributing).
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(const [
-      'PokéAPI (Katalogdaten)',
+      'PokéAPI (catalog data)',
     ], await rootBundle.loadString('assets/licenses/pokeapi.txt'));
     yield LicenseEntryWithLineBreaks(const [
-      'PokeAPI/sprites (Bilder)',
+      'PokeAPI/sprites (images)',
     ], await rootBundle.loadString('assets/licenses/sprites.txt'));
   });
   final dir = Directory(
@@ -26,7 +26,7 @@ Future<void> main() async {
   );
   final storage = AppStorage(dir);
   await storage.sync.open();
-  // Einstellungen vor dem ersten Frame laden, damit Theme und Spiel nicht springen.
+  // Load the settings before the first frame so that theme and game do not jump.
   final settings = AppSettings.fromJson(await storage.preferences.load());
   runApp(
     ProviderScope(

@@ -1,7 +1,7 @@
 {
   "source": "https://github.com/PokeAPI/pokeapi",
   "commit": "2bf639e5572812a67d2b94903fdcb9d095f5aeb2",
-  "license": "BSD-3-Clause (Code/Datenbank); Marken bei den Inhabern",
+  "license": "BSD-3-Clause (code/database); trademarks belong to their owners",
   "files": {
     "abilities": "74c3588ad48e08e54ff01f432899a4028c3e91508bbd53201df85e1f6b9e9ef3",
     "ability_names": "8acb80c42210f86ae747dc3347b060d69cd2574a9dbfaf74774ae632ca6348da",

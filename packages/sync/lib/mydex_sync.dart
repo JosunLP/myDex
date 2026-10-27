@@ -1,4 +1,4 @@
-/// Optionaler Abgleich persönlicher Daten zwischen Geräten (ADR 0012).
+/// Optional sync of personal data between devices (ADR 0012).
 library;
 
 export 'src/catalog_update.dart';

@@ -11,7 +11,7 @@ import 'backup_section.dart';
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
 
-  /// Oberflächensprachen, jeweils in ihrer eigenen Schreibweise.
+  /// UI languages, each in its own spelling.
   static const uiLanguages = {
     'de': 'Deutsch',
     'en': 'English',
@@ -20,7 +20,7 @@ class MorePage extends ConsumerWidget {
     'it': 'Italiano',
   };
 
-  /// Sprachen der Spieldaten im Katalog.
+  /// Languages of the game data in the catalog.
   static const dataLanguages = {
     'de': 'Deutsch',
     'en': 'English',
@@ -133,7 +133,7 @@ class MorePage extends ConsumerWidget {
   }
 }
 
-/// Sprachwahl als Auswahlliste; `null` folgt der übergeordneten Sprache.
+/// Language choice as a dropdown; `null` follows the parent language.
 class _LanguageTile extends StatelessWidget {
   const _LanguageTile({
     required this.label,
@@ -153,9 +153,9 @@ class _LanguageTile extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.s),
     child: DropdownButtonFormField<String?>(
-      // Neu aufbauen, wenn sich der Wert von außen ändert (Import).
+      // Rebuild when the value changes from outside (import).
       key: ValueKey(value),
-      // Unbekannte Werte (z. B. aus einer neueren Sicherung) wie „folgen“.
+      // Unknown values (e.g. from a newer backup) count as "follow".
       initialValue: options.containsKey(value) ? value : null,
       isExpanded: true,
       decoration: InputDecoration(

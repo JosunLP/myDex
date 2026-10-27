@@ -6,19 +6,19 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite_catalog.dart';
 
-/// Schema des Medienpakets (getrennt vom Katalog, eigene Version).
+/// Schema of the media pack (separate from the catalog, with its own version).
 const mediaSchemaVersion = 2;
 
 const mediaSchema = [
   'CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
-  // Sprite-Sätze je Spiel in Spielreihenfolge.
+  // Sprite sets per game in game order.
   'CREATE TABLE slot(id TEXT PRIMARY KEY, sort INTEGER NOT NULL)',
   'CREATE TABLE version_slot(version TEXT PRIMARY KEY, slot TEXT NOT NULL)',
-  // slot = '' für das Standard-Sprite. Bewusst mit rowid: Bilddaten in einer
-  // WITHOUT-ROWID-Tabelle belegen etwa doppelt so viel Platz.
+  // slot = '' for the default sprite. Deliberately with rowid: image data in a
+  // WITHOUT ROWID table takes about twice the space.
   '''CREATE TABLE sprite(form TEXT NOT NULL, slot TEXT NOT NULL,
     shiny INTEGER NOT NULL, png BLOB NOT NULL, UNIQUE(form, slot, shiny))''',
-  // Hauptfarbe des Artworks (0xRRGGBB), Hintergrund der Pokédex-Anzeige.
+  // Main colour of the artwork (0xRRGGBB), background of the Pokédex screen.
   '''CREATE TABLE artwork_color(form TEXT PRIMARY KEY, rgb INTEGER NOT NULL)
     WITHOUT ROWID''',
 ];
@@ -30,14 +30,14 @@ Map<String, String> readMediaMeta(Database db) {
   };
   final schema = int.tryParse(meta['schemaVersion'] ?? '');
   if (schema != mediaSchemaVersion) {
-    throw FormatException('Nicht unterstützte Medien-Schemaversion: $schema');
+    throw FormatException('Unsupported media schema version: $schema');
   }
   return meta;
 }
 
-/// Liest Sprites aus dem installierten Medienpaket. Das Verzeichnis aller
-/// vorhandenen Bilder liegt im Speicher, die Bilddaten werden bei Bedarf
-/// gelesen und begrenzt zwischengespeichert.
+/// Reads sprites from the installed media pack. The index of all available
+/// images is kept in memory; image data is read on demand and cached up to a
+/// limit.
 class SqliteMediaLibrary implements MediaLibrary {
   SqliteMediaLibrary._(
     this._db,
@@ -139,7 +139,7 @@ class SqliteMediaLibrary implements MediaLibrary {
 
   @override
   List<SpriteKey> spritesOf(FormId form) {
-    // Artwork zuerst, dann Standard-Sprite, dann Spiele in Reihenfolge.
+    // Artwork first, then the default sprite, then the games in order.
     final order = {
       'artwork': -2,
       '': -1,

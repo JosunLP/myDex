@@ -1,4 +1,4 @@
-/// Datenpipeline: Quellstand laden, normalisieren, prüfen, Katalog erzeugen.
+/// Data pipeline: fetch the source, normalize, validate, build the catalog.
 library;
 
 export 'src/artwork.dart';

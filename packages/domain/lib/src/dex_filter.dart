@@ -3,16 +3,16 @@ import 'package:meta/meta.dart';
 import 'pokemon_type.dart';
 
 enum TypeMatch {
-  /// Mindestens einer der gewählten Typen.
+  /// At least one of the selected types.
   any,
 
-  /// Alle gewählten Typen (bei zwei Typen: genau diese Kombination).
+  /// All selected types (with two types: exactly this combination).
   all,
 }
 
 enum CollectionFilter { all, caught, missing, shinyMissing }
 
-/// Kombinierbare Filter der Dex-Liste. Zwischen Gruppen gilt UND.
+/// Combinable filters of the Dex list. Groups are combined with AND.
 @immutable
 class DexFilter {
   const DexFilter({
@@ -23,7 +23,7 @@ class DexFilter {
     this.defaultFormsOnly = false,
   });
 
-  /// Liest Filter beliebiger bekannter Versionen; unbekannte Werte werden ignoriert.
+  /// Reads filters of any known version; unknown values are ignored.
   factory DexFilter.fromJson(Map<String, Object?> j) => DexFilter(
     types: {
       for (final t in (j['types'] as List<Object?>?) ?? const <Object?>[])
@@ -62,7 +62,7 @@ class DexFilter {
       (collection == CollectionFilter.all ? 0 : 1) +
       (defaultFormsOnly ? 1 : 0);
 
-  /// Prüft die Typbedingung für die Typen einer Form.
+  /// Checks the type condition for the types of a form.
   bool matchesTypes(List<PokemonType> formTypes) {
     if (types.isEmpty) return true;
     return switch (typeMatch) {
@@ -118,8 +118,8 @@ class DexFilter {
   );
 }
 
-/// Gespeicherte Filtervorlage. Das Format ist versioniert, damit alte
-/// Vorlagen bei Änderungen der Filter migriert werden können.
+/// Saved filter preset. The format is versioned so that old presets can be
+/// migrated when the filters change.
 @immutable
 class FilterPreset {
   const FilterPreset({

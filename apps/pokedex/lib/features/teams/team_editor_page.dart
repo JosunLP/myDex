@@ -15,7 +15,7 @@ import '../../widgets/search_picker.dart';
 import '../../widgets/type_badge.dart';
 import 'team_widgets.dart';
 
-/// Team bearbeiten: Mitglieder, Prüfergebnis und Typanalyse im Spiel des Teams.
+/// Edit a team: members, validation result and type analysis in the team's game.
 class TeamEditorPage extends ConsumerStatefulWidget {
   const TeamEditorPage({super.key, required this.teamId});
 
@@ -204,8 +204,8 @@ class _TeamEditorPageState extends ConsumerState<TeamEditorPage> {
   }
 }
 
-/// Sinnvolle Vorgaben: Lv. 50, erste reguläre Fähigkeit, die letzten vier
-/// bis Lv. 50 erlernten Level-Attacken.
+/// Sensible defaults: Lv. 50, first regular ability, the last four level-up
+/// moves learned by Lv. 50.
 TeamMember defaultMember(
   FormId form,
   TeamEvaluator evaluator,

@@ -11,7 +11,7 @@ import '../../widgets/search_picker.dart';
 import '../../widgets/type_badge.dart';
 import 'team_widgets.dart';
 
-/// Ein Teammitglied bearbeiten. Felder richten sich nach dem Regelwerk des Teams.
+/// Edit a team member. The fields follow the team's ruleset.
 class MemberEditorPage extends ConsumerWidget {
   const MemberEditorPage({
     super.key,
@@ -141,7 +141,7 @@ class MemberEditorPage extends ConsumerWidget {
                       '${slot.hidden ? ' (${l10n.abilityHidden})' : ''}',
                     ),
                   ),
-                // Bereits gesetzte, hier ungültige Fähigkeit sichtbar halten.
+                // Keep an already set ability visible even if it is invalid here.
                 if (member.ability != null &&
                     !profile.abilities.any(
                       (a) => a.abilityId == member.ability,
@@ -336,7 +336,7 @@ class MemberEditorPage extends ConsumerWidget {
     );
   }
 
-  /// Gen 1–2: ein gemeinsamer Spezial-DV bzw. Spezial-Status-EP; KP-DV abgeleitet.
+  /// Gen 1–2: one shared Special DV or Special stat exp; HP DV derived.
   static List<Stat> _editableStats(
     bool modern,
     bool unified, {
@@ -448,7 +448,7 @@ class _StatInputs extends StatelessWidget {
   );
 }
 
-/// Zahlenfeld mit Bereichsprüfung; ungültige Eingaben werden nicht übernommen.
+/// Number field with range check; invalid input is not applied.
 class _NumberField extends StatelessWidget {
   const _NumberField({
     super.key,

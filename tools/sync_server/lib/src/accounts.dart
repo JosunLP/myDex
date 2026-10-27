@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-/// Konten mit Zugangsschlüssel. Gespeichert wird nur ein SHA-256-Hash des
-/// Schlüssels; der Schlüssel selbst wird einmalig beim Anlegen ausgegeben.
+/// Accounts with access tokens. Only a SHA-256 hash of the token is stored;
+/// the token itself is printed once when the account is created.
 class AccountRegistry {
   AccountRegistry(this.db, {Random? random})
     : _random = random ?? Random.secure();
@@ -16,9 +16,9 @@ class AccountRegistry {
   static String _hash(String token) =>
       sha256.convert(utf8.encode(token)).toString();
 
-  /// Legt ein Konto an und liefert dessen Zugangsschlüssel.
+  /// Creates an account and returns its access token.
   String create(String name) {
-    if (name.trim().isEmpty) throw ArgumentError('Name fehlt');
+    if (name.trim().isEmpty) throw ArgumentError('Name is missing');
     final token = base64Url
         .encode(List.generate(32, (_) => _random.nextInt(256)))
         .replaceAll('=', '');
@@ -29,7 +29,7 @@ class AccountRegistry {
     return token;
   }
 
-  /// Neuer Schlüssel für ein bestehendes Konto; der alte wird ungültig.
+  /// New token for an existing account; the old one becomes invalid.
   String rotate(String name) {
     final token = base64Url
         .encode(List.generate(32, (_) => _random.nextInt(256)))
@@ -38,11 +38,11 @@ class AccountRegistry {
       _hash(token),
       name,
     ]);
-    if (db.updatedRows == 0) throw ArgumentError('Unbekanntes Konto $name');
+    if (db.updatedRows == 0) throw ArgumentError('Unknown account $name');
     return token;
   }
 
-  /// Entfernt Konto und alle Daten.
+  /// Removes the account and all its data.
   bool delete(String name) {
     db.execute('DELETE FROM account WHERE name = ?', [name]);
     return db.updatedRows > 0;
@@ -60,7 +60,7 @@ class AccountRegistry {
       ),
   ];
 
-  /// Konto-ID zum Schlüssel oder `null`.
+  /// Account ID for the token, or `null`.
   String? authenticate(String token) {
     if (token.isEmpty || token.length > 200) return null;
     final rows = db.select('SELECT id FROM account WHERE token_hash = ?', [

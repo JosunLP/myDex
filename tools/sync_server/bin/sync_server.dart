@@ -4,17 +4,17 @@ import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_sync_server/sync_server.dart';
 
 const _usage = '''
-myDex-Sync-Server
+myDex sync server
 
-  serve           --db <datei> [--host 127.0.0.1] [--port 8787]
-                  [--catalog-dir <dir>]  signierte Katalog-Updates anbieten
-  create-account  --db <datei> --name <name>    gibt den Zugangsschlüssel aus
-  rotate-token    --db <datei> --name <name>    neuer Schlüssel, alter ungültig
-  delete-account  --db <datei> --name <name>    Konto samt Daten löschen
-  list-accounts   --db <datei>
+  serve           --db <file> [--host 127.0.0.1] [--port 8787]
+                  [--catalog-dir <dir>]  serve signed catalog updates
+  create-account  --db <file> --name <name>    prints the access token
+  rotate-token    --db <file> --name <name>    new token, old one invalid
+  delete-account  --db <file> --name <name>    delete account and its data
+  list-accounts   --db <file>
 
-Der Server spricht nur HTTP. Für Geräte im Netz einen Reverse-Proxy mit TLS
-vorschalten (siehe README); die App verlangt außerhalb von localhost HTTPS.
+The server only speaks HTTP. For devices on the network, put a reverse proxy
+with TLS in front of it (see README); outside localhost the app requires HTTPS.
 ''';
 
 Future<void> main(List<String> args) async {
@@ -30,13 +30,14 @@ Future<void> main(List<String> args) async {
   }
   final dbPath = options['db'];
   if (dbPath == null) {
-    stderr.writeln('--db fehlt.\n\n$_usage');
+    stderr.writeln('--db is missing.\n\n$_usage');
     exitCode = 64;
     return;
   }
   final db = openSyncDatabase(dbPath);
   final accounts = AccountRegistry(db);
-  String name() => options['name'] ?? (throw ArgumentError('--name fehlt'));
+  String name() =>
+      options['name'] ?? (throw ArgumentError('--name is missing'));
 
   try {
     switch (args.first) {
@@ -51,7 +52,7 @@ Future<void> main(List<String> args) async {
         );
         final server = await HttpServer.bind(host, port);
         server.autoCompress = true;
-        stdout.writeln('myDex-Sync lauscht auf http://$host:$port');
+        stdout.writeln('myDex sync listening on http://$host:$port');
         ProcessSignal.sigint.watch().listen((_) async {
           await server.close();
           db.close();
@@ -64,13 +65,13 @@ Future<void> main(List<String> args) async {
         stdout.writeln(accounts.rotate(name()));
       case 'delete-account':
         if (!accounts.delete(name())) {
-          stderr.writeln('Unbekanntes Konto.');
+          stderr.writeln('Unknown account.');
           exitCode = 1;
         }
       case 'list-accounts':
         for (final a in accounts.list()) {
           stdout.writeln(
-            '${a.name}\t${a.records} Datensätze\tseit ${a.createdAt}',
+            '${a.name}\t${a.records} records\tsince ${a.createdAt}',
           );
         }
       default:

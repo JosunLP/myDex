@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import 'game.dart';
 import 'ids.dart';
 
-/// Wird durch jede regelabhängige Abfrage gereicht (ADR 0004).
-/// Die Sprache ist bewusst nicht Teil des Kontexts: sie betrifft nur die Ausgabe.
+/// Passed through every rule-dependent query (ADR 0004).
+/// The language is deliberately not part of the context: it only affects output.
 @immutable
 class GameContext {
   const GameContext({
@@ -18,7 +18,7 @@ class GameContext {
   final VersionGroup versionGroup;
   final Ruleset ruleset;
 
-  /// Revision des Katalogpakets, aus dem dieser Kontext stammt.
+  /// Revision of the catalog pack this context comes from.
   final String contentRevision;
 
   GameVersionId get versionId => version.id;

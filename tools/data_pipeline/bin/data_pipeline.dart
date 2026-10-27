@@ -5,36 +5,36 @@ import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_data_pipeline/mydex_data_pipeline.dart';
 import 'package:mydex_sync/mydex_sync.dart';
 
-/// Arten des kleinen Testkatalogs (u. a. Piepi Normal→Fee, Alola-Raichu, Evoli,
-/// Rettan/Sandan als Versionsexklusive, Pichu für Zucht).
+/// Species of the small test catalog (e.g. Clefairy Normal→Fairy, Alolan Raichu,
+/// Eevee, Ekans/Sandshrew as version exclusives, Pichu for breeding).
 const testSubset = {
   1, 2, 3, 4, 5, 6, 7, 8, 9, 23, 25, 26, 27, 35, 36, 39, 81, 82, 133, 134, //
   135, 136, 151, 172, 462,
 };
 
-/// Stand der Ableitungsregeln (ADR 0008). Bei jeder Regeländerung, die den
-/// Katalog bei gleichem Quellstand verändert, erhöhen – sonst erkennen
-/// installierte Apps den neuen Katalog nicht.
+/// Version of the derivation rules (ADR 0008). Bump it with every rule change
+/// that alters the catalog for the same source snapshot – otherwise installed
+/// apps do not recognize the new catalog.
 const catalogRules = 2;
 
-/// Reihenfolge der Katalogpakete: Quellstand-Zeit, Schemaversion und
-/// Regelstand (je zwei Stellen).
+/// Sequence of the catalog packs: source snapshot time, schema version and
+/// rules version (two digits each).
 const catalogSequence =
     pokeApiCommitTime * 10000 + catalogSchemaVersion * 100 + catalogRules;
 
 const usage = '''
-Verwendung: dart run mydex_data_pipeline <befehl> [optionen]
+Usage: dart run mydex_data_pipeline <command> [options]
 
-  fetch [--update-manifest]   Quelltabellen laden und gegen das Manifest prüfen
-  build                       Vollständigen Katalog und Testkatalog erzeugen
-  media                       Sprites laden und Medienpakete erzeugen (nach build)
-  keygen --out <datei>        Signaturschlüssel für Katalog-Updates erzeugen
-  sign-update --key <datei> --out <dir>
-                              Katalog-Update (update.json + Paket) signieren
+  fetch [--update-manifest]   Download source tables and check them against the manifest
+  build                       Build the full catalog and the test catalog
+  media                       Download sprites and build the media packs (after build)
+  keygen --out <file>         Create a signing key for catalog updates
+  sign-update --key <file> --out <dir>
+                              Sign a catalog update (update.json + pack)
 
-Optionen:
-  --cache <dir>   Quell-Cache (Standard: .dart_tool/pokeapi/<commit>)
-  --root <dir>    Repository-Wurzel (Standard: aktuelles Verzeichnis)
+Options:
+  --cache <dir>   Source cache (default: .dart_tool/pokeapi/<commit>)
+  --root <dir>    Repository root (default: current directory)
 ''';
 
 Future<void> main(List<String> args) async {
@@ -61,9 +61,9 @@ Future<void> main(List<String> args) async {
       if (update) {
         manifestFile.parent.createSync(recursive: true);
         writeSourceManifest(manifestFile, hashes);
-        stdout.writeln('Quellmanifest aktualisiert: ${manifestFile.path}');
+        stdout.writeln('Source manifest updated: ${manifestFile.path}');
       }
-      stdout.writeln('${hashes.length} Tabellen bereit in ${cache.path}');
+      stdout.writeln('${hashes.length} tables ready in ${cache.path}');
     case 'build':
       await fetchSource(
         cache,
@@ -88,7 +88,7 @@ Future<void> main(List<String> args) async {
       );
       if (!ok || !okSubset) exit(1);
 
-      // Kleiner Testkatalog für Paket- und App-Tests (ohne Netz nutzbar).
+      // Small test catalog for package and app tests (usable without network).
       packCatalog(
         database: testDb,
         packOut: File('${root.path}/data/fixtures/catalog_test.sqlite.gz'),
@@ -115,32 +115,32 @@ Future<void> main(List<String> args) async {
         sequence: catalogSequence,
       );
       stdout.writeln(
-        'Paket ${manifest.revision}: ${manifest.size} Bytes, sha256 ${manifest.sha256}',
+        'Pack ${manifest.revision}: ${manifest.size} bytes, sha256 ${manifest.sha256}',
       );
     case 'media':
       await _media(root);
     case 'keygen':
       final out = option('--out');
       if (out == null) {
-        stderr.writeln('--out fehlt.');
+        stderr.writeln('--out is missing.');
         exit(64);
       }
       final key = CatalogSigningKey.generate();
       final file = File(out);
       if (file.existsSync()) {
-        stderr.writeln('$out existiert bereits – nicht überschrieben.');
+        stderr.writeln('$out already exists – not overwritten.');
         exit(1);
       }
       file.writeAsStringSync('${key.toBase64()}\n');
       if (!Platform.isWindows) await Process.run('chmod', ['600', out]);
       stdout
-        ..writeln('Privater Schlüssel: $out (geheim halten, z. B. als Secret)')
-        ..writeln('Öffentlicher Schlüssel: ${await key.publicKeyBase64()}');
+        ..writeln('Private key: $out (keep it secret, e.g. as a CI secret)')
+        ..writeln('Public key: ${await key.publicKeyBase64()}');
     case 'sign-update':
       final keyFile = option('--key');
       final out = option('--out');
       if (keyFile == null || out == null) {
-        stderr.writeln('--key und --out sind nötig.');
+        stderr.writeln('--key and --out are required.');
         exit(64);
       }
       await _signUpdate(root, File(keyFile), Directory(out));
@@ -154,13 +154,13 @@ bool _build(SourceTables tables, BuildOptions options, File out) {
   final sw = Stopwatch()..start();
   final report = CatalogBuilder(tables, options).build(out);
   stdout.writeln(
-    '== ${out.path} (${sw.elapsedMilliseconds} ms, ${out.lengthSync()} Bytes)',
+    '== ${out.path} (${sw.elapsedMilliseconds} ms, ${out.lengthSync()} bytes)',
   );
   stdout.writeln(report);
   return report.problems.isEmpty;
 }
 
-/// Medienpaket (Sprites) für App und Tests, abgeleitet aus den gebauten Katalogen.
+/// Media pack (sprites) for the app and tests, derived from the built catalogs.
 Future<void> _media(Directory root) async {
   final catalogDir = Directory('${root.path}/build/catalog');
   final cache = Directory('${root.path}/.dart_tool/sprites/$spritesCommit');
@@ -182,7 +182,7 @@ Future<void> _media(Directory root) async {
   ]) {
     final source = File('${catalogDir.path}/$catalog');
     if (!source.existsSync()) {
-      stderr.writeln('${source.path} fehlt – zuerst „build“ ausführen.');
+      stderr.writeln('${source.path} is missing – run "build" first.');
       exit(1);
     }
     final out = File(
@@ -204,12 +204,12 @@ Future<void> _media(Directory root) async {
       sourceRevision: spritesCommit,
       schemaVersion: mediaSchemaVersion,
     );
-    stdout.writeln('Paket ${m.revision}: ${m.size} Bytes, sha256 ${m.sha256}');
+    stdout.writeln('Pack ${m.revision}: ${m.size} bytes, sha256 ${m.sha256}');
   }
 }
 
-/// Signiert das gebaute App-Katalogpaket für die Verteilung über den
-/// Sync-Server (ADR 0015).
+/// Signs the built app catalog pack for distribution via the sync server
+/// (ADR 0015).
 Future<void> _signUpdate(Directory root, File keyFile, Directory out) async {
   final manifestFile = File(
     '${root.path}/apps/pokedex/assets/catalog/catalog.manifest.json',
@@ -220,7 +220,7 @@ Future<void> _signUpdate(Directory root, File keyFile, Directory out) async {
   final manifest =
       jsonDecode(manifestFile.readAsStringSync()) as Map<String, Object?>;
   if (((manifest['sequence'] as int?) ?? 0) <= 0) {
-    stderr.writeln('Das Manifest hat keine Reihenfolge (sequence).');
+    stderr.writeln('The manifest has no sequence number.');
     exit(1);
   }
   final key = CatalogSigningKey.fromBase64(keyFile.readAsStringSync());
@@ -231,7 +231,7 @@ Future<void> _signUpdate(Directory root, File keyFile, Directory out) async {
   );
   pack.copySync('${out.path}/catalog.sqlite.gz');
   stdout.writeln(
-    'Update ${manifest['revision']} (Reihenfolge ${manifest['sequence']}) '
-    'signiert mit ${update['keyId']} → ${out.path}',
+    'Update ${manifest['revision']} (sequence ${manifest['sequence']}) '
+    'signed with ${update['keyId']} → ${out.path}',
   );
 }

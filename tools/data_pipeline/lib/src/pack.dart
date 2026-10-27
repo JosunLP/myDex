@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 
-/// Komprimiert einen Katalog deterministisch und schreibt das Manifest.
+/// Compresses a catalog deterministically and writes the manifest.
 CatalogPackManifest packCatalog({
   required File database,
   required File packOut,
@@ -25,7 +25,7 @@ CatalogPackManifest packCatalog({
     sourceRevision: sourceRevision,
     sequence: sequence,
   );
-  // Ohne Zeitstempel im Header: gleiche Eingabe ergibt gleiche Datei.
+  // No timestamp in the header: the same input gives the same file.
   packOut.writeAsBytesSync(GZipCodec(level: 9).encode(bytes));
   manifestOut.writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(manifest.toJson())}\n',

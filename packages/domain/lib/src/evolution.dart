@@ -2,23 +2,21 @@ import 'package:meta/meta.dart';
 
 import 'ids.dart';
 
-/// Deklarative Entwicklungsbedingung (ADR 0006). Wird nie als Code ausgeführt.
+/// Declarative evolution condition (ADR 0006). Never executed as code.
 @immutable
 sealed class EvolutionCondition {
   const EvolutionCondition();
 
-  /// Liest und validiert einen Bedingungsbaum. Unbekannte Knoten sind Fehler.
+  /// Reads and validates a condition tree. Unknown nodes are errors.
   factory EvolutionCondition.fromJson(Map<String, Object?> j, {int depth = 0}) {
     if (depth > 8) {
-      throw const FormatException(
-        'Entwicklungsbedingung zu tief verschachtelt',
-      );
+      throw const FormatException('Evolution condition nested too deeply');
     }
     final kind = j['kind'];
     List<EvolutionCondition> children() {
       final list = (j['of'] as List<Object?>?) ?? const <Object?>[];
       if (list.length < 2) {
-        throw FormatException('$kind benötigt mindestens zwei Bedingungen');
+        throw FormatException('$kind needs at least two conditions');
       }
       return [
         for (final c in list)
@@ -32,7 +30,7 @@ sealed class EvolutionCondition {
     T req<T>(String key) {
       final v = j[key];
       if (v is! T) {
-        throw FormatException('$kind: Feld "$key" fehlt oder ist ungültig');
+        throw FormatException('$kind: field "$key" is missing or invalid');
       }
       return v;
     }
@@ -56,18 +54,18 @@ sealed class EvolutionCondition {
         req<String>('explanationKey'),
         value: j['value'] as String?,
       ),
-      _ => throw FormatException('Unbekannte Entwicklungsbedingung: $kind'),
+      _ => throw FormatException('Unknown evolution condition: $kind'),
     };
   }
 
   static int _range(int v, int min, int max, String field) {
     if (v < min || v > max) {
-      throw FormatException('$field außerhalb $min–$max: $v');
+      throw FormatException('$field outside $min–$max: $v');
     }
     return v;
   }
 
-  /// Serialisierung für Katalogpakete (Gegenstück zu [EvolutionCondition.fromJson]).
+  /// Serialization for catalog packs (counterpart of [EvolutionCondition.fromJson]).
   Map<String, Object?> toJson() => switch (this) {
     AllOf(:final conditions) => {
       'kind': 'allOf',
@@ -97,7 +95,7 @@ sealed class EvolutionCondition {
     },
   };
 
-  /// Alle Item-IDs, auf die der Baum verweist (für Referenzprüfungen).
+  /// All item IDs the tree refers to (for reference checks).
   Iterable<ItemId> get referencedItems => switch (this) {
     AllOf(:final conditions) ||
     AnyOf(:final conditions) => conditions.expand((c) => c.referencedItems),
@@ -140,7 +138,7 @@ enum TimeOfDay {
 
   static TimeOfDay parse(String s) => values.firstWhere(
     (t) => t.name == s,
-    orElse: () => throw FormatException('Unbekannte Tageszeit: $s'),
+    orElse: () => throw FormatException('Unknown time of day: $s'),
   );
 }
 
@@ -179,7 +177,7 @@ enum Gender {
 
   static Gender parse(String s) => values.firstWhere(
     (g) => g.name == s,
-    orElse: () => throw FormatException('Unbekanntes Geschlecht: $s'),
+    orElse: () => throw FormatException('Unknown gender: $s'),
   );
 }
 
@@ -188,15 +186,15 @@ final class GenderCondition extends EvolutionCondition {
   final Gender gender;
 }
 
-/// Seltene Sonderbedingung mit geprüftem, lokalisiertem Erklärungstext.
-/// [value] ist ein optionaler Parameter (z. B. eine Art-ID oder ein Typ).
+/// Rare special condition with a reviewed, localized explanation.
+/// [value] is an optional parameter (e.g. a species ID or a type).
 final class SpecialCondition extends EvolutionCondition {
   const SpecialCondition(this.explanationKey, {this.value});
   final String explanationKey;
   final String? value;
 }
 
-/// Kante im Entwicklungsgraphen, gültig für bestimmte Spielgruppen.
+/// Edge in the evolution graph, valid for certain version groups.
 @immutable
 class EvolutionEdge {
   const EvolutionEdge({

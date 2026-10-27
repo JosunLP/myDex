@@ -1,4 +1,4 @@
-/// Selbst hostbarer Sync-Server für myDex.
+/// Self-hostable sync server for myDex.
 library;
 
 export 'src/accounts.dart';

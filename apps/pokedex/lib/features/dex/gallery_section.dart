@@ -8,7 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/form_artwork.dart';
 import '../../widgets/form_sprite.dart';
 
-/// Alle Sprites einer Form: Standard und je Spiel, normal und Shiny.
+/// All images of a form: default and per game, normal and shiny.
 class GallerySection extends ConsumerWidget {
   const GallerySection({super.key, required this.form, required this.name});
 
@@ -29,8 +29,8 @@ class GallerySection extends ConsumerWidget {
       if (slot.isEmpty) return l10n.galleryDefault;
       final names = <String>[];
       for (final v in media.versionsOf(slot)) {
-        // Japanische Erstausgaben teilen sich die Sprites mit Rot/Blau,
-        // Erweiterungen mit ihrem Hauptspiel.
+        // Japanese first editions share the sprites with Red/Blue,
+        // expansions with their base game.
         if (v.value.endsWith('-japan') ||
             v.value.startsWith('the-') ||
             v.value == 'mega-dimension') {

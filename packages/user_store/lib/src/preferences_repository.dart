@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'atomic_file.dart';
 
-/// Kleine Einstellungsdatei (Theme, gewähltes Spiel, Datensprache).
-/// Unlesbare Dateien führen zu Standardwerten statt zu einem Absturz.
+/// Small settings file (theme, selected game, data language).
+/// Unreadable files lead to defaults instead of a crash.
 class JsonPreferencesRepository {
   JsonPreferencesRepository(this.file);
 

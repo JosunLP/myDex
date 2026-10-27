@@ -9,8 +9,8 @@ import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/encounter_tile.dart';
 
-/// Fundorte und weitere Beschaffungswege im gewählten Spiel.
-/// Fehlende Daten werden als Lücke gekennzeichnet, nie als „nicht fangbar“.
+/// Locations and further ways of acquisition in the selected game.
+/// Missing data is marked as a gap, never as "not catchable".
 class AcquisitionSection extends ConsumerWidget {
   const AcquisitionSection({super.key, required this.form});
 
@@ -37,7 +37,7 @@ class AcquisitionSection extends ConsumerWidget {
       if (location != null) byLocation.putIfAbsent(location, () => []).add(e);
     }
 
-    // Weitere Wege: Entwicklung und Zucht.
+    // Further ways: evolution and breeding.
     final detail = ref.watch(queriesProvider).detail(form, ctx);
     final from = detail.evolutions
         .where((e) => e.to.id == form)
@@ -54,8 +54,8 @@ class AcquisitionSection extends ConsumerWidget {
         rootSpecies.hatchable &&
         detail.profile.availability == DataAvailability.confirmedAvailable;
 
-    // Tausch aus anderen Spielen (nur wenn hier keine Fundorte bekannt sind)
-    // und Event-Verteilungen bei Mysteriösen Pokémon.
+    // Trades from other games (only if no locations are known here) and
+    // event distributions for mythical Pokémon.
     final acquisition = AcquisitionQueries(catalog, details);
     final tradeFrom = byLocation.isEmpty
         ? acquisition.tradeSources(form, ctx)

@@ -9,7 +9,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/type_badge.dart';
 
-/// Attacke im gewählten Spiel, ihre Historie und wer sie erlernt.
+/// A move in the selected game, its history and who learns it.
 class MovePage extends ConsumerWidget {
   const MovePage({super.key, required this.moveId});
 
@@ -143,7 +143,7 @@ class MovePage extends ConsumerWidget {
     );
   }
 
-  /// Fasst aufeinanderfolgende Spielgruppen mit gleichen Werten zusammen.
+  /// Merges consecutive version groups with equal data.
   static List<(VersionGroupId, VersionGroupId, MoveGameProfile)> _collapse(
     List<(VersionGroupId, MoveGameProfile)> history,
   ) {

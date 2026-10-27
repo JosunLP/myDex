@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
-/// Unveränderlicher, vollständig geladener Katalogstand.
+/// Immutable, fully loaded catalog state.
 @immutable
 class CatalogSnapshot {
   CatalogSnapshot({
@@ -47,7 +47,7 @@ class CatalogSnapshot {
   final Map<RulesetId, Ruleset> rulesets;
   final Map<VersionGroupId, VersionGroup> versionGroups;
 
-  /// Chronologisch sortiert.
+  /// Sorted chronologically.
   final List<GameVersion> versions;
   final Map<SpeciesId, Species> species;
   final Map<FormId, PokemonForm> forms;
@@ -67,7 +67,7 @@ class CatalogSnapshot {
   GameContext contextFor(GameVersionId id) {
     final version = versions.firstWhere(
       (v) => v.id == id,
-      orElse: () => throw ArgumentError('Unbekannte Spielversion: ${id.value}'),
+      orElse: () => throw ArgumentError('Unknown game version: ${id.value}'),
     );
     final group = versionGroups[version.versionGroupId]!;
     return GameContext(
@@ -78,8 +78,8 @@ class CatalogSnapshot {
     );
   }
 
-  /// Das chronologisch neueste Spiel ist immer der Standardkontext –
-  /// auch wenn dafür noch Daten fehlen (Lücken werden dann angezeigt).
+  /// The chronologically newest game is always the default context – even
+  /// if data is still missing for it (gaps are shown then).
   GameContext get defaultContext => contextFor(versions.last.id);
 
   LocalizedText displayName(PokemonForm form) =>

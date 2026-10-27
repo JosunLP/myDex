@@ -5,7 +5,7 @@ import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'type_badge.dart';
 
-/// Eine Attacke mit Werten im aktuellen Spielkontext.
+/// A move with its data in the current game context.
 class MoveRow extends StatelessWidget {
   const MoveRow({
     super.key,
@@ -17,7 +17,7 @@ class MoveRow extends StatelessWidget {
 
   final String name;
 
-  /// `null`, wenn für dieses Spiel keine Werte vorliegen.
+  /// `null` if there is no data for this game.
   final MoveGameProfile? profile;
   final VoidCallback onTap;
   final String? leading;

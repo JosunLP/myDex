@@ -3,8 +3,8 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'type_chart.dart';
 
-/// Eingabe für die Basistypen-Analyse. Fähigkeiten, Items und Wetter
-/// gehören zur kontextabhängigen Analyse und sind hier bewusst ausgeklammert.
+/// Input for the base type analysis. Abilities, items and weather belong to
+/// the context-dependent analysis and are deliberately left out here.
 @immutable
 class TeamMemberTyping {
   const TeamMemberTyping({
@@ -16,7 +16,7 @@ class TeamMemberTyping {
   final String label;
   final List<PokemonType> types;
 
-  /// Typen der schadenszufügenden Attacken dieses Mitglieds.
+  /// Types of this member's damaging moves.
   final List<PokemonType> attackTypes;
 }
 
@@ -26,7 +26,7 @@ class DefensiveRow {
 
   final PokemonType attackType;
 
-  /// Multiplikator je Teammitglied (gleiche Reihenfolge wie die Eingabe).
+  /// Multiplier per team member (same order as the input).
   final List<double> multipliers;
 
   int get weak => multipliers.where((m) => m > 1).length;
@@ -40,26 +40,26 @@ class OffensiveRow {
 
   final PokemonType defendingType;
 
-  /// Bester erreichbarer Multiplikator; `null`, wenn das Team keine Attacken hat.
+  /// Best achievable multiplier; `null` if the team has no moves.
   final double? best;
 
   bool get superEffective => (best ?? 0) > 1;
 }
 
-/// Erklärbare, deterministische Hinweise – keine KI.
+/// Explainable, deterministic hints – no AI.
 @immutable
 sealed class TeamFinding {
   const TeamFinding();
 }
 
-/// Mehrere Mitglieder sind schwach, keines widersteht.
+/// Several members are weak, none resists.
 final class SharedWeakness extends TeamFinding {
   const SharedWeakness(this.attackType, this.weakCount);
   final PokemonType attackType;
   final int weakCount;
 }
 
-/// Kein Mitglied trifft diesen Typ sehr effektiv.
+/// No member hits this type super-effectively.
 final class CoverageGap extends TeamFinding {
   const CoverageGap(this.defendingType);
   final PokemonType defendingType;

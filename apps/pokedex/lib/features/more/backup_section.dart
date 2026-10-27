@@ -13,15 +13,15 @@ import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/text_input_dialog.dart';
 
-// Eigenständige Funktionen: Die an das Isolate übergebenen Closures dürfen
-// nichts aus der Oberfläche (State, BuildContext) einfangen.
+// Standalone functions: the closures passed to the isolate must not capture
+// anything from the UI (State, BuildContext).
 Future<List<int>> _encodeInBackground(BackupData data, String? password) =>
     Isolate.run(() => BackupCodec.encode(data, password: password));
 
 Future<BackupData> _decodeInBackground(Uint8List bytes, String? password) =>
     Isolate.run(() => BackupCodec.decode(bytes, password: password));
 
-/// Export und Import aller persönlichen Daten.
+/// Export and import of all personal data.
 class BackupSection extends ConsumerStatefulWidget {
   const BackupSection({super.key});
 
@@ -53,8 +53,8 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     try {
       await action();
     } on Object catch (e, stack) {
-      // Fehler nie verschlucken: melden und anzeigen.
-      debugPrint('Datensicherung fehlgeschlagen: $e\n$stack');
+      // Never swallow errors: report and show them.
+      debugPrint('Backup failed: $e\n$stack');
       if (mounted) _show(l10n.backupError('other'));
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -70,7 +70,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     if (password == null) return; // abgebrochen
     await _run(() async {
       final data = await _currentData();
-      // Schlüsselableitung und Verschlüsselung blockieren nicht die Oberfläche.
+      // Key derivation and encryption do not block the UI.
       final bytes = await _encodeInBackground(
         data,
         password.isEmpty ? null : password,
@@ -184,7 +184,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
   }
 }
 
-/// Liefert das Passwort ('' = ohne) oder `null` bei Abbruch.
+/// Returns the password ('' = none) or `null` when cancelled.
 class _ExportPasswordDialog extends StatefulWidget {
   const _ExportPasswordDialog();
 

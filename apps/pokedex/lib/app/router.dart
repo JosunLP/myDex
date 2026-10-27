@@ -18,8 +18,8 @@ import '../features/teams/team_editor_page.dart';
 import '../features/teams/teams_page.dart';
 import 'shell.dart';
 
-/// Breite Fenster zeigen Liste und Detail nebeneinander (`/dex?form=…`),
-/// schmale öffnen das Detail als eigene Seite (`/dex/pokemon/…`).
+/// Wide windows show list and detail side by side (`/dex?form=…`), narrow
+/// ones open the detail as a page of its own (`/dex/pokemon/…`).
 GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
   initialLocation: initialLocation,
   routes: [
@@ -46,7 +46,7 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
                   builder: (context, state) =>
                       MovePage(moveId: MoveId(state.pathParameters['moveId']!)),
                 ),
-                // Ort aus der Pokémon-Ansicht heraus, ohne den Bereich zu wechseln.
+                // Location from the Pokémon view, without switching sections.
                 GoRoute(
                   path: 'location/:locationId',
                   builder: (context, state) => LocationPage(
@@ -130,7 +130,7 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
   ],
 );
 
-/// Öffnet ein Pokémon passend zur aktuellen Fensterbreite.
+/// Opens a Pokémon according to the current window width.
 void openPokemon(BuildContext context, FormId id, {required bool wide}) {
   if (wide) {
     context.go('/dex?form=${Uri.encodeQueryComponent(id.value)}');

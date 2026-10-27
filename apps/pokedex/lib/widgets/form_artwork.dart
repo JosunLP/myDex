@@ -5,10 +5,10 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../app/providers.dart';
 import 'form_sprite.dart';
 
-/// Sprite-Satz des offiziellen Artworks im Medienpaket.
+/// Sprite set of the official artwork in the media pack.
 const artworkSlot = 'artwork';
 
-/// Offizielles Artwork einer Form; ohne Artwork das Sprite des Spiels.
+/// Official artwork of a form; without artwork the game's sprite.
 class FormArtwork extends ConsumerWidget {
   const FormArtwork(
     this.form, {

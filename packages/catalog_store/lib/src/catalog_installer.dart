@@ -10,7 +10,7 @@ import 'media.dart';
 import 'schema.dart';
 import 'sqlite_catalog.dart';
 
-/// Beschreibung eines Katalogpakets (Manifest).
+/// Description of a catalog pack (manifest).
 @immutable
 class CatalogPackManifest {
   const CatalogPackManifest({
@@ -37,16 +37,16 @@ class CatalogPackManifest {
   final String revision;
   final int schemaVersion;
 
-  /// SHA-256 der entpackten SQLite-Datei.
+  /// SHA-256 of the unpacked SQLite file.
   final String sha256;
 
-  /// Größe der entpackten Datei in Bytes.
+  /// Size of the unpacked file in bytes.
   final int size;
   final String source;
   final String sourceRevision;
 
-  /// Fortlaufende Reihenfolge der Pakete (höher = neuer). Verhindert, dass ein
-  /// älteres Paket ein neueres ersetzt. 0 = unbekannt.
+  /// Increasing order of the packs (higher = newer). Prevents an older pack
+  /// from replacing a newer one. 0 = unknown.
   final int sequence;
 
   Map<String, Object?> toJson() => {
@@ -64,7 +64,7 @@ class CatalogInstallException implements Exception {
   CatalogInstallException(this.message);
   final String message;
   @override
-  String toString() => 'Katalog-Installation fehlgeschlagen: $message';
+  String toString() => 'Catalog installation failed: $message';
 }
 
 @immutable
@@ -79,15 +79,15 @@ class InstalledCatalog {
   final String path;
   final String revision;
 
-  /// Reihenfolge des installierten Pakets (siehe [CatalogPackManifest.sequence]).
+  /// Sequence of the installed pack (see [CatalogPackManifest.sequence]).
   final int sequence;
 
-  /// Gesetzt, wenn ein neues Paket verworfen wurde und die vorherige
-  /// funktionierende Version weiterverwendet wird (Rollback).
+  /// Set when a new pack was discarded and the previous working version is
+  /// used instead (rollback).
   final Object? installError;
 }
 
-/// Art eines installierbaren Pakets: Katalog oder Medien.
+/// Kind of installable pack: catalog or media.
 @immutable
 class PackFormat {
   const PackFormat({
@@ -96,11 +96,11 @@ class PackFormat {
     required this.readMeta,
   });
 
-  /// Präfix der installierten Dateien.
+  /// Prefix of the installed files.
   final String name;
   final int schemaVersion;
 
-  /// Liest die Metadaten und prüft die Schemaversion (wirft sonst).
+  /// Reads the metadata and checks the schema version (throws otherwise).
   final Map<String, String> Function(Database db) readMeta;
 
   static const catalog = PackFormat(
@@ -116,8 +116,8 @@ class PackFormat {
   );
 }
 
-/// Installiert Katalogpakete so, dass ein Abbruch nie einen halben Stand
-/// hinterlässt: entpacken → prüfen → atomar aktivieren → Vorgänger behalten.
+/// Installs catalog packs so that an abort never leaves a half-finished
+/// state: unpack → verify → activate atomically → keep the predecessor.
 class CatalogInstaller {
   CatalogInstaller(this.directory, {this.format = PackFormat.catalog});
 
@@ -126,8 +126,8 @@ class CatalogInstaller {
 
   File get _activeFile => File('${directory.path}/active.json');
 
-  /// Liefert den aktiven Katalog und installiert [manifest] bei Bedarf aus
-  /// den gzip-komprimierten Bytes [compressed].
+  /// Returns the active catalog and installs [manifest] from the
+  /// gzip-compressed bytes [compressed] if needed.
   Future<InstalledCatalog> ensureInstalled(
     CatalogPackManifest manifest,
     List<int> Function() compressed,
@@ -143,7 +143,7 @@ class CatalogInstaller {
       final installed = await install(manifest, compressed());
       return installed;
     } on Object catch (e) {
-      // Rückfall nur auf eine Vorversion, die diese App-Version lesen kann.
+      // Fall back only to a previous version this app version can read.
       if (active != null && _isUsable(active.path)) {
         return InstalledCatalog(
           active.path,
@@ -162,11 +162,11 @@ class CatalogInstaller {
   ) async {
     if (manifest.schemaVersion != format.schemaVersion) {
       throw CatalogInstallException(
-        'Schemaversion ${manifest.schemaVersion} wird nicht unterstützt',
+        'Schema version ${manifest.schemaVersion} is not supported',
       );
     }
     if (!RegExp(r'^[A-Za-z0-9._-]+$').hasMatch(manifest.revision)) {
-      throw CatalogInstallException('Ungültige Revision: ${manifest.revision}');
+      throw CatalogInstallException('Invalid revision: ${manifest.revision}');
     }
     await directory.create(recursive: true);
     final tmp = File('${directory.path}/incoming-${manifest.revision}.tmp');
@@ -178,18 +178,16 @@ class CatalogInstaller {
       try {
         bytes = gzip.decode(compressed);
       } on FormatException catch (e) {
-        throw CatalogInstallException(
-          'Paket ist kein gültiges gzip: ${e.message}',
-        );
+        throw CatalogInstallException('Pack is not valid gzip: ${e.message}');
       }
       if (bytes.length != manifest.size) {
         throw CatalogInstallException(
-          'Größe ${bytes.length} statt ${manifest.size} Bytes',
+          'Size ${bytes.length} instead of ${manifest.size} bytes',
         );
       }
       final digest = sha256.convert(bytes).toString();
       if (digest != manifest.sha256) {
-        throw CatalogInstallException('Prüfsumme stimmt nicht überein');
+        throw CatalogInstallException('Checksum does not match');
       }
       await tmp.writeAsBytes(bytes, flush: true);
       _verifyDatabase(tmp.path, manifest.revision);
@@ -233,25 +231,25 @@ class CatalogInstaller {
     try {
       final check = db.select('PRAGMA integrity_check');
       if (check.length != 1 || check.first.values.first != 'ok') {
-        throw CatalogInstallException('Integritätsprüfung fehlgeschlagen');
+        throw CatalogInstallException('Integrity check failed');
       }
       final meta = format.readMeta(db);
       if (meta['revision'] != revision) {
         throw CatalogInstallException(
-          'Revision im Paket passt nicht zum Manifest',
+          'Revision in the pack does not match the manifest',
         );
       }
     } on FormatException catch (e) {
       throw CatalogInstallException(e.message);
     } on Object catch (e) {
       if (e is CatalogInstallException) rethrow;
-      throw CatalogInstallException('Datenbank nicht lesbar: $e');
+      throw CatalogInstallException('Database not readable: $e');
     } finally {
       db.close();
     }
   }
 
-  /// Der aktuell aktive Katalog, falls vorhanden.
+  /// The currently active catalog, if any.
   Future<InstalledCatalog?> current() async {
     final active = await _readActive();
     return active != null && await File(active.path).exists() ? active : null;
@@ -297,7 +295,7 @@ class CatalogInstaller {
         try {
           await e.delete();
         } on FileSystemException {
-          // Noch geöffnet (z. B. Windows): beim nächsten Start erneut versuchen.
+          // Still open (e.g. Windows): try again on the next start.
         }
       }
     }

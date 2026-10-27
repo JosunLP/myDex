@@ -5,20 +5,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-/// Sprachausgabe des Systems. Es wird nichts heruntergeladen und nichts
-/// übertragen; fehlt eine Engine, bleibt die Funktion aus.
+/// The system's text-to-speech. Nothing is downloaded and nothing is
+/// transmitted; without an engine the feature stays off.
 abstract interface class Speaker {
   Future<bool> isAvailable();
 
-  /// Spricht [text] in [language] (BCP-47) und endet, wenn die Ausgabe fertig
-  /// ist oder [stop] aufgerufen wurde.
+  /// Speaks [text] in [language] (BCP 47) and completes when the output is
+  /// finished or [stop] was called.
   Future<void> speak(String text, {required String language});
 
   Future<void> stop();
 }
 
-/// Android, iOS, macOS und Windows über die Plattform-Engines.
-/// Unter GrapheneOS reicht jede installierte TTS-Engine (z. B. RHVoice).
+/// Android, iOS, macOS and Windows via the platform engines.
+/// On GrapheneOS any installed TTS engine works (e.g. RHVoice).
 class PlatformSpeaker implements Speaker {
   final _tts = FlutterTts();
   bool _configured = false;
@@ -49,7 +49,7 @@ class PlatformSpeaker implements Speaker {
   }
 }
 
-/// Linux über Speech Dispatcher (`spd-say`) oder eSpeak NG, falls installiert.
+/// Linux via Speech Dispatcher (`spd-say`) or eSpeak NG, if installed.
 class LinuxSpeaker implements Speaker {
   Future<String?>? _command;
   Process? _process;
@@ -60,7 +60,7 @@ class LinuxSpeaker implements Speaker {
         final r = await Process.run('which', [candidate]);
         if (r.exitCode == 0) return candidate;
       } on Object {
-        // `which` fehlt – nächster Kandidat.
+        // `which` is missing – next candidate.
       }
     }
     return null;
@@ -90,13 +90,13 @@ class LinuxSpeaker implements Speaker {
     if (process == null) return;
     process.kill();
     if (await _find() == 'spd-say') {
-      // Bereits an den Dienst übergebene Ausgabe ebenfalls abbrechen.
+      // Also cancel output already handed to the service.
       unawaited(Process.run('spd-say', ['--cancel']).then((_) {}));
     }
   }
 }
 
-/// Ohne Sprachausgabe (z. B. Web oder Tests).
+/// Without text-to-speech (e.g. web or tests).
 class NoSpeaker implements Speaker {
   const NoSpeaker();
 
@@ -133,7 +133,7 @@ final speechAvailableProvider = FutureProvider<bool>(
   retry: (_, _) => null,
 );
 
-/// Kennung des gerade gesprochenen Inhalts; `null`, wenn still.
+/// Identifier of the content currently being spoken; `null` when silent.
 class SpeechController extends Notifier<String?> {
   @override
   String? build() => null;
@@ -150,8 +150,8 @@ class SpeechController extends Notifier<String?> {
     try {
       await speaker.speak(text, language: language);
     } on Object catch (e) {
-      // Engine-Fehler beenden nur die Ausgabe, nicht die App.
-      debugPrint('Sprachausgabe fehlgeschlagen: $e');
+      // Engine errors only end the output, not the app.
+      debugPrint('Text-to-speech failed: $e');
     } finally {
       if (ref.mounted && state == id) state = null;
     }
@@ -162,7 +162,7 @@ class SpeechController extends Notifier<String?> {
     await ref.read(speakerProvider).stop();
   }
 
-  /// Für `dispose`: beendet die Ausgabe von [id] nach dem aktuellen Frame.
+  /// For `dispose`: stops the output of [id] after the current frame.
   void stopLater(String id) {
     if (state != id) return;
     scheduleMicrotask(() {

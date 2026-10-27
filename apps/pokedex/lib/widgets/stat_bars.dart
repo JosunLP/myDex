@@ -4,7 +4,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
 
-/// Basiswerte als Balken – Zahlen stehen immer zusätzlich daneben.
+/// Base stats as bars – the numbers are always shown next to them.
 class StatBars extends StatelessWidget {
   const StatBars({
     super.key,
@@ -14,7 +14,7 @@ class StatBars extends StatelessWidget {
 
   final BaseStats stats;
 
-  /// Gen 1: ein gemeinsamer Spezial-Wert statt Sp.-Ang./Sp.-Vert.
+  /// Gen 1: one shared Special stat instead of Sp. Atk/Sp. Def.
   final bool unifiedSpecial;
 
   @override

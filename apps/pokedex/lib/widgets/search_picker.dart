@@ -19,11 +19,11 @@ class PickerOption<T> {
   final Widget? trailing;
   final String? subtitle;
 
-  /// Zusätzlicher Suchtext (z. B. Namen in anderen Sprachen).
+  /// Additional search text (e.g. names in other languages).
   final String? searchText;
 }
 
-/// Ergebnis eines Pickers: [cleared] = bewusst „keins“ gewählt.
+/// Result of a picker: [cleared] = "none" chosen deliberately.
 @immutable
 class PickerResult<T> {
   const PickerResult(this.value) : cleared = false;
@@ -33,7 +33,7 @@ class PickerResult<T> {
   final bool cleared;
 }
 
-/// Vollbild-Auswahl mit Suche, für lange Listen (Pokémon, Attacken, Items).
+/// Full-screen picker with search, for long lists (Pokémon, moves, items).
 Future<PickerResult<T>?> showSearchPicker<T>(
   BuildContext context, {
   required String title,

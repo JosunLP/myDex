@@ -4,7 +4,7 @@ import 'ids.dart';
 import 'localized_text.dart';
 import 'stats.dart';
 
-/// Wesen: erhöht einen Wert um 10 %, senkt einen anderen (neutral: keiner).
+/// Nature: raises one stat by 10 %, lowers another (neutral: none).
 @immutable
 class Nature {
   const Nature({
@@ -22,7 +22,7 @@ class Nature {
   bool get isNeutral => increased == null;
 }
 
-/// Taschenfächer, deren Items ein Pokémon nicht tragen kann.
+/// Bag pockets whose items a Pokémon cannot hold.
 const nonHoldablePockets = {'key', 'machines'};
 
 @immutable
@@ -37,13 +37,13 @@ class ItemInfo {
   final ItemId id;
   final LocalizedText name;
 
-  /// Taschenfach der Quelle (z. B. `battle`, `berries`, `key`).
+  /// Bag pocket in the source (e.g. `battle`, `berries`, `key`).
   final String? pocket;
 
-  /// Generationen, in denen das Item laut Quelle existiert.
+  /// Generations in which the item exists according to the source.
   final Set<int> generations;
 
-  /// Kann in dieser Generation getragen werden (soweit die Daten reichen).
+  /// Can be held in this generation (as far as the data goes).
   bool holdableIn(int generation) =>
       generations.contains(generation) &&
       pocket != null &&

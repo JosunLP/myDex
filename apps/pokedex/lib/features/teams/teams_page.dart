@@ -8,7 +8,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/game_context_selector.dart';
 import 'team_widgets.dart';
 
-/// Teamliste. Neue Teams werden für das aktuell gewählte Spiel angelegt.
+/// Team list. New teams are created for the currently selected game.
 class TeamsPage extends ConsumerWidget {
   const TeamsPage({super.key});
 

@@ -10,7 +10,7 @@ import '../../widgets/encounter_tile.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/type_badge.dart';
 
-/// Ein Ort: welche Pokémon dort in der gewählten Version vorkommen.
+/// A location: which Pokémon occur there in the selected version.
 class LocationPage extends ConsumerWidget {
   const LocationPage({super.key, required this.locationId});
 
