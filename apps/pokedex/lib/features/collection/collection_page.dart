@@ -10,7 +10,7 @@ import '../../app/providers.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/form_sprite.dart';
+import '../../widgets/dex_decor.dart';
 import '../../widgets/game_context_selector.dart';
 
 enum _View { game, global, allGames }
@@ -107,9 +107,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
 
     Widget numberButton(PokemonForm form) => TextButton(
       onPressed: () => openPokemon(context, form.id, wide: wide),
-      child: Text(
-        '#${catalog.species[form.speciesId]!.nationalNumber.toString().padLeft(4, '0')}',
-        style: const TextStyle(fontFeatures: tabularFigures),
+      child: DexNumber(
+        catalog.species[form.speciesId]!.nationalNumber,
+        dense: true,
       ),
     );
 
@@ -151,7 +151,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                           : null,
                     ),
                     const SizedBox(width: Space.s),
-                    FormSprite(form.id, size: 40, shiny: _shiny),
+                    DexThumb(form.id, size: 40, shiny: _shiny),
                   ],
                 ),
                 title: Text(catalog.displayName(form)(lang)),
@@ -202,7 +202,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                     controller.setCaught(keyFor(item.form.id), v ?? false),
                 title: Row(
                   children: [
-                    FormSprite(item.form.id, size: 40, shiny: _shiny),
+                    DexThumb(item.form.id, size: 40, shiny: _shiny),
                     const SizedBox(width: Space.s),
                     Expanded(child: Text(catalog.displayName(item.form)(lang))),
                   ],

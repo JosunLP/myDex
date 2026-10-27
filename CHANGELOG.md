@@ -31,7 +31,7 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
   Vorschaubilder in Dex, Sammlung und Teams – vollständig offline.
 - Gestaltung im Stil des Pokédex: gedämpftes rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit
   Artwork vor der Farbe des jeweiligen Pokémon (aus dem Artwork abgeleitet) und Digitalnummer;
-  dunkle Variante.
+  Dex-Liste, Sammlung und Teams mit kleinen Anzeigen in Pokémon-Farbe; dunkle Variante.
 - Barrierefreiheit automatisch geprüft (Tippflächen, Beschriftungen, Kontrast).
 
 ### Sicherheit und Datenschutz

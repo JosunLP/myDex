@@ -1,6 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mydex_domain/mydex_domain.dart';
 
+import '../app/providers.dart';
 import '../app/theme.dart';
+import 'form_sprite.dart';
+
+/// Hauptfarbe des Artworks einer Form (aus dem Medienpaket), sonst `null`.
+Color? artworkTint(WidgetRef ref, FormId form) =>
+    switch (ref.watch(mediaProvider).value?.artworkColor(form)) {
+      final int rgb => Color(0xFF000000 | rgb),
+      null => null,
+    };
+
+/// Vorschaubild in Listen: das Spiel-Bild auf einer kleinen Anzeige in der
+/// Farbe des Pokémon – wie die große Pokédex-Anzeige. Rein dekorativ.
+class DexThumb extends ConsumerWidget {
+  const DexThumb(
+    this.form, {
+    super.key,
+    this.size = 48,
+    this.shiny = false,
+    this.version,
+  });
+
+  final FormId form;
+  final double size;
+  final bool shiny;
+  final GameVersionId? version;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final tint = artworkTint(ref, form);
+    final base = scheme.surfaceContainerHighest;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: tint == null ? base : Color.lerp(base, tint, dark ? 0.4 : 0.55),
+        borderRadius: BorderRadius.circular(size * 0.22),
+      ),
+      child: FormSprite(form, size: size, shiny: shiny, version: version),
+    );
+  }
+}
 
 /// Die blaue Linse mit den drei Signal-LEDs vom Pokédex-Gehäuse.
 /// Rein dekorativ.
