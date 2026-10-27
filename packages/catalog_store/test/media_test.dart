@@ -97,11 +97,15 @@ void main() {
     expect(media.has(const FormId('raichu-alola')), isTrue);
   });
 
-  test('Galerie: Standard zuerst, dann Spiele in Reihenfolge', () {
+  test('Galerie: Artwork, Standard, dann Spiele in Reihenfolge', () {
     final keys = media.spritesOf(const FormId('pikachu'));
-    expect(keys.first, (form: const FormId('pikachu'), slot: '', shiny: false));
+    expect(keys.first, (
+      form: const FormId('pikachu'),
+      slot: 'artwork',
+      shiny: false,
+    ));
     final slots = {for (final k in keys) k.slot}.toList();
-    expect(slots.take(3), ['', 'red-blue', 'yellow']);
+    expect(slots.take(4), ['artwork', '', 'red-blue', 'yellow']);
     expect(slots.last, 'black-white');
     expect(media.versionsOf('red-blue'), contains(const GameVersionId('blue')));
   });

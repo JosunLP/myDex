@@ -281,5 +281,6 @@
   "gallerySpriteShiny": "{name} (Shiny) – {game}",
   "syncPassphrase": "Sync-Passwort",
   "syncPassphraseHint": "Verschlüsselt deine Daten, bevor sie das Gerät verlassen (Ende-zu-Ende). Auf allen Geräten dasselbe Passwort verwenden. Mindestens 8 Zeichen; es lässt sich nicht wiederherstellen.",
-  "syncUnlocking": "Verbinde…"
+  "syncUnlocking": "Verbinde…",
+  "galleryArtwork": "Offizielles Artwork"
 }

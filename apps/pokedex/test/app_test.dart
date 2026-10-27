@@ -12,6 +12,8 @@ import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/providers.dart';
 import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_app/app/sync_controller.dart';
+import 'package:mydex_app/widgets/dex_decor.dart';
+import 'package:mydex_app/widgets/form_artwork.dart';
 import 'package:mydex_app/widgets/search_field.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
@@ -348,6 +350,14 @@ void main() {
     await _search(tester, 'Evoli');
     await tester.tap(find.widgetWithText(ListTile, 'Evoli'));
     await tester.pumpAndSettle();
+    // Pokédex-Anzeige mit Artwork und Nummer im Detail neben der Liste.
+    expect(find.byType(DexScreen), findsOneWidget);
+    expect(find.text('#0133'), findsWidgets);
+    await tester.scrollUntilVisible(
+      find.text('Entwicklung'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(
       find.text('Entwicklung'),
       findsOneWidget,
@@ -811,9 +821,26 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
 
+    // Kleines Spiel-Sprite in der Pokédex-Anzeige.
     Uint8List headerBytes() =>
-        (tester.widget<Image>(find.byType(Image).first).image as MemoryImage)
+        (tester
+                    .widget<Image>(
+                      find.descendant(
+                        of: find.byKey(const ValueKey('dexScreenSprite')),
+                        matching: find.byType(Image),
+                      ),
+                    )
+                    .image
+                as MemoryImage)
             .bytes;
+    // Offizielles Artwork als großes Bild.
+    expect(
+      find.descendant(
+        of: find.byType(DexScreen),
+        matching: find.byType(FormArtwork),
+      ),
+      findsOneWidget,
+    );
     final modern = headerBytes();
 
     await tester.scrollUntilVisible(
@@ -822,6 +849,7 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Standard'), findsOneWidget);
+    expect(find.text('Offizielles Artwork'), findsOneWidget);
     expect(find.text('Rot / Blau'), findsOneWidget);
     expect(find.text('Schwarz / Weiß / Schwarz 2 / Weiß 2'), findsOneWidget);
     final semantics = tester.ensureSemantics();

@@ -895,5 +895,6 @@
   },
   "syncPassphrase": "Sync password",
   "syncPassphraseHint": "Encrypts your data before it leaves the device (end-to-end). Use the same password on all devices. At least 8 characters; it cannot be recovered.",
-  "syncUnlocking": "Connecting…"
+  "syncUnlocking": "Connecting…",
+  "galleryArtwork": "Official artwork"
 }

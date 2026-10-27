@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import 'artwork.dart';
+
 /// Festgehaltener Stand von `PokeAPI/sprites` (Dateien je Commit unveränderlich).
 const spritesRepository = 'https://github.com/PokeAPI/sprites';
 const spritesCommit = 'd8c2fb78563e28ad7b3abe938cf6e79998d04e90';
@@ -82,6 +84,9 @@ const spriteSlots = [
   ]),
 ];
 
+/// Offizielles Artwork je Form (kein Spiel-Sprite, daher kein Eintrag in `slot`).
+const artworkSlot = 'artwork';
+
 /// Eine zu ladende Datei und ihr Ziel im Medienpaket.
 class _Wanted {
   const _Wanted(this.form, this.slot, this.shiny, this.path);
@@ -127,7 +132,10 @@ class MediaBuilder {
         final id = f['id'] as String;
         wanted
           ..add(_Wanted(id, '', false, '$rid.png'))
-          ..add(_Wanted(id, '', true, 'shiny/$rid.png'));
+          ..add(_Wanted(id, '', true, 'shiny/$rid.png'))
+          ..add(
+            _Wanted(id, artworkSlot, false, 'other/official-artwork/$rid.png'),
+          );
       }
       for (final slot in spriteSlots) {
         final rows = db.select(
@@ -221,6 +229,16 @@ class MediaBuilder {
       b[2] == 0x4E &&
       b[3] == 0x47;
 
+  /// Verkleinertes Artwork, zwischengespeichert neben dem Original.
+  List<int> _shrunk(String path, File original) {
+    final cached = File('${cache.path}/$artworkProcess/$path');
+    if (cached.existsSync()) return cached.readAsBytesSync();
+    final png = shrinkArtwork(original.readAsBytesSync());
+    cached.parent.createSync(recursive: true);
+    cached.writeAsBytesSync(png);
+    return png;
+  }
+
   /// Lädt (falls nötig) und schreibt die Mediendatenbank nach [out].
   Future<MediaReport> build(
     File out, {
@@ -270,7 +288,9 @@ class MediaBuilder {
           report.missing++;
           continue;
         }
-        final png = file.readAsBytesSync();
+        final png = w.slot == artworkSlot
+            ? _shrunk(w.path, file)
+            : file.readAsBytesSync();
         insert.execute([w.form, w.slot, w.shiny ? 1 : 0, png]);
         report.stored++;
         report.bytes += png.length;

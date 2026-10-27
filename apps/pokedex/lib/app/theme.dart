@@ -17,15 +17,79 @@ abstract final class Breakpoints {
   static const expanded = 1000.0;
 }
 
-const _seed = Color(0xFF3949AB);
+/// Farben des klassischen Pokédex: rotes Gehäuse, dunkles Scharnier, blaue
+/// Linse, Signal-LEDs. Werden für Kopf- und Navigationsleisten verwendet;
+/// Inhalte nutzen das daraus abgeleitete Farbschema.
+abstract final class DexColors {
+  static const red = Color(0xFFDC0A2D);
+  static const redDark = Color(0xFFA50823);
+  static const hinge = Color(0xFF232323);
+  static const lens = Color(0xFF30A7D7);
+  static const lensRim = Color(0xFFF5F5F5);
+  static const ledRed = Color(0xFFFF3B30);
+  static const ledYellow = Color(0xFFFFD60A);
+  static const ledGreen = Color(0xFF32D74B);
+  static const onRed = Colors.white;
+}
 
 ThemeData buildTheme(Brightness brightness) {
-  final scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
+  final dark = brightness == Brightness.dark;
+  final scheme = ColorScheme.fromSeed(
+    seedColor: DexColors.red,
+    brightness: brightness,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+  );
+  // Dunkel: Kopfleiste rot, Navigation im Schwarz des Scharniers.
+  final chrome = dark ? DexColors.redDark : DexColors.red;
+  final nav = dark ? DexColors.hinge : DexColors.red;
   return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
     visualDensity: VisualDensity.standard,
     materialTapTargetSize: MaterialTapTargetSize.padded,
+    scaffoldBackgroundColor: dark ? const Color(0xFF161314) : scheme.surface,
+    appBarTheme: AppBarTheme(
+      backgroundColor: chrome,
+      foregroundColor: DexColors.onRed,
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: const TextStyle(
+        color: DexColors.onRed,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.5,
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: nav,
+      indicatorColor: dark ? DexColors.red : DexColors.onRed,
+      iconTheme: WidgetStateProperty.resolveWith(
+        (states) => IconThemeData(
+          color: states.contains(WidgetState.selected) && !dark
+              ? DexColors.red
+              : DexColors.onRed,
+        ),
+      ),
+      labelTextStyle: const WidgetStatePropertyAll(
+        TextStyle(
+          color: DexColors.onRed,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: nav,
+      indicatorColor: dark ? DexColors.red : DexColors.onRed,
+      selectedIconTheme: IconThemeData(
+        color: dark ? DexColors.onRed : DexColors.red,
+      ),
+      unselectedIconTheme: const IconThemeData(color: DexColors.onRed),
+      selectedLabelTextStyle: const TextStyle(
+        color: DexColors.onRed,
+        fontWeight: FontWeight.w700,
+      ),
+      unselectedLabelTextStyle: const TextStyle(color: DexColors.onRed),
+    ),
     cardTheme: const CardThemeData(
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(

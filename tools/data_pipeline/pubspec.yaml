@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   crypto: ^3.0.0
+  image: ^4.5.0
   mydex_application: any
   mydex_catalog_store: any
   mydex_domain: any

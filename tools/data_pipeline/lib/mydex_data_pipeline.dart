@@ -1,6 +1,7 @@
 /// Datenpipeline: Quellstand laden, normalisieren, prüfen, Katalog erzeugen.
 library;
 
+export 'src/artwork.dart';
 export 'src/builder.dart';
 export 'src/csv.dart';
 export 'src/media.dart';

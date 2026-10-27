@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../widgets/dex_decor.dart';
 import 'providers.dart';
 import 'theme.dart';
 
@@ -51,6 +52,26 @@ class AppShell extends StatelessWidget {
         children: [
           SafeArea(
             child: NavigationRail(
+              leading: Padding(
+                padding: const EdgeInsets.symmetric(vertical: Space.m),
+                child: extended
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const PokedexLens(size: 32),
+                          const SizedBox(width: Space.m),
+                          Text(
+                            l10n.appTitle,
+                            style: const TextStyle(
+                              color: DexColors.onRed,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      )
+                    : const PokedexLens(size: 28),
+              ),
               extended: extended,
               labelType: extended
                   ? NavigationRailLabelType.none
@@ -67,7 +88,6 @@ class AppShell extends StatelessWidget {
               ],
             ),
           ),
-          const VerticalDivider(width: 1),
           Expanded(
             child: Column(
               children: [
@@ -92,21 +112,25 @@ class _StatusBar extends ConsumerWidget {
     final lang = dataLanguageOf(context, ref);
     final style = Theme.of(context).textTheme.bodySmall;
     return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
+      color: DexColors.hinge,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: Space.l,
           vertical: Space.xs,
         ),
         child: DefaultTextStyle.merge(
-          style: style,
+          style: style?.copyWith(color: Colors.white),
           child: Row(
             children: [
               Text(l10n.statusGame(ctx.version.name(lang))),
               const Spacer(),
               Text(l10n.statusRevision(ctx.contentRevision)),
               const Spacer(),
-              const Icon(Icons.offline_pin_outlined, size: 16),
+              const Icon(
+                Icons.offline_pin_outlined,
+                size: 16,
+                color: DexColors.ledGreen,
+              ),
               const SizedBox(width: Space.xs),
               Text(l10n.statusOffline),
             ],

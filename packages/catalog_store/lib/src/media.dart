@@ -122,7 +122,12 @@ class SqliteMediaLibrary implements MediaLibrary {
 
   @override
   List<SpriteKey> spritesOf(FormId form) {
-    final order = {'': -1, for (final (i, s) in slots.indexed) s: i};
+    // Artwork zuerst, dann Standard-Sprite, dann Spiele in Reihenfolge.
+    final order = {
+      'artwork': -2,
+      '': -1,
+      for (final (i, s) in slots.indexed) s: i,
+    };
     return [...?_index[form]]..sort((a, b) {
       final c = (order[a.slot] ?? 999).compareTo(order[b.slot] ?? 999);
       return c != 0 ? c : (a.shiny ? 1 : 0).compareTo(b.shiny ? 1 : 0);

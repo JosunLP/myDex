@@ -10,6 +10,8 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
 import '../../widgets/evolution_text.dart';
+import '../../widgets/dex_decor.dart';
+import '../../widgets/form_artwork.dart';
 import '../../widgets/form_sprite.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/stat_bars.dart';
@@ -77,53 +79,67 @@ class PokemonDetailView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(Space.l),
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FormSprite(d.form.id, size: 96),
-            const SizedBox(width: Space.m),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: DexScreen(
+            tint: profile.types.isEmpty
+                ? Theme.of(context).colorScheme.primary
+                : typeColor(profile.types.first),
+            child: SizedBox(
+              height: 232,
+              child: Stack(
                 children: [
-                  Text(
-                    '#${d.species.nationalNumber.toString().padLeft(4, '0')}',
-                    style: textTheme.labelLarge?.copyWith(
-                      fontFeatures: tabularFigures,
+                  Center(child: FormArtwork(d.form.id, size: 200)),
+                  Positioned(
+                    left: Space.m,
+                    top: Space.m,
+                    child: DexNumber(d.species.nationalNumber),
+                  ),
+                  // Das Sprite des gewählten Spiels als kleines Detail.
+                  Positioned(
+                    right: Space.s,
+                    bottom: Space.s,
+                    child: FormSprite(
+                      d.form.id,
+                      key: const ValueKey('dexScreenSprite'),
+                      size: 64,
                     ),
                   ),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Semantics(
-                          header: true,
-                          child: Text(
-                            name.text,
-                            style: textTheme.headlineMedium,
-                          ),
-                        ),
-                      ),
-                      if (name.isFallback)
-                        Padding(
-                          padding: const EdgeInsets.only(left: Space.s),
-                          child: Tooltip(
-                            message: l10n.translationMissing(name.language),
-                            child: const Icon(Icons.translate, size: 20),
-                          ),
-                        ),
-                      const SizedBox(width: Space.s),
-                      SpeakButton(
-                        id: 'pokemon:${d.form.id.value}:${ctx.version.id.value}',
-                        text: () => pokemonSpeechText(
-                          d,
-                          l10n,
-                          catalog,
-                          Localizations.localeOf(context).languageCode,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: Space.m),
+        Row(
+          children: [
+            Flexible(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  name.text,
+                  style: textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+            if (name.isFallback)
+              Padding(
+                padding: const EdgeInsets.only(left: Space.s),
+                child: Tooltip(
+                  message: l10n.translationMissing(name.language),
+                  child: const Icon(Icons.translate, size: 20),
+                ),
+              ),
+            const SizedBox(width: Space.s),
+            SpeakButton(
+              id: 'pokemon:${d.form.id.value}:${ctx.version.id.value}',
+              text: () => pokemonSpeechText(
+                d,
+                l10n,
+                catalog,
+                Localizations.localeOf(context).languageCode,
               ),
             ),
           ],

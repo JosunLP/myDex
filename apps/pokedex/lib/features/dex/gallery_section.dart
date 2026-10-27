@@ -5,6 +5,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/form_artwork.dart';
 import '../../widgets/form_sprite.dart';
 
 /// Alle Sprites einer Form: Standard und je Spiel, normal und Shiny.
@@ -38,13 +39,34 @@ class GallerySection extends ConsumerWidget {
 
     final slots = [
       for (final k in keys)
-        if (!k.shiny) k.slot,
+        if (!k.shiny && k.slot != artworkSlot) k.slot,
     ];
+    final hasArtwork = media.has(form, slot: artworkSlot);
     final textTheme = Theme.of(context).textTheme;
     return Wrap(
       spacing: Space.m,
       runSpacing: Space.m,
       children: [
+        if (hasArtwork)
+          Card.outlined(
+            child: Padding(
+              padding: const EdgeInsets.all(Space.s),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FormArtwork(
+                    form,
+                    size: 192,
+                    semanticLabel: l10n.gallerySprite(
+                      name,
+                      l10n.galleryArtwork,
+                    ),
+                  ),
+                  Text(l10n.galleryArtwork, style: textTheme.labelSmall),
+                ],
+              ),
+            ),
+          ),
         for (final slot in slots)
           Card.outlined(
             child: Padding(
