@@ -1,5 +1,7 @@
 # Release
 
+Für das erste Release: `erstes-release.md` (Schritt für Schritt).
+
 ## Ablauf
 1. `main` ist grün (CI inkl. Berechtigungsprüfung der APKs und Barrierefreiheitstests).
 2. In `CHANGELOG.md` „Unveröffentlicht“ in `## [X.Y.Z] – JJJJ-MM-TT` umbenennen und mergen.

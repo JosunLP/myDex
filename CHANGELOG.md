@@ -6,6 +6,10 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
 
 ## [Unveröffentlicht]
 
+## [1.0.0] – 2026-10-27
+
+Erste Version.
+
 ### Neu
 - Pokémon-Dex mit allen Spielen: Formen, Typen, Basiswerte und Fähigkeiten je Spiel,
   Entwicklungen mit Bedingungen, Attacken mit Erlernbarkeit und Änderungshistorie.
