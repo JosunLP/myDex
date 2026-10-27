@@ -10,6 +10,7 @@ import '../features/dex/pokemon_detail_page.dart';
 import '../features/locations/location_page.dart';
 import '../features/locations/locations_page.dart';
 import '../features/more/data_page.dart';
+import '../features/more/help_page.dart';
 import '../features/more/more_page.dart';
 import '../features/teams/member_editor_page.dart';
 import '../features/teams/team_editor_page.dart';
@@ -117,6 +118,7 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
               builder: (_, _) => const MorePage(),
               routes: [
                 GoRoute(path: 'data', builder: (_, _) => const DataPage()),
+                GoRoute(path: 'help', builder: (_, _) => const HelpPage()),
               ],
             ),
           ],

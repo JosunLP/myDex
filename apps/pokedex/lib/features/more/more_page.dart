@@ -10,7 +10,29 @@ import 'backup_section.dart';
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
 
-  static const _dataLanguages = {'de': 'Deutsch', 'en': 'English'};
+  /// Oberflächensprachen, jeweils in ihrer eigenen Schreibweise.
+  static const uiLanguages = {
+    'de': 'Deutsch',
+    'en': 'English',
+    'es': 'Español',
+    'fr': 'Français',
+    'it': 'Italiano',
+  };
+
+  /// Sprachen der Spieldaten im Katalog.
+  static const dataLanguages = {
+    'de': 'Deutsch',
+    'en': 'English',
+    'es': 'Español',
+    'fr': 'Français',
+    'it': 'Italiano',
+    'pt': 'Português',
+    'ja': '日本語',
+    'ja-Hrkt': '日本語 (かな)',
+    'ko': '한국어',
+    'zh-Hans': '简体中文',
+    'zh-Hant': '繁體中文',
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,24 +76,31 @@ class MorePage extends ConsumerWidget {
               onSelectionChanged: (s) => controller.setThemeMode(s.single),
             ),
           ),
-          heading(l10n.settingsDataLanguage),
-          RadioGroup<String?>(
-            groupValue: settings.dataLanguage,
+          heading(l10n.settingsLanguage),
+          _LanguageTile(
+            label: l10n.settingsUiLanguage,
+            followLabel: l10n.followSystemLanguage,
+            value: settings.uiLanguage,
+            options: uiLanguages,
+            onChanged: controller.setUiLanguage,
+          ),
+          _LanguageTile(
+            label: l10n.settingsDataLanguage,
+            followLabel: l10n.followUiLanguage,
+            value: settings.dataLanguage,
+            options: dataLanguages,
             onChanged: controller.setDataLanguage,
-            child: Column(
-              children: [
-                RadioListTile<String?>(
-                  value: null,
-                  title: Text(l10n.followUiLanguage),
-                ),
-                for (final MapEntry(:key, :value) in _dataLanguages.entries)
-                  RadioListTile<String?>(value: key, title: Text(value)),
-              ],
-            ),
           ),
           heading(l10n.backupTitle),
           const BackupSection(),
           heading(l10n.aboutData),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: Text(l10n.helpTitle),
+            subtitle: Text(l10n.helpSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/more/help'),
+          ),
           ListTile(
             leading: const Icon(Icons.offline_pin_outlined),
             title: Text(l10n.dataSources),
@@ -97,4 +126,49 @@ class MorePage extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Sprachwahl als Auswahlliste; `null` folgt der übergeordneten Sprache.
+class _LanguageTile extends StatelessWidget {
+  const _LanguageTile({
+    required this.label,
+    required this.followLabel,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String followLabel;
+  final String? value;
+  final Map<String, String> options;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.s),
+    child: DropdownButtonFormField<String?>(
+      // Neu aufbauen, wenn sich der Wert von außen ändert (Import).
+      key: ValueKey(value),
+      // Unbekannte Werte (z. B. aus einer neueren Sicherung) wie „folgen“.
+      initialValue: options.containsKey(value) ? value : null,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      items: [
+        DropdownMenuItem(value: null, child: Text(followLabel)),
+        for (final MapEntry(:key, :value) in options.entries)
+          DropdownMenuItem(
+            value: key,
+            child: Text(
+              value,
+              locale: Locale.fromSubtags(languageCode: key.split('-').first),
+            ),
+          ),
+      ],
+      onChanged: onChanged,
+    ),
+  );
 }

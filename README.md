@@ -47,7 +47,7 @@ Phase 3a – Teams (abgeschlossen):
 - [x] Prüfung: gültig / teilweise geprüft / Datenlage unzureichend / ungültig (ADR 0009)
 - [x] Typanalyse mit gemeinsamen Schwächen, Abdeckungslücken und Attackenvorschlägen
 
-Phase 3b – Sammlung und Datensicherung (dieser Stand):
+Phase 3b – Sammlung und Datensicherung (abgeschlossen):
 
 - [x] Kombinierbare Dex-Filter: Typen (einer/alle), Generation, Sammlungsstatus, nur Standardformen
 - [x] Filtervorlagen (versioniert gespeichert)
@@ -55,6 +55,15 @@ Phase 3b – Sammlung und Datensicherung (dieser Stand):
 - [x] Export/Import aller persönlichen Daten, optional verschlüsselt, mit Vorschau (ADR 0010)
 - [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
+
+Phase 4a – Sprachen, Hilfe, Vorlesen (dieser Stand):
+
+- [x] Oberfläche auf Deutsch, Englisch, Französisch, Spanisch und Italienisch, wählbar oder nach System
+- [x] Spieldaten in allen elf Katalogsprachen
+- [x] Offline-Hilfe zu Spielauswahl, Datenlücken, Suche, Fundorten, Sammlung, Teams, Sicherung, Datenschutz
+- [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
+- [ ] Optionaler Sync (Phase 4b)
+- [ ] Galerie – erst nach geklärten Bildrechten
 
 ## Struktur
 

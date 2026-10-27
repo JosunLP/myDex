@@ -27,6 +27,7 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
+    final uiLanguage = ref.watch(settingsProvider.select((s) => s.uiLanguage));
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
@@ -40,6 +41,7 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: uiLanguage == null ? null : Locale(uiLanguage),
       routerConfig: _router,
       builder: (context, child) => CatalogGate(child: child!),
     );

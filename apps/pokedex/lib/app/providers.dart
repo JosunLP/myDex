@@ -98,6 +98,9 @@ class SettingsController extends Notifier<AppSettings> {
   void setDataLanguage(String? language) =>
       _update(state.copyWith(dataLanguage: () => language));
 
+  void setUiLanguage(String? language) =>
+      _update(state.copyWith(uiLanguage: () => language));
+
   /// Übernimmt Einstellungen aus einer Sicherung.
   void replaceAll(AppSettings settings) => _update(settings);
 }
