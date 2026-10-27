@@ -1,8 +1,8 @@
 {
-  "revision": "sprites-d8c2fb7-m1",
-  "schemaVersion": 1,
-  "sha256": "f7cdeaf4f22a9c21b3bbf854ad05271ee186f6af13143257fb78f36664ee0179",
-  "size": 11972608,
+  "revision": "sprites-d8c2fb7-m2-a256-v1-c1",
+  "schemaVersion": 2,
+  "sha256": "56d49e9b1417e4c7393900d4474cd6ca454f83f4a880ce9fcbaf4120280eb919",
+  "size": 33624064,
   "source": "PokeAPI/sprites",
   "sourceRevision": "d8c2fb78563e28ad7b3abe938cf6e79998d04e90"
 }

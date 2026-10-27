@@ -237,7 +237,7 @@
   "helpSearchTitle": "Suche",
   "helpSearchBody": "Suche nach Name oder Nummer in jeder Katalogsprache, zum Beispiel „charizard“ oder „6“. Kleine Tippfehler werden toleriert. Attacken und Fähigkeiten erscheinen ebenfalls in den Treffern. Filter kombinieren Typen, Generationen und deinen Sammlungsstand; häufige Filter speicherst du als Vorlage.",
   "helpLocationsTitle": "Fundorte",
-  "helpLocationsBody": "Begegnungen stehen je Spielversion mit Methode, Level, Wahrscheinlichkeit und Bedingungen. Geschenke und Tausch im Spiel zählen als Begegnungsmethoden. Entwicklung und Zucht werden als weitere Wege angezeigt. Events und Tausch zwischen Spielen sind noch nicht erfasst.",
+  "helpLocationsBody": "Begegnungen stehen je Spielversion mit Methode, Level, Wahrscheinlichkeit und Bedingungen. Geschenke und Tausch im Spiel zählen als Begegnungsmethoden. Entwicklung und Zucht werden als weitere Wege angezeigt. Bei Versionsexklusiven steht, aus welchen Spielen du sie eintauschen kannst; Mysteriöse Pokémon sind als Event-Pokémon gekennzeichnet. Konkrete Event-Termine sind nicht enthalten.",
   "helpCollectionTitle": "Sammlung",
   "helpCollectionBody": "Markiere Pokémon als gesehen, gefangen oder Shiny – je Spiel oder in deiner eigenen, spielübergreifenden Liste. „Alle Spiele zusammen“ zeigt, in welchen Spielen und wann du ein Pokémon gefangen hast.",
   "helpTeamsTitle": "Teams",
@@ -281,5 +281,12 @@
   "gallerySpriteShiny": "{name} (Shiny) – {game}",
   "syncPassphrase": "Sync-Passwort",
   "syncPassphraseHint": "Verschlüsselt deine Daten, bevor sie das Gerät verlassen (Ende-zu-Ende). Auf allen Geräten dasselbe Passwort verwenden. Mindestens 8 Zeichen; es lässt sich nicht wiederherstellen.",
-  "syncUnlocking": "Verbinde…"
+  "syncUnlocking": "Verbinde…",
+  "galleryArtwork": "Offizielles Artwork",
+  "acquireByTrade": "Durch Tausch aus {games}",
+  "acquireByEvent": "Mysteriöses Pokémon – in der Regel nur über Event-Verteilungen erhältlich.",
+  "catalogUpdateTitle": "Katalog-Updates",
+  "catalogUpdateHint": "Signierte Katalog-Updates kommen von deinem eigenen Sync-Server. Jedes Update wird vor der Installation gegen den in der App hinterlegten Schlüssel geprüft.",
+  "catalogUpdateCheck": "Prüfen",
+  "catalogUpdateResult": "{result, select, installed{Katalog auf {revision} aktualisiert.} upToDate{Der Katalog ist aktuell ({revision}).} noUpdate{Dein Server bietet kein Katalog-Update an.} notConfigured{Katalog-Updates sind in dieser Ausgabe nicht eingerichtet.} notConnected{Verbinde dich zuerst mit deinem Sync-Server.} incompatible{Das Update ({revision}) braucht eine neuere App-Version.} badSignature{Das Update ist nicht mit einem vertrauenswürdigen Schlüssel signiert und wurde abgelehnt.} invalid{Das Update ist nicht lesbar und wurde abgelehnt.} network{Der Server ist nicht erreichbar.} other{Das Update ließ sich nicht installieren; der bisherige Katalog bleibt aktiv.}}"
 }

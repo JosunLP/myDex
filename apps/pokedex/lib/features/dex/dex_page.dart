@@ -11,6 +11,7 @@ import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
+import '../../widgets/dex_decor.dart';
 import '../../widgets/form_sprite.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/search_field.dart';
@@ -142,7 +143,16 @@ class _DexPageState extends ConsumerState<DexPage> {
         autofocus: wide,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(l10n.navDex),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (MediaQuery.sizeOf(context).width < Breakpoints.medium) ...[
+                  const PokedexLens(size: 30),
+                  const SizedBox(width: Space.m),
+                ],
+                Text(l10n.navDex),
+              ],
+            ),
             actions: const [
               GameContextSelector(),
               SizedBox(width: Space.s),
@@ -241,15 +251,8 @@ class _DexList extends ConsumerWidget {
       leading: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 48,
-            child: Text(
-              '#${item.species.nationalNumber.toString().padLeft(4, '0')}',
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(fontFeatures: tabularFigures),
-            ),
-          ),
+          DexNumber(item.species.nationalNumber, dense: true),
+          const SizedBox(width: Space.xs),
           FormSprite(item.form.id, size: 48),
         ],
       ),

@@ -97,17 +97,33 @@ void main() {
     expect(media.has(const FormId('raichu-alola')), isTrue);
   });
 
-  test('Galerie: Standard zuerst, dann Spiele in Reihenfolge', () {
+  test('Galerie: Artwork, Standard, dann Spiele in Reihenfolge', () {
     final keys = media.spritesOf(const FormId('pikachu'));
-    expect(keys.first, (form: const FormId('pikachu'), slot: '', shiny: false));
+    expect(keys.first, (
+      form: const FormId('pikachu'),
+      slot: 'artwork',
+      shiny: false,
+    ));
     final slots = {for (final k in keys) k.slot}.toList();
-    expect(slots.take(3), ['', 'red-blue', 'yellow']);
+    expect(slots.take(4), ['artwork', '', 'red-blue', 'yellow']);
     expect(slots.last, 'black-white');
     expect(media.versionsOf('red-blue'), contains(const GameVersionId('blue')));
   });
 
+  test('Hauptfarbe aus dem Artwork', () {
+    final rgb = media.artworkColor(const FormId('pikachu'))!;
+    final (r, g, b) = (rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF);
+    expect(
+      r > 180 && g > 140 && b < 140,
+      isTrue,
+      reason: 'gelb: #${rgb.toRadixString(16)}',
+    );
+    expect(media.artworkColor(const FormId('gibt-es-nicht')), isNull);
+  });
+
   test('ohne Medienpaket bleibt alles leer', () {
     const empty = EmptyMediaLibrary();
+    expect(empty.artworkColor(const FormId('pikachu')), isNull);
     expect(empty.sprite(const FormId('pikachu')), isNull);
     expect(empty.spritesOf(const FormId('pikachu')), isEmpty);
   });

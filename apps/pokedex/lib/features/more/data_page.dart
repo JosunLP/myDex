@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/catalog_update.dart';
 import '../../app/providers.dart';
+import '../../app/sync_controller.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -30,6 +32,7 @@ class DataPage extends ConsumerWidget {
               l10n.dataSourceLine(source.source, source.sourceRevision),
             ),
           ),
+          if (ref.watch(syncSupportedProvider)) const _CatalogUpdateTile(),
           Padding(
             padding: const EdgeInsets.all(Space.l),
             child: Text(l10n.coverageExplanation, style: textTheme.bodySmall),
@@ -54,6 +57,36 @@ class DataPage extends ConsumerWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Signierte Katalog-Updates über den eigenen Sync-Server (ADR 0015).
+class _CatalogUpdateTile extends ConsumerWidget {
+  const _CatalogUpdateTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final status = ref.watch(catalogUpdateProvider);
+    return ListTile(
+      leading: const Icon(Icons.system_update_alt),
+      title: Text(l10n.catalogUpdateTitle),
+      subtitle: Text(
+        status.result == null
+            ? l10n.catalogUpdateHint
+            : l10n.catalogUpdateResult(status.result!, status.revision ?? ''),
+      ),
+      isThreeLine: true,
+      trailing: status.busy
+          ? const SizedBox.square(
+              dimension: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : TextButton(
+              onPressed: () => ref.read(catalogUpdateProvider.notifier).check(),
+              child: Text(l10n.catalogUpdateCheck),
+            ),
     );
   }
 }

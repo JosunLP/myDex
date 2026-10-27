@@ -87,11 +87,14 @@ class DataGapChip extends StatelessWidget {
         children: [
           Icon(Icons.construction_outlined, size: 16, color: scheme.tertiary),
           const SizedBox(width: 2),
-          Text(
-            l10n.dataGap,
-            style: Theme.of(
-              context,
-            ).textTheme.labelSmall?.copyWith(color: scheme.tertiary),
+          Flexible(
+            child: Text(
+              l10n.dataGap,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: scheme.tertiary),
+            ),
           ),
         ],
       ),

@@ -9,6 +9,7 @@
    - `mydex-sync-X.Y.Z-android.apk` (Ausgabe „sync“, nur Internet)
    - `mydex-X.Y.Z-linux-x64.tar.gz`, `mydex-X.Y.Z-windows-x64.zip`, `mydex-X.Y.Z-macos.zip`
    - `mydex-sync-server-X.Y.Z-linux-x64.tar.gz`
+   - `mydex-catalog-update-X.Y.Z.tar.gz` (nur mit Signaturschlüssel, siehe unten)
    - `SHA256SUMS`, `android-certificates.txt`
 5. Abnahme nach `grapheneos-abnahme.md` mit der Entwurfs-APK.
 6. Release-Entwurf auf GitHub veröffentlichen.
@@ -46,6 +47,28 @@ keyPassword=…
 Ohne Schlüssel bauen lokale Release-Builds mit dem Debug-Schlüssel; der Release-Workflow
 bricht dann ab (`MYDEX_REQUIRE_SIGNING=true`) und prüft zusätzlich, dass kein
 Debug-Zertifikat im Paket steckt.
+
+## Katalog-Updates (optional, ADR 0015)
+Damit die Ausgaben mit Netzwerk neue Katalogstände über den eigenen Sync-Server bekommen,
+einmalig ein Schlüsselpaar erzeugen:
+
+```sh
+dart run tools/data_pipeline/bin/data_pipeline.dart keygen --out catalog-signing.key
+```
+
+| Secret | Inhalt |
+|---|---|
+| `MYDEX_CATALOG_SIGNING_KEY` | Inhalt von `catalog-signing.key` (privat) |
+| `MYDEX_CATALOG_PUBLIC_KEY` | ausgegebener öffentlicher Schlüssel |
+
+Der Release-Workflow baut den öffentlichen Schlüssel in die Apps ein und legt
+`mydex-catalog-update-X.Y.Z.tar.gz` bei. Auf dem Server entpacken und mit
+`serve --catalog-dir <dir>` ausliefern. Ein neuer Katalog ohne App-Release:
+
+```sh
+dart run tools/data_pipeline/bin/data_pipeline.dart sign-update \
+  --key catalog-signing.key --out /var/lib/mydex/catalog
+```
 
 ## Nicht automatisiert
 - **iOS:** braucht ein Apple-Entwicklerkonto (Signatur, TestFlight/App Store).

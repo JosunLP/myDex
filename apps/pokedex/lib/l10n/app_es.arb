@@ -237,7 +237,7 @@
   "helpSearchTitle": "Búsqueda",
   "helpSearchBody": "Busca por nombre o número en cualquier idioma del catálogo, por ejemplo «charizard» o «6». Se toleran pequeñas erratas. Los movimientos y habilidades también aparecen en los resultados. Los filtros combinan tipos, generaciones y el estado de tu colección; guarda los filtros frecuentes como plantillas.",
   "helpLocationsTitle": "Ubicaciones",
-  "helpLocationsBody": "Los encuentros se muestran por versión con método, niveles, probabilidad y condiciones. Los regalos y los intercambios dentro del juego cuentan como métodos de encuentro. La evolución y la crianza se muestran como otras formas de obtenerlo. Los eventos y los intercambios entre juegos aún no están cubiertos.",
+  "helpLocationsBody": "Los encuentros se muestran por versión con método, niveles, probabilidad y condiciones. Los regalos y los intercambios dentro del juego cuentan como métodos de encuentro. La evolución y la crianza se muestran como otras formas de obtenerlo. En los exclusivos de versión se indica desde qué juegos puedes intercambiarlos; los Pokémon singulares se marcan como Pokémon de evento. No se incluyen fechas de eventos concretas.",
   "helpCollectionTitle": "Colección",
   "helpCollectionBody": "Marca Pokémon como vistos, capturados o variocolor – por juego o en tu propia lista multijuego. «Todos los juegos juntos» muestra en qué juegos y cuándo capturaste un Pokémon.",
   "helpTeamsTitle": "Equipos",
@@ -281,5 +281,12 @@
   "gallerySpriteShiny": "{name} (variocolor) – {game}",
   "syncPassphrase": "Contraseña de sincronización",
   "syncPassphraseHint": "Cifra tus datos antes de que salgan del dispositivo (de extremo a extremo). Usa la misma contraseña en todos los dispositivos. Al menos 8 caracteres; no se puede recuperar.",
-  "syncUnlocking": "Conectando…"
+  "syncUnlocking": "Conectando…",
+  "galleryArtwork": "Ilustración oficial",
+  "acquireByTrade": "Por intercambio desde {games}",
+  "acquireByEvent": "Pokémon singular: normalmente solo se obtiene en distribuciones de eventos.",
+  "catalogUpdateTitle": "Actualizaciones del catálogo",
+  "catalogUpdateHint": "Las actualizaciones firmadas del catálogo llegan desde tu propio servidor de sincronización. Cada actualización se comprueba con la clave integrada en la app antes de instalarse.",
+  "catalogUpdateCheck": "Comprobar",
+  "catalogUpdateResult": "{result, select, installed{Catálogo actualizado a {revision}.} upToDate{El catálogo está actualizado ({revision}).} noUpdate{Tu servidor no ofrece ninguna actualización del catálogo.} notConfigured{Las actualizaciones del catálogo no están configuradas en esta edición.} notConnected{Conéctate primero a tu servidor de sincronización.} incompatible{La actualización ({revision}) necesita una versión más reciente de la app.} badSignature{La actualización no está firmada con una clave de confianza y se ha rechazado.} invalid{La actualización no se puede leer y se ha rechazado.} network{No se puede acceder al servidor.} other{No se pudo instalar la actualización; el catálogo anterior sigue activo.}}"
 }

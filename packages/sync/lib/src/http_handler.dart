@@ -16,10 +16,14 @@ typedef SyncAuthenticator = String? Function(String token);
 ///
 /// TLS übernimmt ein vorgeschalteter Reverse-Proxy; ohne ihn nur lokal betreiben.
 class SyncHttpHandler {
-  SyncHttpHandler(this.core, this.authenticate);
+  SyncHttpHandler(this.core, this.authenticate, {this.catalogDirectory});
 
   final SyncServerCore core;
   final SyncAuthenticator authenticate;
+
+  /// Verzeichnis mit `update.json` und `catalog.sqlite.gz` für signierte
+  /// Katalog-Updates (ADR 0015); `null` = keine Updates angeboten.
+  final Directory? catalogDirectory;
 
   Future<void> call(HttpRequest request) async {
     final response = request.response;
@@ -46,6 +50,27 @@ class SyncHttpHandler {
           core.handle(account, syncRequest).toJson(),
         );
       }
+      if (path == '/v1/catalog/update' && request.method == 'GET') {
+        final file = _catalogFile('update.json');
+        if (file == null) {
+          return await _send(response, 404, {'error': 'notFound'});
+        }
+        response.statusCode = 200;
+        await response.addStream(file.openRead());
+        return await response.close();
+      }
+      if (path == '/v1/catalog/pack' && request.method == 'GET') {
+        final file = _catalogFile('catalog.sqlite.gz');
+        if (file == null) {
+          return await _send(response, 404, {'error': 'notFound'});
+        }
+        response
+          ..statusCode = 200
+          ..headers.contentType = ContentType('application', 'gzip')
+          ..headers.contentLength = await file.length();
+        await response.addStream(file.openRead());
+        return await response.close();
+      }
       if (path == '/v1/account' && request.method == 'DELETE') {
         core.wipe(account);
         return await _send(response, 200, {'ok': true});
@@ -68,6 +93,13 @@ class SyncHttpHandler {
       );
       return await _send(response, 500, {'error': 'server'});
     }
+  }
+
+  File? _catalogFile(String name) {
+    final dir = catalogDirectory;
+    if (dir == null) return null;
+    final file = File('${dir.path}/$name');
+    return file.existsSync() ? file : null;
   }
 
   String _account(HttpRequest request) {

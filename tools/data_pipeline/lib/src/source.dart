@@ -7,6 +7,11 @@ import 'package:crypto/crypto.dart';
 const pokeApiRepository = 'https://github.com/PokeAPI/pokeapi';
 const pokeApiCommit = '2bf639e5572812a67d2b94903fdcb9d095f5aeb2';
 
+/// Commit-Zeit des Quellstands (Unix-Sekunden). Bestimmt mit der
+/// Schemaversion die Reihenfolge der Katalogpakete; beim Wechsel des
+/// Quellstands mit aktualisieren (`git log -1 --format=%ct <commit>`).
+const pokeApiCommitTime = 1792500364;
+
 /// Benötigte CSV-Tabellen aus `data/v2/csv`.
 const requiredTables = [
   'abilities',

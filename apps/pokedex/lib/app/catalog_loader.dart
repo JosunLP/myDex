@@ -29,8 +29,17 @@ class BundledCatalogRepository implements CatalogRepository {
           as Map<String, Object?>,
     );
     final current = await CatalogInstaller(directory).current();
-    if (current != null && current.revision == manifest.revision) {
-      return openInstalledCatalog(current.path);
+    // Ein über das Netz installiertes, neueres Paket hat Vorrang vor dem
+    // mitgelieferten; ein neueres mitgeliefertes (App-Update) ersetzt es.
+    if (current != null &&
+        (current.revision == manifest.revision ||
+            current.sequence > manifest.sequence)) {
+      try {
+        return await openInstalledCatalog(current.path);
+      } on Object catch (e) {
+        // z. B. Schema einer älteren App-Version: mitgeliefertes Paket nutzen.
+        debugPrint('Installierter Katalog nicht lesbar: $e');
+      }
     }
     final pack = (await _bundle.load(_packAsset)).buffer.asUint8List();
     final dir = directory;

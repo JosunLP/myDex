@@ -1,6 +1,7 @@
 /// Anwendungsfälle und Schnittstellen zur Infrastruktur.
 library;
 
+export 'src/acquisition.dart';
 export 'src/catalog_details.dart';
 export 'src/catalog_snapshot.dart';
 export 'src/collection_views.dart';

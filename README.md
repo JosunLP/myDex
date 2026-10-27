@@ -37,7 +37,7 @@ Phase 2b – Fundorte und Beschaffung (abgeschlossen):
 - [x] Eigener Bereich „Fundorte“ mit Orten nach Region und Ortsseiten
 - [x] Beschaffung auf der Pokémon-Seite: Fundorte, Entwicklung, Zucht
 - [x] Datenlücken statt „nicht fangbar“, wenn ein Spiel keine Fundortdaten hat
-- [ ] Event-Verteilungen und Tausch zwischen Spielen
+- [x] Tausch zwischen Spielen und Event-Pokémon (Mysteriöse); konkrete Event-Termine nicht enthalten
 
 Phase 3a – Teams (abgeschlossen):
 
@@ -53,7 +53,7 @@ Phase 3b – Sammlung und Datensicherung (abgeschlossen):
 - [x] Filtervorlagen (versioniert gespeichert)
 - [x] Globale Checkliste: Fortschritt über alle Spiele mit Spielen und erstem Fangdatum
 - [x] Export/Import aller persönlichen Daten, optional verschlüsselt, mit Vorschau (ADR 0010)
-- [ ] Signiertes Manifest und Updates über das Netz (bisher nur mitgelieferte Pakete)
+- [x] Signierte Katalog-Updates über den eigenen Sync-Server (ADR 0015)
 - [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
 
 Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
@@ -80,7 +80,8 @@ Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
 - [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
 - [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog
 - [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
-- [x] Galerie: Standard-, Shiny- und Spiel-Sprites (Gen 1–5) offline; Vorschaubilder in Dex, Sammlung und Teams
+- [x] Galerie: offizielles Artwork, Standard-, Shiny- und Spiel-Sprites (Gen 1–5) offline; Vorschaubilder in Dex, Sammlung und Teams
+- [x] Pokédex-Gestaltung: rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit Artwork und Digitalnummer; dunkle Variante in Scharnier-Schwarz
 - [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
 - [ ] iOS/macOS/Windows signieren (Entwicklerkonten)
 

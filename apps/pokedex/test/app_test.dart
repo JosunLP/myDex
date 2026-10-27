@@ -9,9 +9,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mydex_app/app/app.dart';
 import 'package:mydex_app/app/backup_files.dart';
 import 'package:mydex_app/app/catalog_loader.dart';
+import 'package:mydex_app/app/catalog_update.dart';
 import 'package:mydex_app/app/providers.dart';
 import 'package:mydex_app/app/speech.dart';
+import 'package:mydex_app/app/sync_config.dart';
 import 'package:mydex_app/app/sync_controller.dart';
+import 'package:mydex_app/widgets/dex_decor.dart';
+import 'package:mydex_app/widgets/form_artwork.dart';
 import 'package:mydex_app/widgets/search_field.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
@@ -49,6 +53,19 @@ class _FixtureRepository implements CatalogRepository {
   Future<LoadedCatalog> load() async => openLoadedCatalog(_catalogPath);
 }
 
+/// Update-Quelle im Speicher.
+class _FakeUpdateSource implements CatalogUpdateSource {
+  _FakeUpdateSource(this.update, this.pack);
+  final Map<String, Object?>? update;
+  final List<int> pack;
+
+  @override
+  Future<Map<String, Object?>?> catalogUpdate() async => update;
+
+  @override
+  Future<List<int>> catalogPack() async => pack;
+}
+
 class _Harness {
   final collection = MemoryCollectionRepository();
   final teams = MemoryTeamRepository();
@@ -56,6 +73,9 @@ class _Harness {
   final files = _MemoryFiles();
   final speaker = _FakeSpeaker();
   final syncCore = SyncServerCore(MemorySyncStore());
+  final syncConfig = MemorySyncConfigStore();
+  final updateKeys = <String>[];
+  CatalogUpdateSource updateSource = _FakeUpdateSource(null, const []);
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
 
   Widget build() => ProviderScope(
@@ -68,6 +88,10 @@ class _Harness {
         (url, token) => _CoreTransport(syncCore, token),
       ),
       syncKdfIterationsProvider.overrideWithValue(1000),
+      catalogUpdateKeysProvider.overrideWith((ref) => updateKeys),
+      catalogUpdateSourceFactoryProvider.overrideWithValue(
+        (url, token) => updateSource,
+      ),
       syncKeyDerivationProvider.overrideWithValue(SyncKey.derive),
       appStorageProvider.overrideWithValue(
         AppStorage.custom(
@@ -76,6 +100,7 @@ class _Harness {
           catalogDirectory: Directory('${dir.path}/catalog'),
           teams: teams,
           presets: presets,
+          syncConfig: syncConfig,
         ),
       ),
     ],
@@ -348,6 +373,14 @@ void main() {
     await _search(tester, 'Evoli');
     await tester.tap(find.widgetWithText(ListTile, 'Evoli'));
     await tester.pumpAndSettle();
+    // Pokédex-Anzeige mit Artwork und Nummer im Detail neben der Liste.
+    expect(find.byType(DexScreen), findsOneWidget);
+    expect(find.text('#0133'), findsWidgets);
+    await tester.scrollUntilVisible(
+      find.text('Entwicklung'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(
       find.text('Entwicklung'),
       findsOneWidget,
@@ -811,9 +844,34 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
 
+    // Hintergrund der Anzeige in der Farbe des Artworks.
+    final rgb = SqliteMediaLibrary.open(_mediaPath);
+    addTearDown(rgb.close);
+    expect(
+      tester.widget<DexScreen>(find.byType(DexScreen)).tint,
+      Color(0xFF000000 | rgb.artworkColor(const FormId('pikachu'))!),
+    );
+
+    // Kleines Spiel-Sprite in der Pokédex-Anzeige.
     Uint8List headerBytes() =>
-        (tester.widget<Image>(find.byType(Image).first).image as MemoryImage)
+        (tester
+                    .widget<Image>(
+                      find.descendant(
+                        of: find.byKey(const ValueKey('dexScreenSprite')),
+                        matching: find.byType(Image),
+                      ),
+                    )
+                    .image
+                as MemoryImage)
             .bytes;
+    // Offizielles Artwork als großes Bild.
+    expect(
+      find.descendant(
+        of: find.byType(DexScreen),
+        matching: find.byType(FormArtwork),
+      ),
+      findsOneWidget,
+    );
     final modern = headerBytes();
 
     await tester.scrollUntilVisible(
@@ -822,6 +880,7 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Standard'), findsOneWidget);
+    expect(find.text('Offizielles Artwork'), findsOneWidget);
     expect(find.text('Rot / Blau'), findsOneWidget);
     expect(find.text('Schwarz / Weiß / Schwarz 2 / Weiß 2'), findsOneWidget);
     final semantics = tester.ensureSemantics();
@@ -837,4 +896,120 @@ void main() {
     );
     expect(identical(headerBytes(), modern), isFalse);
   });
+
+  testWidgets('Beschaffung: Tausch aus anderem Spiel und Event-Pokémon', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _selectGame(tester, 'Rot');
+
+    await _search(tester, 'sandan');
+    await tester.tap(find.widgetWithText(ListTile, 'Sandan'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Durch Tausch aus'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('Durch Tausch aus Blau'), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    await _search(tester, 'mew');
+    await tester.tap(find.widgetWithText(ListTile, 'Mew'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Event-Verteilungen'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('Mysteriöses Pokémon'), findsOneWidget);
+  });
+
+  testWidgets(
+    'Katalog-Update: fremde Signatur abgelehnt, gültige installiert',
+    (tester) async {
+      final h = await _pump(tester, const Size(500, 1600));
+      final manifest =
+          jsonDecode(
+                File(
+                  '$_fixtureDir/catalog_test.manifest.json',
+                ).readAsStringSync(),
+              )
+              as Map<String, Object?>;
+      final newer = {
+        ...manifest,
+        'sequence': (manifest['sequence']! as int) + 1,
+      };
+      final pack = File(
+        '$_fixtureDir/catalog_test.sqlite.gz',
+      ).readAsBytesSync();
+      final (update, trusted, foreign) = (await tester.runAsync(() async {
+        final key = CatalogSigningKey.generate();
+        return (
+          await signCatalogUpdate(newer, key),
+          await key.publicKeyBase64(),
+          await CatalogSigningKey.generate().publicKeyBase64(),
+        );
+      }))!;
+      h.updateSource = _FakeUpdateSource(update, pack);
+      await tester.runAsync(
+        () => h.syncConfig.save(
+          SyncConfig(
+            serverUrl: 'https://sync.example.org',
+            token: 'geheim',
+            key: SyncKey(
+              encryption: List.filled(32, 1),
+              authentication: List.filled(32, 2),
+              salt: List.filled(16, 3),
+              iterations: 1000,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Mehr'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Datenstand und Abdeckung'));
+      await tester.pumpAndSettle();
+      expect(find.text('Katalog-Updates'), findsOneWidget);
+
+      // Läuft außerhalb der künstlichen Zeit, weil der Katalog über echte
+      // Dateizugriffe und ein Isolate installiert wird.
+      Future<void> check() async {
+        await tester.runAsync(() async {
+          await tester.tap(find.text('Prüfen'));
+          for (var i = 0; i < 500; i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 20));
+            await tester.pump();
+            // Nach einer Installation lädt der Katalog neu (Ladeanzeige).
+            if (find.text('Prüfen').evaluate().isNotEmpty &&
+                find.byType(CircularProgressIndicator).evaluate().isEmpty) {
+              break;
+            }
+          }
+        });
+        await tester.pumpAndSettle();
+      }
+
+      // Ohne hinterlegten Schlüssel gibt es keine Updates.
+      await check();
+      expect(find.textContaining('nicht eingerichtet'), findsOneWidget);
+
+      h.updateKeys.add(foreign);
+      await check();
+      expect(find.textContaining('abgelehnt'), findsOneWidget);
+
+      h.updateKeys.add(trusted);
+      await check();
+      expect(
+        find.text('Katalog auf ${manifest['revision']} aktualisiert.'),
+        findsOneWidget,
+      );
+
+      // Dasselbe Update ein zweites Mal: nichts Neues.
+      await check();
+      expect(find.textContaining('ist aktuell'), findsOneWidget);
+    },
+  );
 }

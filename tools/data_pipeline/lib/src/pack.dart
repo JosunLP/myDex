@@ -13,6 +13,7 @@ CatalogPackManifest packCatalog({
   required String source,
   required String sourceRevision,
   int schemaVersion = catalogSchemaVersion,
+  int sequence = 0,
 }) {
   final bytes = database.readAsBytesSync();
   final manifest = CatalogPackManifest(
@@ -22,6 +23,7 @@ CatalogPackManifest packCatalog({
     size: bytes.length,
     source: source,
     sourceRevision: sourceRevision,
+    sequence: sequence,
   );
   // Ohne Zeitstempel im Header: gleiche Eingabe ergibt gleiche Datei.
   packOut.writeAsBytesSync(GZipCodec(level: 9).encode(bytes));

@@ -17,6 +17,11 @@ dart run tools/sync_server/bin/sync_server.dart serve --db /var/lib/mydex/sync.s
 Weitere Befehle: `list-accounts`, `rotate-token --name …` (neuer Schlüssel, alter ungültig),
 `delete-account --name …` (Konto samt Daten).
 
+Katalog-Updates (optional, ADR 0015): Mit `serve … --catalog-dir /var/lib/mydex/catalog` liefert
+der Server ein signiertes Update (`update.json` + `catalog.sqlite.gz`, aus
+`mydex-catalog-update-…tar.gz` oder `data_pipeline sign-update`) an angemeldete Geräte aus.
+Die Apps prüfen die Signatur selbst; der Server kann nichts Unsigniertes einspielen.
+
 Für den Dauerbetrieb gibt es fertige Pakete an jeder Release (`mydex-sync-server-…-linux-x64.tar.gz`,
 Programm unter `bin/`, SQLite unter `lib/`). Selbst bauen:
 

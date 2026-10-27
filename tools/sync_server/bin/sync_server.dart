@@ -7,6 +7,7 @@ const _usage = '''
 myDex-Sync-Server
 
   serve           --db <datei> [--host 127.0.0.1] [--port 8787]
+                  [--catalog-dir <dir>]  signierte Katalog-Updates anbieten
   create-account  --db <datei> --name <name>    gibt den Zugangsschlüssel aus
   rotate-token    --db <datei> --name <name>    neuer Schlüssel, alter ungültig
   delete-account  --db <datei> --name <name>    Konto samt Daten löschen
@@ -42,9 +43,11 @@ Future<void> main(List<String> args) async {
       case 'serve':
         final host = options['host'] ?? '127.0.0.1';
         final port = int.parse(options['port'] ?? '8787');
+        final catalogDir = options['catalog-dir'];
         final handler = SyncHttpHandler(
           SyncServerCore(SqliteSyncStore(db)),
           accounts.authenticate,
+          catalogDirectory: catalogDir == null ? null : Directory(catalogDir),
         );
         final server = await HttpServer.bind(host, port);
         server.autoCompress = true;

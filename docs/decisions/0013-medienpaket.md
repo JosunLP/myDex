@@ -21,10 +21,20 @@ verfügbar sein, auch in der Android-Ausgabe ohne Internet-Berechtigung, und den
 - **Anzeige:** Im gewählten Spiel dessen Sprite, sonst das Standard-Sprite. Pixelgrafik ohne
   Glättung. Bilder neben einem Namen sind für Screenreader ausgeblendet; in der Galerie tragen
   sie eine Beschreibung (Name, Spiel, Shiny).
-- **Nicht enthalten:** offizielles Artwork und HOME-Renderings (~120 KB je Bild, zusammen weit
-  über 100 MB). Ein optionales, nachladbares Artwork-Paket kann dasselbe Format nutzen.
+- **Offizielles Artwork** (Nachtrag): je Form im Satz `artwork`, auf 256 px verkleinert und als
+  PNG mit 256-Farben-Palette gespeichert. 224 Einträge für deckende Farben (Octree), 31 für
+  halbtransparente Kanten (Durchschnittsfarbe je Deckkraftstufe), einer voll transparent. So
+  bleiben Transparenz und weiche Kanten erhalten; etwa 17 KB statt 120 KB je Bild, zusammen
+  rund 20 MB. Das Verfahren ist deterministisch und versioniert (`a256-v1`), das Ergebnis wird
+  im Cache neben dem Original abgelegt.
+- **Artwork-Farbe** (Schema 2): Die Pipeline leitet je Form die Hauptfarbe des Artworks ab
+  (Tabelle `artwork_color`); sie färbt den Hintergrund der Pokédex-Anzeige. Gezählt werden
+  deckende Pixel ohne Konturen und Glanzlichter, einsortiert in Farbwürfel und nach
+  Farbintensität gewichtet; Ergebnis ist der Durchschnitt des schwersten Würfels. Versioniert als
+  `c1`, deterministisch. Ohne Medienpaket gilt die Farbe des ersten Typs.
+- **Nicht enthalten:** Shiny-Artwork und HOME-Renderings.
 
 ## Konsequenzen
-- Das App-Paket wächst um etwa 7 MB, installiert um etwa 12 MB.
+- Das App-Paket wächst um etwa 27 MB, installiert um etwa 34 MB.
 - Der erste Medienbau lädt rund 11 000 Dateien; danach liegen sie im Cache (`.dart_tool/sprites`,
   in der CI über `actions/cache`).

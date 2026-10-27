@@ -786,7 +786,7 @@
   "helpSearchTitle": "Search",
   "helpSearchBody": "Search by name or number in any catalog language, for example \"charizard\" or \"6\". Small typos are tolerated. Moves and abilities appear in the results as well. Filters combine types, generations and your collection status; save frequently used filters as presets.",
   "helpLocationsTitle": "Locations",
-  "helpLocationsBody": "Encounters are listed per game version with method, levels, chance and conditions. Gifts and in-game trades count as encounter methods. Evolution and breeding are shown as further ways to obtain a Pokémon. Events and trades between games are not covered yet.",
+  "helpLocationsBody": "Encounters are listed per game version with method, levels, chance and conditions. Gifts and in-game trades count as encounter methods. Evolution and breeding are shown as further ways to obtain a Pokémon. Version exclusives show which games you can trade them from; Mythical Pokémon are marked as event Pokémon. Specific event dates are not included.",
   "helpCollectionTitle": "Collection",
   "helpCollectionBody": "Mark Pokémon as seen, caught or shiny – per game or in your own cross-game list. \"All games combined\" shows in which games you caught a Pokémon and when.",
   "helpTeamsTitle": "Teams",
@@ -895,5 +895,29 @@
   },
   "syncPassphrase": "Sync password",
   "syncPassphraseHint": "Encrypts your data before it leaves the device (end-to-end). Use the same password on all devices. At least 8 characters; it cannot be recovered.",
-  "syncUnlocking": "Connecting…"
+  "syncUnlocking": "Connecting…",
+  "galleryArtwork": "Official artwork",
+  "acquireByTrade": "By trade from {games}",
+  "@acquireByTrade": {
+    "placeholders": {
+      "games": {
+        "type": "String"
+      }
+    }
+  },
+  "acquireByEvent": "Mythical Pokémon – usually only available through event distributions.",
+  "catalogUpdateTitle": "Catalog updates",
+  "catalogUpdateHint": "Signed catalog updates come from your own sync server. Each update is checked against the key built into the app before it is installed.",
+  "catalogUpdateCheck": "Check",
+  "catalogUpdateResult": "{result, select, installed{Catalog updated to {revision}.} upToDate{The catalog is up to date ({revision}).} noUpdate{Your server offers no catalog update.} notConfigured{Catalog updates are not set up in this edition.} notConnected{Connect to your sync server first.} incompatible{The update ({revision}) needs a newer app version.} badSignature{The update is not signed with a trusted key and was rejected.} invalid{The update could not be read and was rejected.} network{The server cannot be reached.} other{The update could not be installed; the previous catalog stays active.}}",
+  "@catalogUpdateResult": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      },
+      "revision": {
+        "type": "String"
+      }
+    }
+  }
 }

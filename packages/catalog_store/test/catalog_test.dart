@@ -397,4 +397,45 @@ void main() {
       expect(catalog.species[const SpeciesId('magnemite')]!.hatchable, isTrue);
     });
   });
+
+  group('Beschaffung über Tausch und Events', () {
+    late AcquisitionQueries acquisition;
+    setUp(() => acquisition = AcquisitionQueries(catalog, details));
+    List<String> sources(String form, String version) => [
+      for (final v in acquisition.tradeSources(FormId(form), ctx(version)))
+        v.id.value,
+    ];
+
+    test('Versionsexklusive: Sandan in Rot per Tausch aus Blau', () {
+      expect(sources('sandshrew', 'red'), contains('blue'));
+      expect(sources('ekans', 'blue'), contains('red'));
+      expect(sources('sandshrew', 'red'), isNot(contains('red')));
+    });
+
+    test('Zeitkapsel: Gen 1 und 2 tauschen, Gen 3 nicht mit Gen 1', () {
+      final partners = [
+        for (final v in acquisition.tradePartners(const GameVersionId('gold')))
+          v.id.value,
+      ];
+      expect(partners, containsAll(['silver', 'crystal', 'red', 'yellow']));
+      expect(partners, isNot(contains('ruby')));
+      expect(
+        acquisition.tradePartners(const GameVersionId('legends-arceus')),
+        isEmpty,
+      );
+    });
+
+    test('kein Tausch für Formen, die es im Spiel nicht gibt', () {
+      expect(sources('raichu-alola', 'red'), isEmpty);
+    });
+
+    test('Mysteriöse Pokémon gelten als Event-Pokémon', () {
+      expect(catalog.species[const SpeciesId('mew')]!.mythical, isTrue);
+      expect(acquisition.isEventOnly(const FormId('mew'), ctx('red')), isTrue);
+      expect(
+        acquisition.isEventOnly(const FormId('pikachu'), ctx('red')),
+        isFalse,
+      );
+    });
+  });
 }

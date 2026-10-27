@@ -237,7 +237,7 @@
   "helpSearchTitle": "Ricerca",
   "helpSearchBody": "Cerca per nome o numero in qualsiasi lingua del catalogo, ad esempio «charizard» o «6». Piccoli errori di battitura sono tollerati. Anche mosse e abilità compaiono nei risultati. I filtri combinano tipi, generazioni e stato della collezione; salva i filtri frequenti come modelli.",
   "helpLocationsTitle": "Luoghi",
-  "helpLocationsBody": "Gli incontri sono elencati per versione con metodo, livelli, probabilità e condizioni. Regali e scambi nel gioco contano come metodi di incontro. Evoluzione e allevamento sono indicati come altri modi per ottenerlo. Eventi e scambi tra giochi non sono ancora coperti.",
+  "helpLocationsBody": "Gli incontri sono elencati per versione con metodo, livelli, probabilità e condizioni. Regali e scambi nel gioco contano come metodi di incontro. Evoluzione e allevamento sono indicati come altri modi per ottenerlo. Per le esclusive di versione è indicato da quali giochi puoi scambiarle; i Pokémon misteriosi sono contrassegnati come Pokémon evento. Le date degli eventi non sono incluse.",
   "helpCollectionTitle": "Collezione",
   "helpCollectionBody": "Segna i Pokémon come visti, catturati o cromatici – per gioco o nella tua lista personale tra i giochi. «Tutti i giochi insieme» mostra in quali giochi e quando hai catturato un Pokémon.",
   "helpTeamsTitle": "Squadre",
@@ -281,5 +281,12 @@
   "gallerySpriteShiny": "{name} (cromatico) – {game}",
   "syncPassphrase": "Password di sincronizzazione",
   "syncPassphraseHint": "Cifra i tuoi dati prima che lascino il dispositivo (end-to-end). Usa la stessa password su tutti i dispositivi. Almeno 8 caratteri; non può essere recuperata.",
-  "syncUnlocking": "Connessione…"
+  "syncUnlocking": "Connessione…",
+  "galleryArtwork": "Illustrazione ufficiale",
+  "acquireByTrade": "Tramite scambio da {games}",
+  "acquireByEvent": "Pokémon misterioso – di solito ottenibile solo tramite distribuzioni evento.",
+  "catalogUpdateTitle": "Aggiornamenti del catalogo",
+  "catalogUpdateHint": "Gli aggiornamenti firmati del catalogo arrivano dal tuo server di sincronizzazione. Ogni aggiornamento viene verificato con la chiave integrata nell’app prima dell’installazione.",
+  "catalogUpdateCheck": "Verifica",
+  "catalogUpdateResult": "{result, select, installed{Catalogo aggiornato a {revision}.} upToDate{Il catalogo è aggiornato ({revision}).} noUpdate{Il tuo server non offre aggiornamenti del catalogo.} notConfigured{Gli aggiornamenti del catalogo non sono configurati in questa edizione.} notConnected{Connettiti prima al tuo server di sincronizzazione.} incompatible{L’aggiornamento ({revision}) richiede una versione più recente dell’app.} badSignature{L’aggiornamento non è firmato con una chiave attendibile ed è stato rifiutato.} invalid{L’aggiornamento non è leggibile ed è stato rifiutato.} network{Il server non è raggiungibile.} other{Impossibile installare l’aggiornamento; il catalogo precedente resta attivo.}}"
 }

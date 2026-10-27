@@ -38,6 +38,20 @@ identisches Paket.
   Verfügbarkeit; das Ei schlüpft als Grundform der Familie. Rauch-/Inzens-Sonderfälle
   (z. B. Azurill) sind nicht modelliert – die App macht dazu keine Aussage.
 
+## Tausch zwischen Spielen
+- Tauschgruppen nach Spielgeneration bzw. Spielfamilie (Gen 1–7, Let's Go, Schwert/Schild mit
+  DLC, Strahlender Diamant/Leuchtende Perle, Karmesin/Purpur mit DLC); Gen 1 und 2 tauschen
+  über die Zeitkapsel. Japanische Erstausgaben bilden eine eigene Gruppe. Legenden: Arceus,
+  Legends: Z-A, Mega Dimension und Champions haben keine Tauschpartner. Übertragungen über
+  Pokémon HOME, Poké-Transfer und Ähnliches sind nicht berücksichtigt.
+- Die App nennt „Durch Tausch aus …“, wenn eine Form im gewählten Spiel existiert, dort aber
+  keine Fundorte hat und in einem Partnerspiel laut Fundortdaten vorkommt.
+
+## Events
+- Mysteriöse Pokémon (`is_mythical` der Quelle) werden als Event-Pokémon gekennzeichnet,
+  sofern sie im gewählten Spiel existieren. Konkrete Verteilungen (Zeitraum, Region, Code)
+  enthält die Quelle nicht; die App nennt sie daher nicht.
+
 ## Entwicklungen
 - Gültig ab der in der Quelle genannten Spielgruppe und ab der Generation beider Arten.
 - Ortsgebundene Entwicklungen nur in Spielgruppen, deren Regionen den Ort enthalten.
@@ -49,7 +63,8 @@ identisches Paket.
 - Pokédex- und Effekttexte sind noch nicht importiert.
 - Die Quelle hat keine Begegnungsdaten u. a. für Strahlender Diamant/Leuchtende Perle,
   Legends: Arceus, Karmesin/Purpur (inkl. DLC), Legends: Z-A, Mega Dimension und Champions.
-- Event-Verteilungen und Tausch zwischen Spielen sind nicht enthalten.
+- Konkrete Event-Verteilungen (Zeiträume, Codes) und Übertragungen zwischen Generationen sind
+  nicht enthalten.
 - Viele Methoden- und Bedingungsnamen gibt es in der Quelle nur auf Englisch; die App zeigt
   dann den englischen Namen.
 - Fluch hatte in Gen 2–4 den Typ „???“, der nicht modelliert ist; dort fehlen seine Werte.
