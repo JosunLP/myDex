@@ -844,6 +844,14 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
 
+    // Hintergrund der Anzeige in der Farbe des Artworks.
+    final rgb = SqliteMediaLibrary.open(_mediaPath);
+    addTearDown(rgb.close);
+    expect(
+      tester.widget<DexScreen>(find.byType(DexScreen)).tint,
+      Color(0xFF000000 | rgb.artworkColor(const FormId('pikachu'))!),
+    );
+
     // Kleines Spiel-Sprite in der Pokédex-Anzeige.
     Uint8List headerBytes() =>
         (tester

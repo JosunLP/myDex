@@ -18,17 +18,18 @@ abstract final class Breakpoints {
 }
 
 /// Farben des klassischen Pokédex: rotes Gehäuse, dunkles Scharnier, blaue
-/// Linse, Signal-LEDs. Werden für Kopf- und Navigationsleisten verwendet;
+/// Linse, Signal-LEDs – bewusst etwas gedämpft (matt statt grell), wie bei
+/// klassischen Dex-Apps. Werden für Kopf- und Navigationsleisten verwendet;
 /// Inhalte nutzen das daraus abgeleitete Farbschema.
 abstract final class DexColors {
-  static const red = Color(0xFFDC0A2D);
-  static const redDark = Color(0xFFA50823);
-  static const hinge = Color(0xFF232323);
-  static const lens = Color(0xFF30A7D7);
-  static const lensRim = Color(0xFFF5F5F5);
-  static const ledRed = Color(0xFFFF3B30);
-  static const ledYellow = Color(0xFFFFD60A);
-  static const ledGreen = Color(0xFF32D74B);
+  static const red = Color(0xFFC4403F);
+  static const redDark = Color(0xFF8E3332);
+  static const hinge = Color(0xFF2E2C2C);
+  static const lens = Color(0xFF4F9BC4);
+  static const lensRim = Color(0xFFEDEBE8);
+  static const ledRed = Color(0xFFE0574F);
+  static const ledYellow = Color(0xFFE6C452);
+  static const ledGreen = Color(0xFF5DBE6E);
   static const onRed = Colors.white;
 }
 
@@ -47,7 +48,7 @@ ThemeData buildTheme(Brightness brightness) {
     useMaterial3: true,
     visualDensity: VisualDensity.standard,
     materialTapTargetSize: MaterialTapTargetSize.padded,
-    scaffoldBackgroundColor: dark ? const Color(0xFF161314) : scheme.surface,
+    scaffoldBackgroundColor: dark ? const Color(0xFF1C1A1A) : scheme.surface,
     appBarTheme: AppBarTheme(
       backgroundColor: chrome,
       foregroundColor: DexColors.onRed,

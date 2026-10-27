@@ -87,3 +87,56 @@ Uint8List shrinkArtwork(List<int> png) {
   }
   return img.encodePng(out, level: 9);
 }
+
+/// Version der Farbableitung (Teil der Medien-Revision).
+const artworkColorProcess = 'c1';
+
+/// Hauptfarbe eines Artworks als `0xRRGGBB` – für den Hintergrund der
+/// Pokédex-Anzeige.
+///
+/// Gezählt werden nur deckende Pixel ohne Konturen und Glanzlichter (sehr
+/// dunkel oder sehr hell). Die Pixel werden in Farbwürfel (je Kanal 8 Stufen)
+/// einsortiert und nach Farbintensität (Chroma) gewichtet, damit die
+/// Körperfarbe gegen helle oder graue Flächen nicht untergeht. Ergebnis ist
+/// die Durchschnittsfarbe des schwersten Würfels. Deterministisch.
+int artworkColor(List<int> png) {
+  final decoded = img.decodePng(Uint8List.fromList(png));
+  if (decoded == null) throw const FormatException('Kein lesbares PNG');
+  final image = decoded.convert(numChannels: 4);
+  final weight = <int, double>{};
+  final sums = <int, List<int>>{};
+  final all = [0, 0, 0, 0];
+  void add(List<int> sum, int r, int g, int b) {
+    sum[0] += r;
+    sum[1] += g;
+    sum[2] += b;
+    sum[3]++;
+  }
+
+  for (final p in image) {
+    if (p.a < 200) continue;
+    final r = p.r.toInt(), g = p.g.toInt(), b = p.b.toInt();
+    add(all, r, g, b);
+    final hi = r > g ? (r > b ? r : b) : (g > b ? g : b);
+    final lo = r < g ? (r < b ? r : b) : (g < b ? g : b);
+    final l = (hi + lo) / 510;
+    if (l < 0.16 || l > 0.92) continue;
+    final chroma = (hi - lo) / 255;
+    final key = (r >> 5) << 6 | (g >> 5) << 3 | (b >> 5);
+    weight[key] = (weight[key] ?? 0) + 1 + 8 * chroma;
+    add(sums.putIfAbsent(key, () => [0, 0, 0, 0]), r, g, b);
+  }
+  List<int> pick;
+  if (weight.isEmpty) {
+    if (all[3] == 0) return 0x808080;
+    pick = all;
+  } else {
+    // Bei Gleichstand entscheidet der kleinere Schlüssel (deterministisch).
+    final best = (weight.keys.toList()..sort()).reduce(
+      (a, b) => weight[b]! > weight[a]! ? b : a,
+    );
+    pick = sums[best]!;
+  }
+  final n = pick[3];
+  return (pick[0] ~/ n) << 16 | (pick[1] ~/ n) << 8 | (pick[2] ~/ n);
+}

@@ -7,7 +7,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'sqlite_catalog.dart';
 
 /// Schema des Medienpakets (getrennt vom Katalog, eigene Version).
-const mediaSchemaVersion = 1;
+const mediaSchemaVersion = 2;
 
 const mediaSchema = [
   'CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
@@ -18,6 +18,9 @@ const mediaSchema = [
   // WITHOUT-ROWID-Tabelle belegen etwa doppelt so viel Platz.
   '''CREATE TABLE sprite(form TEXT NOT NULL, slot TEXT NOT NULL,
     shiny INTEGER NOT NULL, png BLOB NOT NULL, UNIQUE(form, slot, shiny))''',
+  // Hauptfarbe des Artworks (0xRRGGBB), Hintergrund der Pokédex-Anzeige.
+  '''CREATE TABLE artwork_color(form TEXT PRIMARY KEY, rgb INTEGER NOT NULL)
+    WITHOUT ROWID''',
 ];
 
 Map<String, String> readMediaMeta(Database db) {
@@ -36,7 +39,13 @@ Map<String, String> readMediaMeta(Database db) {
 /// vorhandenen Bilder liegt im Speicher, die Bilddaten werden bei Bedarf
 /// gelesen und begrenzt zwischengespeichert.
 class SqliteMediaLibrary implements MediaLibrary {
-  SqliteMediaLibrary._(this._db, this.slots, this._versions, this._index);
+  SqliteMediaLibrary._(
+    this._db,
+    this.slots,
+    this._versions,
+    this._index,
+    this._colors,
+  );
 
   factory SqliteMediaLibrary.open(String path) {
     final db = openCatalogDatabase(path);
@@ -61,7 +70,11 @@ class SqliteMediaLibrary implements MediaLibrary {
           shiny: r['shiny'] == 1,
         ));
       }
-      return SqliteMediaLibrary._(db, slots, versions, index);
+      final colors = {
+        for (final r in db.select('SELECT form, rgb FROM artwork_color'))
+          FormId(r['form'] as String): r['rgb'] as int,
+      };
+      return SqliteMediaLibrary._(db, slots, versions, index, colors);
     } on Object {
       db.close();
       rethrow;
@@ -73,6 +86,7 @@ class SqliteMediaLibrary implements MediaLibrary {
   final List<String> slots;
   final Map<GameVersionId, String> _versions;
   final Map<FormId, List<SpriteKey>> _index;
+  final Map<FormId, int> _colors;
   final _cache = <String, Uint8List>{};
   static const _cacheSize = 512;
   PreparedStatement? _select;
@@ -85,6 +99,9 @@ class SqliteMediaLibrary implements MediaLibrary {
 
   @override
   String? slotFor(GameVersionId version) => _versions[version];
+
+  @override
+  int? artworkColor(FormId form) => _colors[form];
 
   @override
   bool has(FormId form, {String slot = '', bool shiny = false}) =>

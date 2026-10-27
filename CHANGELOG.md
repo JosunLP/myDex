@@ -25,8 +25,9 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
   hinterlegten Schlüssel geprüft; ältere Stände werden nicht eingespielt.
 - Galerie mit offiziellem Artwork und Sprites je Spiel (Gen 1–5), Standard und Shiny;
   Vorschaubilder in Dex, Sammlung und Teams – vollständig offline.
-- Gestaltung im Stil des Pokédex: rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit Artwork,
-  Typfarbe und Digitalnummer; dunkle Variante.
+- Gestaltung im Stil des Pokédex: gedämpftes rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit
+  Artwork vor der Farbe des jeweiligen Pokémon (aus dem Artwork abgeleitet) und Digitalnummer;
+  dunkle Variante.
 - Barrierefreiheit automatisch geprüft (Tippflächen, Beschriftungen, Kontrast).
 
 ### Sicherheit und Datenschutz

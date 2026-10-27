@@ -27,6 +27,11 @@ verfügbar sein, auch in der Android-Ausgabe ohne Internet-Berechtigung, und den
   bleiben Transparenz und weiche Kanten erhalten; etwa 17 KB statt 120 KB je Bild, zusammen
   rund 20 MB. Das Verfahren ist deterministisch und versioniert (`a256-v1`), das Ergebnis wird
   im Cache neben dem Original abgelegt.
+- **Artwork-Farbe** (Schema 2): Die Pipeline leitet je Form die Hauptfarbe des Artworks ab
+  (Tabelle `artwork_color`); sie färbt den Hintergrund der Pokédex-Anzeige. Gezählt werden
+  deckende Pixel ohne Konturen und Glanzlichter, einsortiert in Farbwürfel und nach
+  Farbintensität gewichtet; Ergebnis ist der Durchschnitt des schwersten Würfels. Versioniert als
+  `c1`, deterministisch. Ohne Medienpaket gilt die Farbe des ersten Typs.
 - **Nicht enthalten:** Shiny-Artwork und HOME-Renderings.
 
 ## Konsequenzen

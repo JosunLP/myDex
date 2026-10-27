@@ -59,8 +59,8 @@ class PokedexLens extends StatelessWidget {
   }
 }
 
-/// Bildschirm des Pokédex: dunkler Rahmen, darin ein heller, nach dem Typ
-/// eingefärbter Anzeigebereich.
+/// Bildschirm des Pokédex: dunkler Rahmen, darin ein Anzeigebereich in der
+/// Farbe des Pokémon (aus dem Artwork abgeleitet).
 class DexScreen extends StatelessWidget {
   const DexScreen({super.key, required this.tint, required this.child});
 
@@ -83,7 +83,10 @@ class DexScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color.lerp(base, tint, dark ? 0.35 : 0.45)!, base],
+            colors: [
+              Color.lerp(base, tint, dark ? 0.55 : 0.8)!,
+              Color.lerp(base, tint, dark ? 0.3 : 0.45)!,
+            ],
           ),
         ),
         child: child,
@@ -112,7 +115,7 @@ class DexNumber extends StatelessWidget {
     child: Text(
       '#${number.toString().padLeft(4, '0')}',
       style: TextStyle(
-        color: const Color(0xFF7CFC9A),
+        color: const Color(0xFF86E09C),
         fontFamily: 'monospace',
         fontFamilyFallback: const ['Courier New', 'Courier'],
         fontSize: dense ? 12 : 15,

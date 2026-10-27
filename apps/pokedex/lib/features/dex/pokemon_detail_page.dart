@@ -82,9 +82,17 @@ class PokemonDetailView extends ConsumerWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: DexScreen(
-            tint: profile.types.isEmpty
-                ? Theme.of(context).colorScheme.primary
-                : typeColor(profile.types.first),
+            // Farbe aus dem Artwork, ohne Medienpaket die des ersten Typs.
+            tint: switch (ref
+                .watch(mediaProvider)
+                .value
+                ?.artworkColor(d.form.id)) {
+              final int rgb => Color(0xFF000000 | rgb),
+              null when profile.types.isNotEmpty => typeColor(
+                profile.types.first,
+              ),
+              null => Theme.of(context).colorScheme.primary,
+            },
             child: SizedBox(
               height: 232,
               child: Stack(

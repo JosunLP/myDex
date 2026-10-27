@@ -281,6 +281,7 @@ class MediaBuilder {
       insertVersion.close();
 
       final insert = db.prepare('INSERT INTO sprite VALUES (?, ?, ?, ?)');
+      final insertColor = db.prepare('INSERT INTO artwork_color VALUES (?, ?)');
       db.execute('BEGIN');
       for (final w in wanted) {
         final file = File('${cache.path}/${w.path}');
@@ -292,11 +293,15 @@ class MediaBuilder {
             ? _shrunk(w.path, file)
             : file.readAsBytesSync();
         insert.execute([w.form, w.slot, w.shiny ? 1 : 0, png]);
+        if (w.slot == artworkSlot && !w.shiny) {
+          insertColor.execute([w.form, artworkColor(png)]);
+        }
         report.stored++;
         report.bytes += png.length;
       }
       db.execute('COMMIT');
       insert.close();
+      insertColor.close();
       db.execute('VACUUM');
     } finally {
       db.close();

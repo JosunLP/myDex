@@ -19,6 +19,9 @@ abstract interface class MediaLibrary {
 
   bool has(FormId form, {String slot = '', bool shiny = false});
 
+  /// Hauptfarbe des offiziellen Artworks als `0xRRGGBB`, falls vorhanden.
+  int? artworkColor(FormId form);
+
   /// PNG-Daten oder `null`. Wiederholte Aufrufe liefern dieselbe Instanz,
   /// damit der Bild-Cache greift.
   Uint8List? sprite(FormId form, {String slot = '', bool shiny = false});
@@ -51,6 +54,9 @@ class EmptyMediaLibrary implements MediaLibrary {
 
   @override
   bool has(FormId form, {String slot = '', bool shiny = false}) => false;
+
+  @override
+  int? artworkColor(FormId form) => null;
 
   @override
   Uint8List? sprite(FormId form, {String slot = '', bool shiny = false}) =>
