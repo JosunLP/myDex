@@ -20,8 +20,33 @@ identisches Paket.
 ## Verfügbarkeit einer Form in einer Spielgruppe (ADR 0005)
 1. Erlernbarkeits- oder Begegnungsdaten für die Form in der Spielgruppe → **bestätigt verfügbar**.
 2. Art oder Form erst später eingeführt → **bestätigt nicht verfügbar**.
-3. Sonst → **noch nicht recherchiert** (Datenlücke). Fehlende Daten werden nie als
+3. **Erweiterungen** (Isle of Armor, Crown Tundra, Teal Mask, Indigo Disk, Mega Dimension)
+   übernehmen alle bestätigten Aussagen ihres Hauptspiels.
+4. **Regional-Pokédex:** Steht die Art in einem Pokédex der Spielgruppe (`pokedex_version_groups`,
+   `pokemon_dex_numbers`) und kommt nur eine ihrer Formen in Frage (keine Kampfform, nicht
+   später eingeführt) → diese Form **bestätigt verfügbar**. Bei mehreren Formen (z. B. Fukano
+   und Hisui-Fukano) bleibt es eine Lücke.
+5. **Geschlossener Kader:**
+   - Let's Go, Schwert/Schild, Strahlender Diamant/Leuchtende Perle, Legenden: Arceus und
+     Karmesin/Purpur: Die Erlernbarkeitsdaten sind aus dem Spiel ausgelesen und enthalten
+     jede Art im Spiel, auch solche, die nur über HOME hineinkommen (geprüft: 80 Arten in
+     Schwert/Schild, 337 in Strahlender Diamant/Leuchtende Perle, 69 in Karmesin/Purpur außerhalb
+     ihrer Regional-Pokédexe).
+   - Champions und Legends: Z-A: Der Kader ist der Regional-Pokédex.
+   - Art ohne Daten und nicht im Pokédex → alle Formen **bestätigt nicht verfügbar**.
+     **Ausnahme:** mysteriöse Pokémon, die in den Daten teils fehlen (z. B. Darkrai in
+     Strahlender Diamant/Leuchtende Perle); sie bleiben Lücken.
+6. **Spielmechanik:** Mega- und Proto-Formen nur in Regelwerken mit Mega-Entwicklung (Gen 6/7,
+   Let's Go, Champions, Legends: Z-A); Gigadynamax nur in Schwert/Schild (mit Erweiterungen).
+   Kampfformen einer Art, die nicht im Spiel ist, sind es auch nicht.
+7. **Spielexklusive Formen:** Cosplay-Pikachu nur in Omega Rubin/Alpha Saphir, Partner-Pikachu
+   und -Evoli nur in Let's Go, Herrscher-Formen nur in Sonne/Mond und Ultrasonne/Ultramond.
+8. Sonst → **noch nicht recherchiert** (Datenlücke). Fehlende Daten werden nie als
    „nicht im Spiel“ dargestellt.
+
+Die Regeln 3–7 haben einen Regelstand (`catalogRules` in der Pipeline); er ist Teil von
+Revision und Reihenfolgenummer, damit installierte Apps einen neu abgeleiteten Katalog
+übernehmen.
 
 ## Fundorte
 - Begegnungen werden je Form, Version, Gebiet, Methode und Bedingungen zusammengefasst:

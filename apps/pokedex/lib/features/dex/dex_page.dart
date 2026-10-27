@@ -12,7 +12,6 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/availability_notice.dart';
 import '../../widgets/collection_toggles.dart';
 import '../../widgets/dex_decor.dart';
-import '../../widgets/form_sprite.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/search_field.dart';
 import '../../widgets/type_badge.dart';
@@ -253,7 +252,7 @@ class _DexList extends ConsumerWidget {
         children: [
           DexNumber(item.species.nationalNumber, dense: true),
           const SizedBox(width: Space.xs),
-          FormSprite(item.form.id, size: 48),
+          DexThumb(item.form.id),
         ],
       ),
       title: Text(name.text),

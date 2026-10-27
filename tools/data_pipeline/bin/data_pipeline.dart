@@ -12,8 +12,15 @@ const testSubset = {
   135, 136, 151, 172, 462,
 };
 
-/// Reihenfolge der Katalogpakete: Quellstand-Zeit und Schemaversion.
-const catalogSequence = pokeApiCommitTime * 100 + catalogSchemaVersion;
+/// Stand der Ableitungsregeln (ADR 0008). Bei jeder Regeländerung, die den
+/// Katalog bei gleichem Quellstand verändert, erhöhen – sonst erkennen
+/// installierte Apps den neuen Katalog nicht.
+const catalogRules = 2;
+
+/// Reihenfolge der Katalogpakete: Quellstand-Zeit, Schemaversion und
+/// Regelstand (je zwei Stellen).
+const catalogSequence =
+    pokeApiCommitTime * 10000 + catalogSchemaVersion * 100 + catalogRules;
 
 const usage = '''
 Verwendung: dart run mydex_data_pipeline <befehl> [optionen]
@@ -64,7 +71,7 @@ Future<void> main(List<String> args) async {
       );
       final tables = await SourceTables.load(cache, requiredTables);
       final revision =
-          'pokeapi-${pokeApiCommit.substring(0, 7)}-s$catalogSchemaVersion';
+          'pokeapi-${pokeApiCommit.substring(0, 7)}-s$catalogSchemaVersion-r$catalogRules';
       final outDir = Directory('${root.path}/build/catalog')
         ..createSync(recursive: true);
 
@@ -158,7 +165,7 @@ Future<void> _media(Directory root) async {
   final catalogDir = Directory('${root.path}/build/catalog');
   final cache = Directory('${root.path}/.dart_tool/sprites/$spritesCommit');
   final revision =
-      'sprites-${spritesCommit.substring(0, 7)}-m$mediaSchemaVersion-$artworkProcess-$artworkColorProcess';
+      'sprites-${spritesCommit.substring(0, 7)}-m$mediaSchemaVersion-$artworkProcess-$artworkColorProcess-$stillProcess';
   for (final (catalog, rev, pack, manifest) in [
     (
       'catalog.sqlite',

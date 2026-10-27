@@ -13,6 +13,14 @@ verfügbar sein, auch in der Android-Ausgabe ohne Internet-Berechtigung, und den
 - **Umfang:** Standard- und Shiny-Sprite jeder Form sowie die Sprites der Spiele aus Gen 1–5
   (Gen 1–2 in transparenter Fassung, Gen 1 ohne Shiny). Kandidaten sind die Formen, die im
   jeweiligen Spiel nicht bestätigt fehlen – abgeleitet aus dem gebauten Katalog.
+- **Gen 6–9** (Nachtrag): X/Y und Omega Rubin/Alpha Saphir als statische Sprites mit Shiny.
+  Ab Gen 7 hat die Quelle nur animierte 3D-Modelle (0,1–6 MB je Bild, zusammen rund 10 GB)
+  oder Box-Symbole. Gespeichert wird je Form und Spiel ein Einzelbild ohne Shiny: das erste
+  Bild der Animation (Ultrasonne/Ultramond, gilt auch für Sonne/Mond) bzw. das Box-Symbol
+  (Let's Go, Schwert/Schild, Strahlender Diamant/Leuchtende Perle, Legenden: Arceus,
+  Karmesin/Purpur, Legends: Z-A, Champions). Transparenter Rand abgeschnitten, auf höchstens
+  96 px verkleinert, Paletten-PNG; versioniert als `s96-v1`. Im Cache bleibt nur das Ergebnis.
+  Erweiterungen nutzen die Bilder ihres Hauptspiels. Medienpaket damit rund 51 MB.
 - **Paket:** eigene SQLite-Datei mit eigenem Schema (`media`), gzip-komprimiert in der App
   ausgeliefert (~7 MB) und über denselben Installer wie der Katalog installiert (Prüfsumme,
   Integrität, atomarer Wechsel), aber in einem eigenen Verzeichnis.

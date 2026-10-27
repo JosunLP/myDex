@@ -66,13 +66,15 @@ void main() {
     const pikachu = FormId('pikachu');
     expect(media.slotFor(const GameVersionId('red')), 'red-blue');
     expect(media.slotFor(const GameVersionId('white-2')), 'black-white');
-    expect(media.slotFor(const GameVersionId('scarlet')), isNull);
+    expect(media.slotFor(const GameVersionId('scarlet')), 'scarlet-violet');
+    // Colosseum hat keine eigenen Sprites.
+    expect(media.slotFor(const GameVersionId('colosseum')), isNull);
     final red = media.spriteFor(pikachu, version: const GameVersionId('red'));
     expect(isPng(red), isTrue);
     expect(identical(red, media.sprite(pikachu)), isFalse);
     expect(
       identical(
-        media.spriteFor(pikachu, version: const GameVersionId('scarlet')),
+        media.spriteFor(pikachu, version: const GameVersionId('colosseum')),
         media.sprite(pikachu),
       ),
       isTrue,
@@ -106,7 +108,7 @@ void main() {
     ));
     final slots = {for (final k in keys) k.slot}.toList();
     expect(slots.take(4), ['artwork', '', 'red-blue', 'yellow']);
-    expect(slots.last, 'black-white');
+    expect(slots, containsAllInOrder(['black-white', 'x-y', 'scarlet-violet']));
     expect(media.versionsOf('red-blue'), contains(const GameVersionId('blue')));
   });
 

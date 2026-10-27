@@ -6,12 +6,19 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
 
 ## [Unveröffentlicht]
 
+## [1.0.0] – 2026-10-27
+
+Erste Version.
+
 ### Neu
 - Pokémon-Dex mit allen Spielen: Formen, Typen, Basiswerte und Fähigkeiten je Spiel,
   Entwicklungen mit Bedingungen, Attacken mit Erlernbarkeit und Änderungshistorie.
 - Fundorte je Spielversion, Beschaffung über Entwicklung, Zucht, Tausch zwischen Spielen und
   Events (Mysteriöse Pokémon); Datenlücken werden als
   solche gezeigt, nie als „nicht fangbar“.
+- Welche Pokémon in neueren Spielen fehlen, wird aus vollständigen Spieldaten, Regional-Pokédexen
+  und Spielmechaniken abgeleitet (Let's Go bis Champions); Erweiterungen übernehmen ihr
+  Hauptspiel. Datenlücken in diesen Spielen sinken dadurch insgesamt um über 90 %.
 - Sammlung je Spiel und spielübergreifend, mit Shiny und Fangdatum; kombinierbare Filter und
   Vorlagen.
 - Teams mit Werteberechnung, Prüfung (gültig / teilweise / Datenlage unzureichend / ungültig),
@@ -23,11 +30,12 @@ in die neue Version umbenannt; der Release-Workflow übernimmt diesen Abschnitt.
   Sync-Passwort; Android-Ausgabe „sync“.
 - Katalog-Updates über den eigenen Sync-Server, mit Ed25519 signiert und gegen den in der App
   hinterlegten Schlüssel geprüft; ältere Stände werden nicht eingespielt.
-- Galerie mit offiziellem Artwork und Sprites je Spiel (Gen 1–5), Standard und Shiny;
+- Galerie mit offiziellem Artwork und Bildern je Spiel: Sprites Gen 1–6 mit Shiny, ab Gen 7
+  Einzelbilder bzw. Box-Symbole der Spiele bis Champions;
   Vorschaubilder in Dex, Sammlung und Teams – vollständig offline.
 - Gestaltung im Stil des Pokédex: gedämpftes rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit
   Artwork vor der Farbe des jeweiligen Pokémon (aus dem Artwork abgeleitet) und Digitalnummer;
-  dunkle Variante.
+  Dex-Liste, Sammlung und Teams mit kleinen Anzeigen in Pokémon-Farbe; dunkle Variante.
 - Barrierefreiheit automatisch geprüft (Tippflächen, Beschriftungen, Kontrast).
 
 ### Sicherheit und Datenschutz

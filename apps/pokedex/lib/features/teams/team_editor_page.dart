@@ -10,7 +10,7 @@ import 'package:mydex_game_rules/mydex_game_rules.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../widgets/form_sprite.dart';
+import '../../widgets/dex_decor.dart';
 import '../../widgets/search_picker.dart';
 import '../../widgets/type_badge.dart';
 import 'team_widgets.dart';
@@ -283,7 +283,7 @@ class _MemberCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    FormSprite(
+                    DexThumb(
                       member.form,
                       size: 48,
                       shiny: member.shiny,

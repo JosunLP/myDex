@@ -29,8 +29,13 @@ class GallerySection extends ConsumerWidget {
       if (slot.isEmpty) return l10n.galleryDefault;
       final names = <String>[];
       for (final v in media.versionsOf(slot)) {
-        // Japanische Erstausgaben teilen sich die Sprites mit Rot/Blau.
-        if (v.value.endsWith('-japan')) continue;
+        // Japanische Erstausgaben teilen sich die Sprites mit Rot/Blau,
+        // Erweiterungen mit ihrem Hauptspiel.
+        if (v.value.endsWith('-japan') ||
+            v.value.startsWith('the-') ||
+            v.value == 'mega-dimension') {
+          continue;
+        }
         final version = catalog.versions.where((x) => x.id == v).firstOrNull;
         if (version != null) names.add(version.name(lang));
       }

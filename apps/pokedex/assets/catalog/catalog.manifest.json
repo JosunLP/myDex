@@ -1,9 +1,9 @@
 {
-  "revision": "pokeapi-2bf639e-s5",
+  "revision": "pokeapi-2bf639e-s5-r2",
   "schemaVersion": 5,
-  "sha256": "e7f5367460bb430099090940216611291b065a8b3f71569840d6df222ed2aad2",
-  "size": 21094400,
+  "sha256": "ffa76fc8754c39096d09dc4d9635b0761465c8f44e7158a898c8fe83bb17318b",
+  "size": 20987904,
   "source": "PokéAPI",
   "sourceRevision": "2bf639e5572812a67d2b94903fdcb9d095f5aeb2",
-  "sequence": 179250036405
+  "sequence": 17925003640502
 }

@@ -80,7 +80,7 @@ Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
 - [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
 - [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog
 - [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
-- [x] Galerie: offizielles Artwork, Standard-, Shiny- und Spiel-Sprites (Gen 1–5) offline; Vorschaubilder in Dex, Sammlung und Teams
+- [x] Galerie: offizielles Artwork, Standard-, Shiny- und Spiel-Bilder aller Generationen offline; Vorschaubilder in Dex, Sammlung und Teams
 - [x] Pokédex-Gestaltung: rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit Artwork und Digitalnummer; dunkle Variante in Scharnier-Schwarz
 - [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
 - [ ] iOS/macOS/Windows signieren (Entwicklerkonten)

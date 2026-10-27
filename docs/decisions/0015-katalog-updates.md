@@ -14,7 +14,8 @@ Internet-Berechtigung.
   beide nur mit gültigem Zugangsschlüssel. Ohne Verzeichnis antwortet er mit 404.
 - **Signatur:** Ed25519 über die kanonische JSON-Form des Paket-Manifests (Schlüssel sortiert,
   ohne Leerzeichen). Das Manifest enthält Revision, Schemaversion, SHA-256, Größe und eine
-  **Reihenfolgenummer** (`sequence` = Commit-Zeit der Datenquelle · 100 + Schemaversion).
+  **Reihenfolgenummer** (`sequence` = Commit-Zeit der Datenquelle · 10 000 + Schemaversion · 100 + Regelstand;
+  der Regelstand steigt mit jeder Änderung der Ableitungsregeln aus ADR 0008).
 - **Vertrauen:** Der öffentliche Schlüssel wird beim Bauen eingesetzt
   (`--dart-define=MYDEX_CATALOG_KEY=<base64>[,<base64>]`, mehrere für einen Schlüsselwechsel).
   Ohne Schlüssel ist die Funktion abgeschaltet; der Server allein kann nichts einspielen.
