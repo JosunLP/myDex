@@ -6,7 +6,7 @@ spielversionsabhängige Daten und optionaler Sync.
 
 > Inoffizielles Fanprojekt. Pokémon und alle zugehörigen Namen sind Marken ihrer jeweiligen
 > Inhaber. Dieses Projekt ist nicht mit Nintendo, Game Freak oder The Pokémon Company verbunden.
-> Medien werden erst nach geklärter Rechtelage aufgenommen (siehe `data/license_inventory/`).
+> Private App, nicht zur öffentlichen Verbreitung bestimmt. Rechte je Quelle: `data/license_inventory/`.
 
 ## Stand
 
@@ -62,15 +62,26 @@ Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
 - [x] Spieldaten in allen elf Katalogsprachen
 - [x] Offline-Hilfe zu Spielauswahl, Datenlücken, Suche, Fundorten, Sammlung, Teams, Sicherung, Datenschutz
 - [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
-- [ ] Galerie – erst nach geklärten Bildrechten
+- [ ] Galerie (Bildrechte für die private Nutzung geklärt, siehe Rechteinventar)
 
-Phase 4b – Optionaler Sync (dieser Stand):
+Phase 4b – Optionaler Sync (abgeschlossen):
 
 - [x] Abgleich von Sammlung, Teams und Filtervorlagen über einen selbst gehosteten Server (ADR 0012)
 - [x] Outbox, Revisionen, Grabsteine für Löschungen, Konfliktkopien statt Überschreiben
 - [x] Server mit SQLite und Kommandozeile für Konten (`tools/sync_server`)
 - [x] Android: Standardausgabe `offline` ohne Internet-Berechtigung, Ausgabe `sync` mit Abgleich
 - [ ] Ende-zu-Ende-Verschlüsselung der Datensätze
+
+Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
+
+- [x] Barrierefreiheit automatisch geprüft: Tippflächen, Beschriftungen, Kontrast (hell/dunkel, Smartphone/Desktop)
+- [x] Einheitlicher App-Name „myDex“ auf allen Plattformen
+- [x] Android-Release-Signatur über GitHub-Secrets; CI prüft die Berechtigungen der Release-APKs
+- [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
+- [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog
+- [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
+- [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
+- [ ] iOS/macOS/Windows signieren (Entwicklerkonten)
 
 ## Struktur
 
@@ -115,6 +126,7 @@ eingecheckten Pakete exakt übereinstimmen. Regeln und bekannte Lücken: ADR 000
 
 Datenquelle: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), Lizenzhinweis in der App.
 
-Sync-Server selbst betreiben: `tools/sync_server/README.md`.
+Sync-Server selbst betreiben: `tools/sync_server/README.md`. Releases: `docs/release/README.md`.
+Datenschutz: `PRIVACY.md`. Sicherheitslücken melden: `SECURITY.md`.
 
 Siehe `docs/architecture/overview.md`, `docs/decisions/` und `docs/parity/`.

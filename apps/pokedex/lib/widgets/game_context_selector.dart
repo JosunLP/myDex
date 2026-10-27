@@ -54,7 +54,8 @@ class GameContextSelector extends ConsumerWidget {
           ),
       itemBuilder: (_) => items,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        // 12 + 24 + 12 = 48 px Tippfläche.
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

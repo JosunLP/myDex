@@ -97,8 +97,13 @@ jobs:
           case "${{ matrix.target }}" in
             ios) flutter build ios --debug --no-codesign ;;
             apk)
-              flutter build apk --debug --flavor offline
-              flutter build apk --debug --flavor sync
+              # Release-Pakete, damit die geprüften Berechtigungen denen der
+              # Veröffentlichung entsprechen (Debug fügt INTERNET hinzu).
+              flutter build apk --release --flavor offline
+              flutter build apk --release --flavor sync
+              ../../tools/ci/check_apk_permissions.sh \
+                build/app/outputs/flutter-apk/app-offline-release.apk \
+                build/app/outputs/flutter-apk/app-sync-release.apk
               ;;
             *) flutter build ${{ matrix.target }} --debug ;;
           esac
