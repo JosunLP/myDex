@@ -50,6 +50,16 @@ void main() {
     );
   });
 
+  test('works in paths with spaces, umlauts and URI characters', () async {
+    // Typical for Windows user profiles, e.g. C:\\Users\\Jörg Müller\\…
+    final nested = Directory('${dir.path}/Jörg Müller #1 (50%)/my dex');
+    final installed = await CatalogInstaller(
+      nested,
+    ).ensureInstalled(fixtureManifest, fixturePack);
+    final catalog = loadCatalogSnapshot(installed.path);
+    expect(catalog.forms, isNotEmpty);
+  });
+
   test('same revision is not unpacked again', () async {
     final installer = CatalogInstaller(dir);
     await installer.ensureInstalled(fixtureManifest, fixturePack);

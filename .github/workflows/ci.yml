@@ -41,6 +41,24 @@ jobs:
         working-directory: apps/pokedex
         run: flutter test
 
+  windows-tests:
+    name: Tests (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Tests (catalog store, user store)
+        shell: bash
+        run: |
+          for p in packages/catalog_store packages/user_store; do
+            (cd $p && dart test)
+          done
+
   catalog:
     name: Reproducible catalog
     runs-on: ubuntu-latest
