@@ -289,9 +289,16 @@ class CatalogInstaller {
     await tmp.rename(_activeFile.path);
   }
 
+  /// File name of [path]. Compared by name because listed entries use the
+  /// platform separator (`\` on Windows) while stored paths may use `/`.
+  static String _fileName(String path) => path.split(RegExp(r'[/\\]')).last;
+
   Future<void> _cleanup({required Set<String> keep}) async {
+    final keepNames = keep.map(_fileName).toSet();
     await for (final e in directory.list()) {
-      if (e is File && e.path.endsWith('.sqlite') && !keep.contains(e.path)) {
+      if (e is File &&
+          e.path.endsWith('.sqlite') &&
+          !keepNames.contains(_fileName(e.path))) {
         try {
           await e.delete();
         } on FileSystemException {
