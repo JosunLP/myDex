@@ -1,11 +1,11 @@
-# Sicherheit
+# Security
 
-Bitte melde Sicherheitslücken vertraulich über
+Please report vulnerabilities privately via
 [GitHub Security Advisories](https://github.com/JosunLP/myDex/security/advisories/new),
-nicht über öffentliche Issues. Besonders relevant:
+not via public issues. Particularly relevant:
 
-- Sync-Server (`tools/sync_server`): Authentifizierung, Kontentrennung, Eingabeprüfung.
-- Datensicherung: Verschlüsselung (PBKDF2-HMAC-SHA256, AES-256-GCM) und Import.
-- Katalog-Installation: Prüfsummen und Integritätsprüfung.
+- Sync server (`tools/sync_server`): authentication, account separation, input validation.
+- Sync encryption and backups: PBKDF2-HMAC-SHA256, AES-256-GCM, import.
+- Catalog installation and updates: checksums, integrity checks, Ed25519 signatures.
 
-Unterstützt wird jeweils die neueste veröffentlichte Version.
+Only the latest published version is supported.

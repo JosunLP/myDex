@@ -1,4 +1,4 @@
-/// Anwendungsfälle und Schnittstellen zur Infrastruktur.
+/// Use cases and interfaces to the infrastructure.
 library;
 
 export 'src/acquisition.dart';

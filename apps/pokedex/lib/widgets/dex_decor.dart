@@ -6,15 +6,15 @@ import '../app/providers.dart';
 import '../app/theme.dart';
 import 'form_sprite.dart';
 
-/// Hauptfarbe des Artworks einer Form (aus dem Medienpaket), sonst `null`.
+/// Main colour of a form's artwork (from the media pack), otherwise `null`.
 Color? artworkTint(WidgetRef ref, FormId form) =>
     switch (ref.watch(mediaProvider).value?.artworkColor(form)) {
       final int rgb => Color(0xFF000000 | rgb),
       null => null,
     };
 
-/// Vorschaubild in Listen: das Spiel-Bild auf einer kleinen Anzeige in der
-/// Farbe des Pokémon – wie die große Pokédex-Anzeige. Rein dekorativ.
+/// Thumbnail in lists: the in-game image on a small screen in the Pokémon's
+/// colour – like the large Pokédex screen. Purely decorative.
 class DexThumb extends ConsumerWidget {
   const DexThumb(
     this.form, {
@@ -47,8 +47,8 @@ class DexThumb extends ConsumerWidget {
   }
 }
 
-/// Die blaue Linse mit den drei Signal-LEDs vom Pokédex-Gehäuse.
-/// Rein dekorativ.
+/// The blue lens with the three signal LEDs of the Pokédex casing.
+/// Purely decorative.
 class PokedexLens extends StatelessWidget {
   const PokedexLens({super.key, this.size = 36});
 
@@ -104,8 +104,8 @@ class PokedexLens extends StatelessWidget {
   }
 }
 
-/// Bildschirm des Pokédex: dunkler Rahmen, darin ein Anzeigebereich in der
-/// Farbe des Pokémon (aus dem Artwork abgeleitet).
+/// Screen of the Pokédex: dark frame, inside a display area in the Pokémon's
+/// colour (derived from the artwork).
 class DexScreen extends StatelessWidget {
   const DexScreen({super.key, required this.tint, required this.child});
 
@@ -140,7 +140,7 @@ class DexScreen extends StatelessWidget {
   }
 }
 
-/// Nationale Nummer im Stil einer kleinen Digitalanzeige.
+/// National number in the style of a small digital display.
 class DexNumber extends StatelessWidget {
   const DexNumber(this.number, {super.key, this.dense = false});
 

@@ -9,14 +9,14 @@ import 'package:mydex_user_store/mydex_user_store.dart';
 import 'http_transport.dart';
 import 'protocol.dart';
 
-/// Ende-zu-Ende-Verschlüsselung des Abgleichs (ADR 0014).
+/// End-to-end encryption of the sync (ADR 0014).
 ///
-/// Der Server sieht nur:
-/// - die Art `e` und eine undurchsichtige ID (HMAC-SHA256 über Art und ID),
-/// - Revision, Zeitstempel, ob gelöscht,
-/// - einen verschlüsselten Umschlag (AES-256-GCM, die ID als Zusatzdaten).
-/// Die Schlüssel stammen per PBKDF2 aus dem Sync-Passwort; das Salz liegt im
-/// Datensatz `keycheck/v1`, zusammen mit einer Prüfsumme für das Passwort.
+/// The server only sees:
+/// - the kind `e` and an opaque ID (HMAC-SHA256 over kind and ID),
+/// - revision, timestamp, whether deleted,
+/// - an encrypted envelope (AES-256-GCM, the ID as additional data).
+/// The keys are derived from the sync passphrase via PBKDF2; the salt is
+/// stored in the record `keycheck/v1` together with a check for the passphrase.
 abstract final class SyncEncryption {
   static const kind = 'e';
   static const keycheckKind = 'keycheck';
@@ -25,12 +25,12 @@ abstract final class SyncEncryption {
   static const _checkText = 'mydex-sync-keycheck';
 }
 
-/// Schlüsselableitung; austauschbar, z. B. um sie in einem Isolate auszuführen.
+/// Key derivation; replaceable, e.g. to run it in an isolate.
 typedef KeyDerivation =
     Future<SyncKey> Function(String passphrase, List<int> salt, int iterations);
 
-/// Abgeleitete Schlüssel. Werden nach dem Entsperren lokal gespeichert, damit
-/// das Passwort nicht bei jedem Start nötig ist.
+/// Derived keys. Stored locally after unlocking so that the passphrase is not
+/// needed on every start.
 @immutable
 class SyncKey {
   const SyncKey({
@@ -47,10 +47,10 @@ class SyncKey {
     iterations: j['iterations']! as int,
   );
 
-  /// 32 Byte für AES-256-GCM.
+  /// 32 bytes for AES-256-GCM.
   final List<int> encryption;
 
-  /// 32 Byte für HMAC-SHA256 der IDs.
+  /// 32 bytes for HMAC-SHA256 of the IDs.
   final List<int> authentication;
   final List<int> salt;
   final int iterations;
@@ -82,8 +82,8 @@ class SyncKey {
   };
 }
 
-/// Zuordnung undurchsichtiger IDs zu echten (`art/id`), nötig für Löschungen,
-/// deren Grabsteine keinen Inhalt tragen.
+/// Mapping of opaque IDs to real ones (`kind/id`), needed for deletions whose
+/// tombstones carry no content.
 abstract interface class SyncAliasStore {
   Future<Map<String, String>> load();
   Future<void> save(Map<String, String> aliases);
@@ -129,8 +129,8 @@ class FileSyncAliasStore implements SyncAliasStore {
   }
 }
 
-/// Verschlüsselt alle Datensätze auf dem Weg zum Server und entschlüsselt die
-/// Antworten. Der Client darüber arbeitet unverändert mit Klartext.
+/// Encrypts all records on their way to the server and decrypts the
+/// responses. The client above works unchanged with plaintext.
 class EncryptingTransport implements SyncTransport {
   EncryptingTransport(this.inner, this.key, this.aliases);
 
@@ -142,8 +142,8 @@ class EncryptingTransport implements SyncTransport {
   final _hmac = Hmac.sha256();
   Map<String, String>? _map;
 
-  /// Prüft das Sync-Passwort gegen den Server oder legt beim ersten Gerät die
-  /// Schlüsselprüfung an. Wirft `wrongPassphrase` bei falschem Passwort.
+  /// Checks the sync passphrase against the server, or creates the key check
+  /// for the first device. Throws `wrongPassphrase` for a wrong passphrase.
   static Future<SyncKey> unlock(
     SyncTransport inner,
     String passphrase, {
@@ -159,7 +159,7 @@ class EncryptingTransport implements SyncTransport {
     for (var attempt = 0; attempt < 2; attempt++) {
       final response = await inner.sync(
         SyncRequest(
-          // Keine fremden Änderungen mitladen.
+          // Do not fetch other devices' changes.
           since: 1 << 52,
           changes: [
             SyncChange(
@@ -254,7 +254,7 @@ class EncryptingTransport implements SyncTransport {
     return _envelope(box);
   }
 
-  /// Entschlüsselter Inhalt oder `null` (fremder Schlüssel, manipuliert).
+  /// Decrypted content or `null` (foreign key, tampered).
   Future<({String kind, String id, Map<String, Object?>? data})?> _open(
     String opaque,
     Map<String, Object?> env,
@@ -276,8 +276,8 @@ class EncryptingTransport implements SyncTransport {
     }
   }
 
-  /// Klartext-Datensatz zu einem Serverdatensatz; `null`, wenn er nicht zu
-  /// diesem Schlüssel gehört oder unbekannt gelöscht wurde.
+  /// Plaintext record for a server record; `null` if it does not belong to
+  /// this key or was deleted without being known.
   Future<SyncRecord?> _decryptRecord(SyncRecord r) async {
     if (r.kind != SyncEncryption.kind) return null;
     final map = await _aliases();
@@ -338,8 +338,8 @@ class EncryptingTransport implements SyncTransport {
       if (r.current case final cur?) {
         current =
             await _decryptRecord(cur) ??
-            // Nicht lesbar (z. B. anderer Schlüssel): wie gelöscht behandeln,
-            // damit die lokale Fassung erhalten bleibt.
+            // Not readable (e.g. another key): treat as deleted so that the
+            // local version is kept.
             SyncRecord(
               kind: local.kind,
               id: local.id,

@@ -1,5 +1,5 @@
 name: mydex_game_rules
-description: Typentabellen, Statuswertformeln und Teamanalyse. Reines Dart.
+description: Type charts, stat formulas and team analysis. Pure Dart.
 publish_to: none
 version: 0.1.0
 resolution: workspace

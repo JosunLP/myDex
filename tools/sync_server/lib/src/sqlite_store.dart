@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:mydex_sync/mydex_sync.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-/// Öffnet (und legt bei Bedarf an) die Server-Datenbank.
+/// Opens (and creates if needed) the server database.
 Database openSyncDatabase(String path) {
   final db = sqlite3.open(path);
   db.execute('''
@@ -31,7 +31,7 @@ Database openSyncDatabase(String path) {
   return db;
 }
 
-/// Ablage in SQLite; jede Anfrage läuft in einer eigenen Transaktion.
+/// Storage in SQLite; every request runs in its own transaction.
 class SqliteSyncStore implements SyncStore {
   SqliteSyncStore(this.db);
 
@@ -59,7 +59,7 @@ class _SqliteAccountTx implements SyncAccountTx {
                 account,
               ]).firstOrNull?['head']
               as int? ??
-          (throw StateError('Unbekanntes Konto $account'));
+          (throw StateError('Unknown account $account'));
 
   final Database db;
   final int account;
@@ -119,7 +119,7 @@ class _SqliteAccountTx implements SyncAccountTx {
       _record(r),
   ];
 
-  /// Datensätze entfernen; `head` bleibt, damit Revisionen nie zurückspringen.
+  /// Remove records; `head` stays so that revisions never go backwards.
   @override
   void deleteAll() =>
       db.execute('DELETE FROM record WHERE account = ?', [account]);

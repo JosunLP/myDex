@@ -10,7 +10,7 @@ void main() {
   setUp(() async {
     final handler = SyncHttpHandler(
       SyncServerCore(MemorySyncStore()),
-      (token) => token == 'geheim' ? 'konto' : null,
+      (token) => token == 'secret' ? 'konto' : null,
     );
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     server.listen(handler.call);
@@ -25,8 +25,8 @@ void main() {
     data: const {'id': 't1'},
   );
 
-  test('Abgleich über HTTP', () async {
-    final transport = HttpSyncTransport(base, 'geheim');
+  test('sync via HTTP', () async {
+    final transport = HttpSyncTransport(base, 'secret');
     addTearDown(transport.close);
     final r = await transport.sync(SyncRequest(since: 0, changes: [change]));
     expect(r.results.single.status, SyncResultStatus.applied);
@@ -37,7 +37,7 @@ void main() {
     expect(after.changes, isEmpty);
   });
 
-  test('falscher Zugangsschlüssel', () async {
+  test('wrong access token', () async {
     final transport = HttpSyncTransport(base, 'falsch');
     addTearDown(transport.close);
     expect(
@@ -52,12 +52,12 @@ void main() {
     );
   });
 
-  test('nicht erreichbarer Server ergibt einen Netzfehler', () async {
+  test('unreachable server results in a network error', () async {
     final port = server.port;
     await server.close(force: true);
     final transport = HttpSyncTransport(
       Uri.parse('http://127.0.0.1:$port'),
-      'geheim',
+      'secret',
       timeout: const Duration(seconds: 5),
     );
     addTearDown(transport.close);
@@ -69,7 +69,7 @@ void main() {
     );
   });
 
-  test('unverschlüsseltes HTTP nur lokal', () {
+  test('plain HTTP only locally', () {
     expect(
       () => HttpSyncTransport.checkServerUrl(Uri.parse('http://example.org')),
       throwsA(
@@ -84,7 +84,7 @@ void main() {
     HttpSyncTransport.checkServerUrl(Uri.parse('http://localhost:8787'));
   });
 
-  test('Gesundheitsabfrage ohne Anmeldung', () async {
+  test('health check without authentication', () async {
     final client = HttpClient();
     addTearDown(client.close);
     final res = await (await client.getUrl(base.resolve('v1/health'))).close();

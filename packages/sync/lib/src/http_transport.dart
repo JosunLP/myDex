@@ -5,25 +5,25 @@ import 'dart:typed_data';
 
 import 'protocol.dart';
 
-/// Verbindung zum Sync-Server.
+/// Connection to the sync server.
 abstract interface class SyncTransport {
   Future<SyncResponse> sync(SyncRequest request);
 
-  /// Löscht alle Daten des Kontos auf dem Server.
+  /// Deletes all data of the account on the server.
   Future<void> deleteAccountData();
 }
 
-/// Quelle für signierte Katalog-Updates (der eigene Sync-Server).
+/// Source of signed catalog updates (your own sync server).
 abstract interface class CatalogUpdateSource {
-  /// Signierte Update-Beschreibung oder `null`, wenn keine angeboten wird.
+  /// Signed update description or `null` if none is offered.
   Future<Map<String, Object?>?> catalogUpdate();
 
-  /// Das gzip-komprimierte Katalogpaket.
+  /// The gzip-compressed catalog pack.
   Future<List<int>> catalogPack();
 }
 
-/// HTTPS-Verbindung mit Zugangsschlüssel. Unverschlüsseltes HTTP ist nur für
-/// lokale Adressen (eigener Rechner, Android-Emulator) erlaubt.
+/// HTTPS connection with an access token. Plain HTTP is only allowed for
+/// local addresses (own machine, Android emulator).
 class HttpSyncTransport implements SyncTransport, CatalogUpdateSource {
   HttpSyncTransport(
     this.baseUrl,
@@ -41,7 +41,7 @@ class HttpSyncTransport implements SyncTransport, CatalogUpdateSource {
 
   static const _loopback = {'localhost', '127.0.0.1', '::1', '10.0.2.2'};
 
-  /// Wirft `insecureConnection`, wenn [url] weder HTTPS noch lokal ist.
+  /// Throws `insecureConnection` if [url] is neither HTTPS nor local.
   static void checkServerUrl(Uri url) {
     if (!url.hasScheme || url.host.isEmpty) {
       throw const SyncProtocolException('invalidRequest', 'url');

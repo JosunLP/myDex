@@ -1,5 +1,5 @@
 name: mydex_application
-description: Anwendungsfälle, Repository-Schnittstellen und lokale Suche.
+description: Use cases, repository interfaces and local search.
 publish_to: none
 version: 0.1.0
 resolution: workspace

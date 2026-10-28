@@ -1,6 +1,6 @@
 import 'dart:io';
 
-/// Minimaler RFC-4180-Parser (Anführungszeichen, eingebettete Kommas/Zeilen).
+/// Minimal RFC 4180 parser (quotes, embedded commas/newlines).
 List<List<String>> parseCsv(String input) {
   final rows = <List<String>>[];
   var row = <String>[];
@@ -41,7 +41,7 @@ List<List<String>> parseCsv(String input) {
   return rows;
 }
 
-/// Eine CSV-Tabelle mit Spaltennamen.
+/// A CSV table with column names.
 class Table {
   Table(this.name, List<List<String>> raw)
     : columns = raw.first,
@@ -62,7 +62,7 @@ class Table {
   final List<Map<String, String>> rows;
 }
 
-/// Alle Tabellen eines Quellstands.
+/// All tables of a source snapshot.
 class SourceTables {
   SourceTables(this._tables);
 
@@ -77,7 +77,7 @@ class SourceTables {
   final Map<String, Table> _tables;
 
   List<Map<String, String>> operator [](String name) =>
-      (_tables[name] ?? (throw StateError('Tabelle fehlt: $name'))).rows;
+      (_tables[name] ?? (throw StateError('Missing table: $name'))).rows;
 }
 
 extension RowValues on Map<String, String> {
@@ -85,7 +85,7 @@ extension RowValues on Map<String, String> {
     final v = this[column];
     final parsed = v == null ? null : int.tryParse(v);
     if (parsed == null) {
-      throw FormatException('Spalte $column: keine Zahl ("$v")');
+      throw FormatException('Column $column: not a number ("$v")');
     }
     return parsed;
   }

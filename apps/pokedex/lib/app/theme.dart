@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
-/// Abstände des Designsystems.
+/// Spacing of the design system.
 abstract final class Space {
   static const xs = 4.0;
   static const s = 8.0;
@@ -11,16 +11,16 @@ abstract final class Space {
   static const xxl = 32.0;
 }
 
-/// Breitenklassen in logischen Pixeln (Startwerte, keine Geräteklassen).
+/// Width classes in logical pixels (starting values, not device classes).
 abstract final class Breakpoints {
   static const medium = 600.0;
   static const expanded = 1000.0;
 }
 
-/// Farben des klassischen Pokédex: rotes Gehäuse, dunkles Scharnier, blaue
-/// Linse, Signal-LEDs – bewusst etwas gedämpft (matt statt grell), wie bei
-/// klassischen Dex-Apps. Werden für Kopf- und Navigationsleisten verwendet;
-/// Inhalte nutzen das daraus abgeleitete Farbschema.
+/// Colours of the classic Pokédex: red casing, dark hinge, blue lens, signal
+/// LEDs – deliberately a little muted (matte instead of glaring), like
+/// classic Dex apps. Used for the app and navigation bars; content uses the
+/// colour scheme derived from them.
 abstract final class DexColors {
   static const red = Color(0xFFC4403F);
   static const redDark = Color(0xFF8E3332);
@@ -40,7 +40,7 @@ ThemeData buildTheme(Brightness brightness) {
     brightness: brightness,
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
   );
-  // Dunkel: Kopfleiste rot, Navigation im Schwarz des Scharniers.
+  // Dark: red app bar, navigation in the hinge's black.
   final chrome = dark ? DexColors.redDark : DexColors.red;
   final nav = dark ? DexColors.hinge : DexColors.red;
   return ThemeData(
@@ -100,7 +100,7 @@ ThemeData buildTheme(Brightness brightness) {
   );
 }
 
-/// Typfarben nur als Akzent – Typen tragen immer zusätzlich ihren Namen.
+/// Type colours only as an accent – types always carry their name as well.
 Color typeColor(PokemonType type) => switch (type) {
   PokemonType.normal => const Color(0xFFA8A77A),
   PokemonType.fire => const Color(0xFFEE8130),
@@ -122,7 +122,7 @@ Color typeColor(PokemonType type) => switch (type) {
   PokemonType.fairy => const Color(0xFFD685AD),
 };
 
-/// Lesbare Textfarbe auf einer Typfarbe.
+/// Readable text colour on a type colour.
 Color onTypeColor(Color background) => background.computeLuminance() > 0.35
     ? const Color(0xFF1B1B1F)
     : Colors.white;

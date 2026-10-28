@@ -6,9 +6,9 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'atomic_file.dart';
 
-/// Sammlung als JSON-Datei. Schreibt atomar (temporäre Datei + Umbenennen),
-/// damit ein Absturz nie zu einer halb geschriebenen Datei führt.
-/// Wird später durch eine Drift-Datenbank hinter derselben Schnittstelle ersetzt.
+/// Collection as a JSON file. Writes atomically (temporary file + rename) so
+/// that a crash never leads to a half-written file.
+/// May later be replaced by a database behind the same interface.
 class FileCollectionRepository implements CollectionRepository {
   FileCollectionRepository(this.file);
 
@@ -18,7 +18,7 @@ class FileCollectionRepository implements CollectionRepository {
   Map<CollectionKey, CollectionEntry>? _entries;
   Future<void> _writeQueue = Future.value();
 
-  /// Pfad einer beschädigten Datei, die beim Laden beiseitegelegt wurde.
+  /// Path of a corrupted file that was set aside while loading.
   String? quarantinedPath;
 
   @override
@@ -34,7 +34,7 @@ class FileCollectionRepository implements CollectionRepository {
       entries[entry.key] = entry;
     }
     final snapshot = _encode(entries);
-    // Schreibvorgänge strikt nacheinander ausführen.
+    // Run writes strictly one after another.
     final write = _writeQueue.then((_) => _writeAtomic(snapshot));
     _writeQueue = write.catchError((Object _) {});
     return write;
@@ -65,14 +65,14 @@ class FileCollectionRepository implements CollectionRepository {
             jsonDecode(await file.readAsString()) as Map<String, Object?>;
         final version = json['schemaVersion'];
         if (version != schemaVersion) {
-          throw FormatException('Unbekannte Schemaversion: $version');
+          throw FormatException('Unknown schema version: $version');
         }
         for (final e in json['entries']! as List<Object?>) {
           final entry = CollectionEntry.fromJson(e! as Map<String, Object?>);
           result[entry.key] = entry;
         }
       } on Object catch (_) {
-        // Nie still verwerfen: beschädigte Datei für Wiederherstellung aufheben.
+        // Never discard silently: keep the corrupted file for recovery.
         final target =
             '${file.path}.corrupt-${DateTime.now().toUtc().millisecondsSinceEpoch}';
         await file.rename(target);

@@ -37,7 +37,7 @@ void main() {
     data: {'id': id},
   );
 
-  test('Konten, Revisionen und Konflikte mit SQLite', () async {
+  test('accounts, revisions and conflicts with SQLite', () async {
     final alice = HttpSyncTransport(base, accounts.create('alice'));
     final bob = HttpSyncTransport(base, accounts.create('bob'));
     addTearDown(alice.close);
@@ -66,11 +66,11 @@ void main() {
     final after = await alice.sync(
       SyncRequest(since: 0, changes: [change('t3')]),
     );
-    // Revisionen springen nach dem Löschen nicht zurück.
+    // Revisions do not go backwards after deletion.
     expect(after.results.single.revision, 4);
   });
 
-  test('Schlüssel erneuern macht den alten ungültig', () async {
+  test('rotating the token invalidates the old one', () async {
     final old = accounts.create('carol');
     final fresh = accounts.rotate('carol');
     expect(accounts.authenticate(old), isNull);
@@ -78,7 +78,7 @@ void main() {
     expect(accounts.authenticate(''), isNull);
   });
 
-  test('Konto löschen entfernt seine Daten', () async {
+  test('deleting an account removes its data', () async {
     final token = accounts.create('dave');
     final t = HttpSyncTransport(base, token);
     addTearDown(t.close);

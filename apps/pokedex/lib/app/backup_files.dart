@@ -3,17 +3,17 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Dateizugriff für Datensicherungen; in Tests austauschbar.
+/// File access for backups; replaceable in tests.
 abstract interface class BackupFiles {
-  /// `false`, wenn der Nutzer abgebrochen hat.
+  /// `false` if the user cancelled.
   Future<bool> save(Uint8List bytes, String fileName);
 
-  /// `null`, wenn der Nutzer abgebrochen hat.
+  /// `null` if the user cancelled.
   Future<Uint8List?> open();
 }
 
-/// Nutzt die systemeigenen Dialoge (auf Android über das Storage Access
-/// Framework, ohne Google-Dienste).
+/// Uses the native dialogs (on Android via the Storage Access Framework,
+/// without Google services).
 class PlatformBackupFiles implements BackupFiles {
   const PlatformBackupFiles();
 

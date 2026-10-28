@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
-/// Ergebnis einer Textauflösung, inkl. Hinweis, ob auf eine andere Sprache
-/// ausgewichen wurde (fehlende Übersetzungen werden sichtbar gekennzeichnet).
+/// Result of resolving a text, including whether it fell back to another
+/// language (missing translations are marked visibly).
 @immutable
 class ResolvedText {
   const ResolvedText(this.text, this.language, {required this.isFallback});
@@ -11,7 +11,7 @@ class ResolvedText {
   final bool isFallback;
 }
 
-/// Mehrsprachiger Text. Schlüssel sind Sprachcodes (`de`, `en`, `ja-Hrkt` …).
+/// Multilingual text. Keys are language codes (`de`, `en`, `ja-Hrkt` …).
 @immutable
 class LocalizedText {
   const LocalizedText(this.values);

@@ -6,7 +6,7 @@ import '../../app/sync_controller.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Optionaler Abgleich mit einem eigenen Server (ADR 0012).
+/// Optional sync with your own server (ADR 0012).
 class SyncPage extends ConsumerStatefulWidget {
   const SyncPage({super.key});
 

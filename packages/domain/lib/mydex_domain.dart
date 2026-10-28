@@ -1,4 +1,4 @@
-/// Fachmodelle von myDex. Kennt weder Flutter noch eine Datenbank.
+/// Domain models of myDex. Knows neither Flutter nor a database.
 library;
 
 export 'src/availability.dart';

@@ -1,6 +1,6 @@
-Pokémon-Sprites aus PokeAPI/sprites (https://github.com/PokeAPI/sprites),
-Stand d8c2fb78563e28ad7b3abe938cf6e79998d04e90.
+Pokémon images from PokeAPI/sprites (https://github.com/PokeAPI/sprites),
+snapshot d8c2fb78563e28ad7b3abe938cf6e79998d04e90.
 
-Die Bilder sind Eigentum von Nintendo, Game Freak und The Pokémon Company.
-myDex ist eine private, inoffizielle App; die Bilder werden ausschließlich für
-die private Nutzung verwendet und nicht weiterverbreitet.
+The images are the property of Nintendo, Game Freak and The Pokémon Company.
+myDex is a private, unofficial app; the images are used exclusively for
+private use and are not redistributed.

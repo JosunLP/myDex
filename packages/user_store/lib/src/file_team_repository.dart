@@ -5,7 +5,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'json_file_store.dart';
 
-/// Teams als JSON-Datei (atomar geschrieben).
+/// Teams as a JSON file (written atomically).
 class FileTeamRepository implements TeamRepository {
   FileTeamRepository(File file)
     : _store = JsonFileStore(file, schemaVersion: 1);
@@ -13,7 +13,7 @@ class FileTeamRepository implements TeamRepository {
   final JsonFileStore _store;
   Map<String, Team>? _teams;
 
-  /// Unlesbare Einträge bleiben beim Speichern unverändert erhalten.
+  /// Unreadable entries are kept unchanged when saving.
   final _unreadable = <Map<String, Object?>>[];
 
   String? get quarantinedPath => _store.quarantinedPath;
@@ -22,7 +22,7 @@ class FileTeamRepository implements TeamRepository {
     if (_teams case final teams?) return teams;
     final teams = <String, Team>{};
     for (final j in await _store.read()) {
-      // Einzelne unlesbare Teams überspringen, statt alles zu verlieren.
+      // Skip individual unreadable teams instead of losing everything.
       final team = _tryParse(j);
       if (team != null) {
         teams[team.id] = team;
@@ -76,7 +76,7 @@ class FileTeamRepository implements TeamRepository {
   }
 }
 
-/// Flüchtiger Speicher für Tests.
+/// Volatile store for tests.
 class MemoryTeamRepository implements TeamRepository {
   final _teams = <String, Team>{};
 

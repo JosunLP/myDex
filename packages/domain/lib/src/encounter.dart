@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import 'ids.dart';
 import 'localized_text.dart';
 
-/// Begegnungsmethode (z. B. Gras, Angel, Geschenk).
+/// Encounter method (e.g. grass, fishing rod, gift).
 @immutable
 class EncounterMethod {
   const EncounterMethod({
@@ -17,7 +17,7 @@ class EncounterMethod {
   final int order;
 }
 
-/// Ein Gebiet innerhalb eines Ortes (z. B. ein Höhlenstockwerk).
+/// An area within a location (e.g. a cave floor).
 @immutable
 class LocationArea {
   const LocationArea({
@@ -31,7 +31,7 @@ class LocationArea {
   final LocalizedText name;
 }
 
-/// Ort mit Region.
+/// Location with its region.
 @immutable
 class Location {
   const Location({required this.id, required this.name, this.region});
@@ -41,7 +41,7 @@ class Location {
   final RegionId? region;
 }
 
-/// Begegnung einer Form in einer Spielversion, über Slots zusammengefasst.
+/// Encounter of a form in a game version, aggregated over slots.
 @immutable
 class Encounter {
   const Encounter({
@@ -60,9 +60,9 @@ class Encounter {
   final int minLevel;
   final int maxLevel;
 
-  /// Summe der Slot-Wahrscheinlichkeiten in Prozent (bei Geschenken 100).
+  /// Sum of the slot rates in percent (100 for gifts).
   final int chance;
 
-  /// Bedingungen wie Tageszeit oder Jahreszeit; leer = immer.
+  /// Conditions such as time of day or season; empty = always.
   final List<EncounterConditionId> conditions;
 }

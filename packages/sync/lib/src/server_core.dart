@@ -2,30 +2,30 @@ import 'dart:convert';
 
 import 'protocol.dart';
 
-/// Datenzugriff eines Kontos innerhalb einer Transaktion.
+/// Data access of an account within a transaction.
 abstract interface class SyncAccountTx {
-  /// Höchste vergebene Revision des Kontos (0 = leer).
+  /// Highest revision assigned in the account (0 = empty).
   int get head;
 
   SyncRecord? get(String kind, String id);
 
-  /// Speichert [record]; seine Revision wird zur neuen [head].
+  /// Stores [record]; its revision becomes the new [head].
   void put(SyncRecord record);
 
-  /// Datensätze mit Revision > [revision], aufsteigend, höchstens [limit].
+  /// Records with revision > [revision], ascending, at most [limit].
   List<SyncRecord> since(int revision, int limit);
 
-  /// Entfernt alle Datensätze des Kontos.
+  /// Removes all records of the account.
   void deleteAll();
 }
 
-/// Ablage des Servers. [transaction] führt [action] atomar für ein Konto aus.
+/// Server storage. [transaction] runs [action] atomically for one account.
 abstract interface class SyncStore {
   T transaction<T>(String account, T Function(SyncAccountTx tx) action);
 }
 
-/// Serverlogik unabhängig von HTTP und Datenbank: optimistische Nebenläufigkeit
-/// über Revisionen, Grabsteine für Löschungen, seitenweises Abholen.
+/// Server logic independent of HTTP and database: optimistic concurrency via
+/// revisions, tombstones for deletions, paged fetching.
 class SyncServerCore {
   SyncServerCore(this.store, {DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
@@ -40,7 +40,7 @@ class SyncServerCore {
       final results = <SyncResult>[];
       for (final change in request.changes) {
         final current = tx.get(change.kind, change.id);
-        // Ein fehlender Datensatz (neu oder nach Kontolöschung) wird angenommen.
+        // A missing record (new or after account deletion) is accepted.
         if (current != null && current.revision != change.baseRevision) {
           results.add(
             SyncResult(
@@ -58,7 +58,7 @@ class SyncServerCore {
             kind: change.kind,
             id: change.id,
             revision: revision,
-            // Zeitstempel des Geräts, aber nie in der Zukunft des Servers.
+            // The device's timestamp, but never in the server's future.
             updatedAt: _notAfterNow(change.updatedAt),
             deleted: change.deleted,
             data: change.deleted ? null : change.data,
@@ -87,7 +87,7 @@ class SyncServerCore {
     });
   }
 
-  /// Löscht alle Daten des Kontos (Datenschutz: „Daten auf dem Server löschen“).
+  /// Deletes all data of the account (privacy: "delete data on the server").
   void wipe(String account) =>
       store.transaction(account, (tx) => tx.deleteAll());
 
@@ -125,14 +125,14 @@ class SyncServerCore {
   }
 }
 
-/// Ablage im Speicher (Tests, Entwicklung).
+/// In-memory storage (tests, development).
 class MemorySyncStore implements SyncStore {
   final _accounts = <String, _MemoryAccount>{};
 
   @override
   T transaction<T>(String account, T Function(SyncAccountTx tx) action) {
     final acc = _accounts.putIfAbsent(account, _MemoryAccount.new);
-    // Auf Kopie arbeiten, damit ein Fehler nichts halb schreibt.
+    // Work on a copy so that an error never writes half of the changes.
     final draft = acc.copy();
     final result = action(draft);
     _accounts[account] = draft;

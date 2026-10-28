@@ -21,7 +21,7 @@ import 'gallery_section.dart';
 import 'learnset_section.dart';
 import 'pokemon_speech.dart';
 
-/// Eigenständige Detailseite für schmale Fenster.
+/// Standalone detail page for narrow windows.
 class PokemonDetailPage extends StatelessWidget {
   const PokemonDetailPage({super.key, required this.formId});
 
@@ -39,7 +39,7 @@ class PokemonDetailPage extends StatelessWidget {
   );
 }
 
-/// Detailinhalt, ausschließlich mit Daten des gewählten Spielkontexts.
+/// Detail content, exclusively with data of the selected game context.
 class PokemonDetailView extends ConsumerWidget {
   const PokemonDetailView({super.key, required this.formId});
 
@@ -82,7 +82,7 @@ class PokemonDetailView extends ConsumerWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: DexScreen(
-            // Farbe aus dem Artwork, ohne Medienpaket die des ersten Typs.
+            // Colour from the artwork; without a media pack the first type's.
             tint:
                 artworkTint(ref, d.form.id) ??
                 (profile.types.isEmpty
@@ -98,7 +98,7 @@ class PokemonDetailView extends ConsumerWidget {
                     top: Space.m,
                     child: DexNumber(d.species.nationalNumber),
                   ),
-                  // Das Sprite des gewählten Spiels als kleines Detail.
+                  // The selected game's sprite as a small detail.
                   Positioned(
                     right: Space.s,
                     bottom: Space.s,

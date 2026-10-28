@@ -6,7 +6,7 @@ import 'localized_text.dart';
 import 'pokemon_type.dart';
 import 'stats.dart';
 
-/// Grundlegende Art mit nationaler Nummer.
+/// Basic species with its national number.
 @immutable
 class Species {
   const Species({
@@ -30,18 +30,18 @@ class Species {
   final int nationalNumber;
   final LocalizedText name;
 
-  /// Alternative Schreibweisen für die Suche.
+  /// Alternative spellings for search.
   final List<String> aliases;
 
-  /// Ob ihre Entwicklungsfamilie Eier legen kann (Babys wie Pichu eingeschlossen;
-  /// nicht bei Familien nur aus „unbekannt“ oder Ditto).
+  /// Whether its evolution family can lay eggs (babies like Pichu included;
+  /// not for families made only of "undiscovered" or Ditto).
   final bool hatchable;
 
-  /// Generation der Einführung (0 = unbekannt).
+  /// Generation of introduction (0 = unknown).
   final int generation;
 
-  /// Mysteriöses Pokémon (z. B. Mew, Celebi): in der Regel nur über
-  /// Event-Verteilungen erhältlich.
+  /// Mythical Pokémon (e.g. Mew, Celebi): usually only obtainable through
+  /// event distributions.
   final bool mythical;
 }
 
@@ -71,7 +71,7 @@ class AbilitySlot {
   final bool hidden;
 }
 
-/// Eigenschaften einer Form innerhalb einer Spielgruppe.
+/// Properties of a form within a version group.
 @immutable
 class FormGameProfile {
   const FormGameProfile({
@@ -96,7 +96,7 @@ class FormGameProfile {
     ],
   );
 
-  /// Ob die Form in dieser Spielgruppe existiert.
+  /// Whether the form exists in this version group.
   final DataAvailability availability;
   final List<PokemonType> types;
   final BaseStats? baseStats;
@@ -107,7 +107,7 @@ class FormGameProfile {
   );
 }
 
-/// Konkrete, spielmechanisch relevante Erscheinungsform einer Art.
+/// Concrete, mechanically relevant appearance of a species.
 @immutable
 class PokemonForm {
   const PokemonForm({
@@ -139,12 +139,12 @@ class PokemonForm {
   final SpeciesId speciesId;
   final bool isDefault;
 
-  /// Eigener Anzeigename (z. B. „Alola-Raichu“); sonst gilt der Artname.
+  /// Own display name (e.g. "Alolan Raichu"); otherwise the species name.
   final LocalizedText? name;
   final List<String> aliases;
   final Map<VersionGroupId, FormGameProfile> profiles;
 
-  /// Fehlt ein Profil, ist das eine Datenlücke – nicht „nicht verfügbar“.
+  /// A missing profile is a data gap – not "unavailable".
   FormGameProfile profileFor(VersionGroupId group) =>
       profiles[group] ?? FormGameProfile.notResearched;
 }

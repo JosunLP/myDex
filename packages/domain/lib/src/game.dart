@@ -3,16 +3,16 @@ import 'package:meta/meta.dart';
 import 'ids.dart';
 import 'localized_text.dart';
 
-/// Historische Typentabellen. Die Generation allein reicht nicht für alle
-/// Regeln, aber für die Typentabelle ist die Ära eindeutig.
+/// Historical type charts. The generation alone is not enough for all rules,
+/// but for the type chart the era is unambiguous.
 enum TypeChartEra {
   /// Gen 1: 15 Typen, u. a. Geist → Psycho ×0.
   gen1('gen1'),
 
-  /// Gen 2–5: Unlicht und Stahl; Stahl resistiert Geist und Unlicht.
+  /// Gen 2–5: Dark and Steel; Steel resists Ghost and Dark.
   gen2to5('gen2_5'),
 
-  /// Ab Gen 6: Fee; Stahl resistiert Geist und Unlicht nicht mehr.
+  /// From Gen 6: Fairy; Steel no longer resists Ghost and Dark.
   gen6plus('gen6plus');
 
   const TypeChartEra(this.key);
@@ -21,15 +21,15 @@ enum TypeChartEra {
 
   static TypeChartEra parse(String key) => values.firstWhere(
     (e) => e.key == key,
-    orElse: () => throw FormatException('Unbekannte Typentabellen-Ära: $key'),
+    orElse: () => throw FormatException('Unknown type chart era: $key'),
   );
 }
 
 enum StatFormula {
-  /// Gen 1–2: DVs (0–15) und Status-EP.
+  /// Gen 1–2: DVs (0–15) and stat experience.
   gen1to2('gen1_2'),
 
-  /// Ab Gen 3: IVs (0–31), EVs und Wesen.
+  /// From Gen 3: IVs (0–31), EVs and natures.
   modern('modern');
 
   const StatFormula(this.key);
@@ -38,11 +38,11 @@ enum StatFormula {
 
   static StatFormula parse(String key) => values.firstWhere(
     (e) => e.key == key,
-    orElse: () => throw FormatException('Unbekannte Statusformel: $key'),
+    orElse: () => throw FormatException('Unknown stat formula: $key'),
   );
 }
 
-/// Mechanische Regeln eines Spiels oder Formats.
+/// Mechanical rules of a game or format.
 @immutable
 class Ruleset {
   const Ruleset({
@@ -80,14 +80,14 @@ class Ruleset {
   final bool hasHeldItems;
   final bool hasNatures;
 
-  /// Gen 1 kennt nur einen gemeinsamen Spezial-Wert.
+  /// Gen 1 only has a single shared Special stat.
   final bool unifiedSpecial;
 
-  /// Ob Pokémon in diesem Spiel aus Eiern gezüchtet werden können.
+  /// Whether Pokémon can be bred from eggs in this game.
   final bool hasBreeding;
 }
 
-/// Gruppe verwandter Editionen mit gemeinsamen Daten (z. B. Rot/Blau).
+/// Group of related editions with shared data (e.g. Red/Blue).
 @immutable
 class VersionGroup {
   const VersionGroup({
@@ -113,15 +113,15 @@ class VersionGroup {
   final RulesetId rulesetId;
   final LocalizedText name;
 
-  /// Chronologische Reihenfolge.
+  /// Chronological order.
   final int order;
 
-  /// Ob der Katalog für diese Spielgruppe Kerndaten (z. B. Erlernbarkeit) enthält.
-  /// Wird in der Spielauswahl als „keine Daten“ gekennzeichnet.
+  /// Whether the catalog contains core data (e.g. learnsets) for this group.
+  /// Marked as "no data" in the game picker.
   final bool hasData;
 }
 
-/// Einzelne Edition (z. B. Rot).
+/// A single edition (e.g. Red).
 @immutable
 class GameVersion {
   const GameVersion({

@@ -6,23 +6,24 @@ import 'dart:typed_data';
 import 'protocol.dart';
 import 'server_core.dart';
 
-/// Ordnet einem Zugangsschlüssel ein Konto zu; `null` = unbekannt.
+/// Maps an access token to an account; `null` = unknown.
 typedef SyncAuthenticator = String? Function(String token);
 
-/// HTTP-Schnittstelle des Sync-Servers:
-/// - `GET  /v1/health`  – Erreichbarkeit und Protokollversion
-/// - `POST /v1/sync`    – Änderungen senden und abholen
-/// - `DELETE /v1/account` – alle Daten des Kontos löschen
+/// HTTP interface of the sync server:
+/// - `GET  /v1/health`  – reachability and protocol version
+/// - `POST /v1/sync`    – send and fetch changes
+/// - `DELETE /v1/account` – delete all data of the account
+/// - `GET  /v1/catalog/update`, `/v1/catalog/pack` – signed catalog updates
 ///
-/// TLS übernimmt ein vorgeschalteter Reverse-Proxy; ohne ihn nur lokal betreiben.
+/// TLS is handled by a reverse proxy in front; without one, run it locally only.
 class SyncHttpHandler {
   SyncHttpHandler(this.core, this.authenticate, {this.catalogDirectory});
 
   final SyncServerCore core;
   final SyncAuthenticator authenticate;
 
-  /// Verzeichnis mit `update.json` und `catalog.sqlite.gz` für signierte
-  /// Katalog-Updates (ADR 0015); `null` = keine Updates angeboten.
+  /// Directory with `update.json` and `catalog.sqlite.gz` for signed catalog
+  /// updates (ADR 0015); `null` = no updates offered.
   final Directory? catalogDirectory;
 
   Future<void> call(HttpRequest request) async {
@@ -88,9 +89,7 @@ class SyncHttpHandler {
     } on TypeError {
       return await _send(response, 400, {'error': 'invalidRequest'});
     } on Object catch (e, s) {
-      stderr.writeln(
-        'Fehler bei ${request.method} ${request.uri.path}: $e\n$s',
-      );
+      stderr.writeln('Error on ${request.method} ${request.uri.path}: $e\n$s');
       return await _send(response, 500, {'error': 'server'});
     }
   }

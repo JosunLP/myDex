@@ -25,10 +25,10 @@ class DexQuery extends Notifier<String> {
   void set(String value) => state = value;
 }
 
-/// Suchtext der Dex-Liste; bleibt bei Auswahl und Navigation erhalten.
+/// Search text of the Dex list; kept across selection and navigation.
 final dexQueryProvider = NotifierProvider<DexQuery, String>(DexQuery.new);
 
-/// Attacken und Fähigkeiten zur Suchanfrage (Volltextindex im Katalog).
+/// Moves and abilities for the search query (full-text index in the catalog).
 final entityResultsProvider = Provider<List<EntityHit>>((ref) {
   final query = ref.watch(dexQueryProvider).trim();
   if (query.isEmpty) return const [];
@@ -39,7 +39,7 @@ final entityResultsProvider = Provider<List<EntityHit>>((ref) {
   ];
 });
 
-/// Ergebnisliste im aktuellen Spielkontext, gefiltert durch die Suche.
+/// Result list in the current game context, filtered by the search.
 final dexResultsProvider = Provider<List<PokemonListItem>>((ref) {
   final ctx = ref.watch(gameContextProvider);
   final filter = ref.watch(dexFilterProvider);
@@ -210,7 +210,7 @@ class _DexList extends ConsumerWidget {
         .toList();
     final showHeaders = entities.isNotEmpty;
 
-    // Flache Liste aus Zeilenbauern: Pokémon, dann Attacken, dann Fähigkeiten.
+    // Flat list of row builders: Pokémon, then moves, then abilities.
     final rows = <Widget Function()>[
       if (showHeaders && items.isNotEmpty) () => header(l10n.searchPokemon),
       for (final item in items)

@@ -10,8 +10,8 @@ import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 const _manifestAsset = 'assets/catalog/catalog.manifest.json';
 const _packAsset = 'assets/catalog/catalog.sqlite.gz';
 
-/// Installiert das mitgelieferte Katalogpaket beim ersten Start (und nach
-/// App-Updates mit neuem Katalog) und lädt es. Funktioniert vollständig offline.
+/// Installs the bundled catalog pack on first start (and after app updates
+/// with a new catalog) and loads it. Works fully offline.
 class BundledCatalogRepository implements CatalogRepository {
   BundledCatalogRepository(this.directory, {AssetBundle? bundle})
     : _bundle = bundle ?? rootBundle;
@@ -19,7 +19,7 @@ class BundledCatalogRepository implements CatalogRepository {
   final Directory directory;
   final AssetBundle _bundle;
 
-  /// Gesetzt, wenn ein neues Paket verworfen und die Vorversion genutzt wurde.
+  /// Set when a new pack was discarded and the previous version was used.
   Object? installError;
 
   @override
@@ -29,33 +29,33 @@ class BundledCatalogRepository implements CatalogRepository {
           as Map<String, Object?>,
     );
     final current = await CatalogInstaller(directory).current();
-    // Ein über das Netz installiertes, neueres Paket hat Vorrang vor dem
-    // mitgelieferten; ein neueres mitgeliefertes (App-Update) ersetzt es.
+    // A newer pack installed over the network takes precedence over the
+    // bundled one; a newer bundled one (app update) replaces it.
     if (current != null &&
         (current.revision == manifest.revision ||
             current.sequence > manifest.sequence)) {
       try {
         return await openInstalledCatalog(current.path);
       } on Object catch (e) {
-        // z. B. Schema einer älteren App-Version: mitgeliefertes Paket nutzen.
-        debugPrint('Installierter Katalog nicht lesbar: $e');
+        // e.g. schema of an older app version: use the bundled pack.
+        debugPrint('Installed catalog not readable: $e');
       }
     }
     final pack = (await _bundle.load(_packAsset)).buffer.asUint8List();
     final dir = directory;
-    // Entpacken und Prüfen blockieren nicht die Oberfläche.
+    // Unpacking and verifying do not block the UI.
     final installed = await Isolate.run(
       () => CatalogInstaller(dir).ensureInstalled(manifest, () => pack),
     );
     installError = installed.installError;
     if (installError != null) {
-      debugPrint('Katalog-Update verworfen: $installError');
+      debugPrint('Catalog update discarded: $installError');
     }
     return openInstalledCatalog(installed.path);
   }
 }
 
-/// Lädt den Snapshot im Hintergrund und öffnet die Detailverbindung.
+/// Loads the snapshot in the background and opens the details connection.
 Future<LoadedCatalog> openInstalledCatalog(String path) async {
   final snapshot = await Isolate.run(() => loadCatalogSnapshot(path));
   return LoadedCatalog(snapshot, SqliteCatalogDetails.open(path));
@@ -64,8 +64,8 @@ Future<LoadedCatalog> openInstalledCatalog(String path) async {
 const _mediaManifestAsset = 'assets/media/media.manifest.json';
 const _mediaPackAsset = 'assets/media/media.sqlite.gz';
 
-/// Lädt Bilder (Sprites). Getrennt vom Katalog: Fehlt oder scheitert das
-/// Medienpaket, läuft die App ohne Bilder weiter.
+/// Loads images (sprites). Separate from the catalog: if the media pack is
+/// missing or fails, the app keeps running without images.
 abstract interface class MediaLoader {
   Future<MediaLibrary> load();
 }
@@ -99,7 +99,7 @@ class BundledMediaLoader implements MediaLoader {
       );
       return SqliteMediaLibrary.open(installed.path);
     } on Object catch (e) {
-      debugPrint('Medienpaket nicht verfügbar: $e');
+      debugPrint('Media pack not available: $e');
       return const EmptyMediaLibrary();
     }
   }

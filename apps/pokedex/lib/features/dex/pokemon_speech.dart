@@ -7,9 +7,9 @@ import '../../app/speech.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/evolution_text.dart';
 
-/// Vorlesetext aus Katalogfakten des gewählten Spiels. Spieltexte
-/// (Pokédex-Einträge) sind aus Rechtegründen nicht enthalten.
-/// Namen folgen der App-Sprache, damit Satz und Aussprache zusammenpassen.
+/// Read-aloud text from catalog facts of the selected game. Game texts
+/// (Pokédex entries) are not included for rights reasons.
+/// Names follow the app language so that sentence and pronunciation match.
 String pokemonSpeechText(
   PokemonDetail d,
   AppLocalizations l10n,
@@ -66,12 +66,12 @@ String pokemonSpeechText(
   return parts.join(' ');
 }
 
-/// Vorlesen/Stoppen. Ohne Sprachausgabe deaktiviert, mit Hinweis.
-/// Verlässt man die Ansicht, endet die Ausgabe.
+/// Read aloud/stop. Disabled with a hint without text-to-speech.
+/// Leaving the view ends the output.
 class SpeakButton extends ConsumerStatefulWidget {
   const SpeakButton({super.key, required this.id, required this.text});
 
-  /// Kennung des Inhalts, damit nur der passende Knopf „Stopp“ zeigt.
+  /// Identifier of the content, so only the matching button shows "Stop".
   final String id;
   final String Function() text;
 

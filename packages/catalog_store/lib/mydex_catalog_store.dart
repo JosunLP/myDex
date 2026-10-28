@@ -1,4 +1,4 @@
-/// SQLite-Katalog: Schema, Lesen, Prüfen und Installation.
+/// SQLite catalog: schema, reading, validation and installation.
 library;
 
 export 'src/catalog_installer.dart';

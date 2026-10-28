@@ -5,7 +5,7 @@ import 'ids.dart';
 import 'localized_text.dart';
 import 'pokemon_type.dart';
 
-/// Schadensklasse. Bis Gen 3 hing sie vom Typ ab, ab Gen 4 von der Attacke.
+/// Damage class. Up to Gen 3 it depended on the type, from Gen 4 on the move.
 enum DamageClass {
   physical,
   special,
@@ -13,7 +13,7 @@ enum DamageClass {
 
   static DamageClass parse(String s) => values.firstWhere(
     (c) => c.name == s,
-    orElse: () => throw FormatException('Unbekannte Schadensklasse: $s'),
+    orElse: () => throw FormatException('Unknown damage class: $s'),
   );
 }
 
@@ -24,11 +24,11 @@ class Move {
   final MoveId id;
   final LocalizedText name;
 
-  /// Generation, in der die Attacke eingeführt wurde.
+  /// Generation in which the move was introduced.
   final int generation;
 }
 
-/// Werte einer Attacke in einer Spielgruppe (historische Änderungen eingerechnet).
+/// Data of a move in a version group (historical changes applied).
 @immutable
 class MoveGameProfile {
   const MoveGameProfile({
@@ -45,10 +45,10 @@ class MoveGameProfile {
   final PokemonType type;
   final DamageClass damageClass;
 
-  /// `null` = keine feste Stärke (z. B. Statusattacken oder variable Stärke).
+  /// `null` = no fixed power (e.g. status moves or variable power).
   final int? power;
 
-  /// `null` = trifft immer bzw. keine Genauigkeitsprüfung.
+  /// `null` = always hits or no accuracy check.
   final int? accuracy;
   final int? pp;
   final int priority;
@@ -62,7 +62,7 @@ class MoveGameProfile {
       priority == o.priority;
 }
 
-/// Wie eine Attacke erlernt wird.
+/// How a move is learned.
 enum LearnMethod {
   levelUp('level-up'),
   machine('machine'),
@@ -91,12 +91,12 @@ class LearnsetEntry {
   final MoveId move;
   final LearnMethod method;
 
-  /// Level bei [LearnMethod.levelUp]; 0 = beim Entwickeln/Erinnern.
+  /// Level for [LearnMethod.levelUp]; 0 = on evolution/via the reminder.
   final int? level;
 
-  /// Item der Maschine (z. B. `tm26`) bei [LearnMethod.machine].
+  /// Item of the machine (e.g. `tm26`) for [LearnMethod.machine].
   final ItemId? machine;
 
-  /// Quellschlüssel für [LearnMethod.other] (z. B. `form-change`).
+  /// Source key for [LearnMethod.other] (e.g. `form-change`).
   final String? methodDetail;
 }

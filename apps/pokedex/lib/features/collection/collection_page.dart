@@ -115,7 +115,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
 
     final List<Widget> body;
     if (_view == _View.allGames) {
-      // Globale Checkliste: Markierungen aller Spiele zusammengefasst (nur lesend).
+      // Global checklist: marks of all games combined (read-only).
       final overview = crossGameOverview(entries.values);
       final forms = catalog.forms.values.where((f) => f.isDefault).toList()
         ..sort(

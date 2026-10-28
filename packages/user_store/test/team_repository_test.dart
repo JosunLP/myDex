@@ -27,7 +27,7 @@ void main() {
     updatedAt: DateTime.utc(2026, 10, 26),
   );
 
-  test('Rundreise über Neustart', () async {
+  test('round trip across a restart', () async {
     await FileTeamRepository(file()).save(team);
     final loaded = await FileTeamRepository(file()).loadAll();
     expect(loaded.single.name, 'Kanto');
@@ -37,14 +37,14 @@ void main() {
     expect(m.evs[Stat.speed], 252);
   });
 
-  test('Löschen', () async {
+  test('delete', () async {
     final repo = FileTeamRepository(file());
     await repo.save(team);
     await repo.delete('a');
     expect(await FileTeamRepository(file()).loadAll(), isEmpty);
   });
 
-  test('unlesbare Einträge bleiben erhalten', () async {
+  test('unreadable entries are kept', () async {
     file().writeAsStringSync(
       jsonEncode({
         'schemaVersion': 1,
@@ -60,7 +60,7 @@ void main() {
     expect((raw['entries'] as List), hasLength(2));
   });
 
-  test('copyWith setzt optionale Felder gezielt zurück', () {
+  test('copyWith resets optional fields selectively', () {
     const m = TeamMember(form: FormId('pikachu'), item: ItemId('light-ball'));
     expect(m.copyWith(item: null).item, isNull);
     expect(m.copyWith(level: 30).item, const ItemId('light-ball'));

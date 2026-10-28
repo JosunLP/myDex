@@ -4,7 +4,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:meta/meta.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
-/// Inhalt einer Datensicherung (nur persönliche Daten, nie der Katalog).
+/// Contents of a backup (personal data only, never the catalog).
 @immutable
 class BackupData {
   const BackupData({
@@ -22,7 +22,7 @@ class BackupData {
   final Map<String, Object?> preferences;
   final DateTime createdAt;
 
-  /// Beim Lesen übersprungene, unlesbare Einträge.
+  /// Unreadable entries skipped while reading.
   final int skippedEntries;
 }
 
@@ -40,7 +40,7 @@ class BackupException implements Exception {
   String toString() => 'BackupException(${error.name})';
 }
 
-/// Versioniertes Austauschformat, optional passwortverschlüsselt
+/// Versioned exchange format, optionally password-encrypted
 /// (PBKDF2-HMAC-SHA256 → AES-256-GCM).
 abstract final class BackupCodec {
   static const format = 'mydex-backup';
@@ -84,7 +84,7 @@ abstract final class BackupCodec {
     );
   }
 
-  /// Ob die Datei ein Passwort benötigt. Wirft bei fremden Dateien.
+  /// Whether the file needs a password. Throws for foreign files.
   static bool isEncrypted(List<int> bytes) =>
       _envelope(bytes)['format'] == encryptedFormat;
 
@@ -169,7 +169,7 @@ abstract final class BackupCodec {
       final decoded = jsonDecode(utf8.decode(bytes));
       if (decoded is Map<String, Object?>) return decoded;
     } on Object {
-      // fällt durch
+      // falls through
     }
     throw BackupException(BackupError.notABackup);
   }
@@ -186,10 +186,10 @@ abstract final class BackupCodec {
 }
 
 enum ImportMode {
-  /// Neuere Einträge gewinnen, nichts wird gelöscht.
+  /// Newer entries win, nothing is deleted.
   merge,
 
-  /// Persönliche Daten werden vollständig durch die Sicherung ersetzt.
+  /// Personal data is completely replaced by the backup.
   replace,
 }
 
@@ -204,14 +204,14 @@ class ImportCounts {
   final int added;
   final int updated;
 
-  /// Unverändert, weil der vorhandene Stand gleich neu oder neuer ist.
+  /// Unchanged because the existing state is as new or newer.
   final int kept;
 
-  /// Nur beim Ersetzen: vorhandene Einträge, die nicht in der Sicherung sind.
+  /// Only when replacing: existing entries that are not in the backup.
   final int removed;
 }
 
-/// Ergebnis der Planung: Vorschau und die anzuwendenden Daten.
+/// Result of planning: preview and the data to apply.
 @immutable
 class ImportPlan {
   const ImportPlan({
@@ -230,14 +230,14 @@ class ImportPlan {
   final List<Team> teams;
   final List<FilterPreset> presets;
 
-  /// `null` = Einstellungen bleiben unverändert.
+  /// `null` = settings stay unchanged.
   final Map<String, Object?>? preferences;
   final ImportCounts collectionCounts;
   final ImportCounts teamCounts;
   final ImportCounts presetCounts;
 }
 
-/// Plant einen Import, ohne etwas zu verändern (Grundlage der Vorschau).
+/// Plans an import without changing anything (basis of the preview).
 ImportPlan planImport({
   required BackupData current,
   required BackupData incoming,

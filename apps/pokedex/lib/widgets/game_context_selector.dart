@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app/providers.dart';
 import '../l10n/generated/app_localizations.dart';
 
-/// Globale Spielauswahl – der Spielkontext ist immer sichtbar.
+/// Global game picker – the game context is always visible.
 class GameContextSelector extends ConsumerWidget {
   const GameContextSelector({super.key});
 
@@ -16,7 +16,7 @@ class GameContextSelector extends ConsumerWidget {
     final lang = dataLanguageOf(context, ref);
     final items = <PopupMenuEntry<String>>[];
     int? lastGen;
-    // Neueste Spiele zuerst, nach Generation gruppiert.
+    // Newest games first, grouped by generation.
     for (final v in catalog.versions.reversed) {
       final group = catalog.versionGroups[v.versionGroupId]!;
       if (group.generation != lastGen) {
@@ -54,7 +54,7 @@ class GameContextSelector extends ConsumerWidget {
           ),
       itemBuilder: (_) => items,
       child: Padding(
-        // 12 + 24 + 12 = 48 px Tippfläche.
+        // 12 + 24 + 12 = 48 px tap target.
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           mainAxisSize: MainAxisSize.min,

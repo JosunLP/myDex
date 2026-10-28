@@ -1,7 +1,7 @@
 import 'dart:io';
 
-/// Schreibt [content] atomar: erst in eine temporäre Datei, dann Umbenennen.
-/// Ein Absturz hinterlässt entweder die alte oder die vollständige neue Datei.
+/// Writes [content] atomically: first to a temporary file, then renames it.
+/// A crash leaves either the old or the complete new file.
 Future<void> writeFileAtomic(File file, String content) async {
   await file.parent.create(recursive: true);
   final tmp = File('${file.path}.tmp');

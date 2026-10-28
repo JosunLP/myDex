@@ -1,4 +1,4 @@
-/// Spielabhängige Aussagen sind nie nur „ja/nein“ (ADR 0005).
+/// Game-dependent statements are never just "yes/no" (ADR 0005).
 enum DataAvailability {
   confirmedAvailable('confirmed_available'),
   confirmedUnavailable('confirmed_unavailable'),
@@ -10,19 +10,18 @@ enum DataAvailability {
 
   final String key;
 
-  /// Nur bestätigte Aussagen dürfen als Fakt dargestellt werden.
+  /// Only confirmed statements may be presented as facts.
   bool get isConfirmed =>
       this == confirmedAvailable ||
       this == confirmedUnavailable ||
       this == notApplicable;
 
-  /// Datenlücke: muss in der UI als solche gekennzeichnet werden.
+  /// Data gap: must be marked as such in the UI.
   bool get isGap => !isConfirmed;
 
   static DataAvailability parse(String key) =>
       DataAvailability.values.firstWhere(
         (a) => a.key == key,
-        orElse: () =>
-            throw FormatException('Unbekannter Verfügbarkeitszustand: $key'),
+        orElse: () => throw FormatException('Unknown availability state: $key'),
       );
 }

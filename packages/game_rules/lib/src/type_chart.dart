@@ -23,7 +23,7 @@ const _dar = PokemonType.dark;
 const _ste = PokemonType.steel;
 const _fai = PokemonType.fairy;
 
-/// Abweichungen von ×1 ab Gen 6 (Angreifer → Verteidiger).
+/// Deviations from ×1 from Gen 6 (attacker → defender).
 const Map<PokemonType, _Row> _gen6 = {
   _n: {_roc: .5, _gho: 0, _ste: .5},
   _fir: {
@@ -106,7 +106,7 @@ const Map<PokemonType, _Row> _gen6 = {
   _fai: {_fir: .5, _fig: 2, _poi: .5, _dra: 2, _dar: 2, _ste: .5},
 };
 
-/// Historische Typentabelle eines Regelwerks.
+/// Historical type chart of a ruleset.
 @immutable
 class TypeChart {
   TypeChart._(this.era, this.types, this._table);
@@ -119,20 +119,20 @@ class TypeChart {
 
   final TypeChartEra era;
 
-  /// Typen, die in dieser Ära existieren.
+  /// Types that exist in this era.
   final List<PokemonType> types;
   final Map<PokemonType, _Row> _table;
 
   bool contains(PokemonType t) => types.contains(t);
 
-  /// Multiplikator eines Angriffstyps gegen einen einzelnen Verteidigungstyp.
+  /// Multiplier of an attacking type against a single defending type.
   double single(PokemonType attacker, PokemonType defender) {
     _check(attacker);
     _check(defender);
     return _table[attacker]?[defender] ?? 1;
   }
 
-  /// Multiplikator gegen eine (Doppel-)Typkombination.
+  /// Multiplier against a (dual) type combination.
   double against(PokemonType attacker, List<PokemonType> defenders) {
     var m = 1.0;
     for (final d in defenders.toSet()) {
@@ -143,7 +143,7 @@ class TypeChart {
 
   void _check(PokemonType t) {
     if (!contains(t)) {
-      throw ArgumentError('Typ ${t.key} existiert nicht in Ära ${era.key}');
+      throw ArgumentError('Type ${t.key} does not exist in era ${era.key}');
     }
   }
 }

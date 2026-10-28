@@ -1,5 +1,5 @@
 name: mydex_catalog_store
-description: SQLite-Katalog lesen, prüfen und sicher installieren.
+description: Read, validate and safely install the SQLite catalog.
 publish_to: none
 version: 0.2.0
 resolution: workspace

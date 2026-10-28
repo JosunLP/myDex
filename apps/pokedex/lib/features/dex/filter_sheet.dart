@@ -7,7 +7,7 @@ import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/text_input_dialog.dart';
 
-/// Leiste mit Filter-Schaltfläche und gespeicherten Vorlagen.
+/// Bar with the filter button and saved presets.
 class FilterBar extends ConsumerWidget {
   const FilterBar({super.key});
 

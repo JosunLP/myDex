@@ -1,10 +1,10 @@
-/// Schema des SQLite-Katalogpakets. Wird von der Pipeline geschrieben und von
-/// der App nur gelesen. Änderungen erhöhen [catalogSchemaVersion].
+/// Schema of the SQLite catalog pack. Written by the pipeline and only read by
+/// the app. Changes bump [catalogSchemaVersion].
 library;
 
 const catalogSchemaVersion = 5;
 
-/// Lernmethoden-Codes in der Tabelle `learnset`.
+/// Learn method codes in the `learnset` table.
 abstract final class LearnMethodCode {
   static const levelUp = 1;
   static const egg = 2;
@@ -37,7 +37,7 @@ const catalogSchemaSql = [
     own_name INTEGER NOT NULL, battle_only INTEGER NOT NULL, sort INTEGER NOT NULL)''',
   '''CREATE TABLE ability(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     generation INTEGER NOT NULL)''',
-  // pocket: Taschenfach der Quelle; generations: Bitmaske (Bit n = Gen n).
+  // pocket: bag pocket in the source; generations: bit mask (bit n = Gen n).
   '''CREATE TABLE item(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     pocket TEXT, generations INTEGER NOT NULL)''',
   '''CREATE TABLE nature(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
@@ -52,16 +52,16 @@ const catalogSchemaSql = [
   '''CREATE TABLE encounter_method(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE,
     sort INTEGER NOT NULL)''',
   '''CREATE TABLE encounter_condition(rid INTEGER PRIMARY KEY, id TEXT NOT NULL UNIQUE)''',
-  // Begegnungen, zusammengefasst je Form, Version, Gebiet, Methode und Bedingungen.
+  // Encounters, aggregated per form, version, area, method and conditions.
   '''CREATE TABLE encounter(
     form INTEGER NOT NULL, version INTEGER NOT NULL, area INTEGER NOT NULL,
     method INTEGER NOT NULL, min_level INTEGER NOT NULL, max_level INTEGER NOT NULL,
     chance INTEGER NOT NULL, conditions TEXT NOT NULL,
     PRIMARY KEY(form, version, area, method, conditions)) WITHOUT ROWID''',
-  // Mehrsprachige Namen aller Entitäten.
+  // Multilingual names of all entities.
   '''CREATE TABLE name(kind TEXT NOT NULL, ref INTEGER NOT NULL, lang TEXT NOT NULL,
     text TEXT NOT NULL, PRIMARY KEY(kind, ref, lang)) WITHOUT ROWID''',
-  // Eigenschaften einer Form je Spielgruppe.
+  // Properties of a form per version group.
   '''CREATE TABLE form_profile(
     form INTEGER NOT NULL, version_group INTEGER NOT NULL, availability TEXT NOT NULL,
     type1 TEXT, type2 TEXT,
@@ -85,7 +85,7 @@ const catalogSchemaSql = [
   '''CREATE TABLE coverage(version_group INTEGER PRIMARY KEY, forms_confirmed INTEGER NOT NULL,
     forms_unavailable INTEGER NOT NULL, forms_gaps INTEGER NOT NULL,
     learnset_entries INTEGER NOT NULL, encounter_entries INTEGER NOT NULL)''',
-  // Volltextindex über normalisierte Namen (alle Sprachen).
+  // Full-text index over normalized names (all languages).
   '''CREATE VIRTUAL TABLE search USING fts5(
     text, kind UNINDEXED, ref UNINDEXED,
     tokenize = 'unicode61 remove_diacritics 2')''',

@@ -5,7 +5,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'catalog_snapshot.dart';
 
-/// Normalisiert Suchtexte sprachübergreifend.
+/// Normalizes search text across languages.
 String normalizeSearchText(String input) {
   var s = input.toLowerCase().trim();
   const map = {
@@ -55,7 +55,7 @@ class SearchHit {
   final FormId form;
   final MatchKind kind;
 
-  /// Der normalisierte Begriff, der getroffen wurde.
+  /// The normalized term that matched.
   final String matched;
 }
 
@@ -65,8 +65,8 @@ class _Term {
   final bool isAlias;
 }
 
-/// Lokaler In-Memory-Suchindex. Mit dem SQLite-Katalog übernimmt FTS5 den
-/// Volltextteil; Ranking und Normalisierung bleiben hier definiert.
+/// Local in-memory search index. With the SQLite catalog, FTS5 handles the
+/// full-text part; ranking and normalization stay defined here.
 class PokemonSearchIndex {
   PokemonSearchIndex(CatalogSnapshot catalog) {
     for (final form in catalog.forms.values) {
@@ -86,7 +86,7 @@ class PokemonSearchIndex {
 
   final _entries = <(PokemonForm, int, List<_Term>)>[];
 
-  /// Ergebnisse, sortiert nach Trefferart, dann Nummer, Standardform zuerst.
+  /// Results, sorted by match kind, then number, default form first.
   List<SearchHit> search(String query, {int limit = 50}) {
     final q = normalizeSearchText(query.replaceFirst(RegExp(r'^#'), ''));
     if (q.isEmpty) return const [];
@@ -132,7 +132,7 @@ class PokemonSearchIndex {
   }
 }
 
-/// Levenshtein-Distanz mit frühem Abbruch oberhalb von [max].
+/// Levenshtein distance with early exit above [max].
 int levenshtein(String a, String b, {int max = 1 << 30}) {
   if (a == b) return 0;
   var prev = List<int>.generate(b.length + 1, (i) => i);

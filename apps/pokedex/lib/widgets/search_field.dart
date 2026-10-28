@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Suchfeld im Stil der Material-SearchBar, aber als ein einziges,
-/// mindestens 56 px hohes Textfeld. Die SearchBar meldet Screenreadern nur
-/// die Textzeile (24 px) als Tippfläche.
+/// Search field in the style of the Material SearchBar, but as a single text
+/// field at least 56 px high. The SearchBar only reports the text line (24 px)
+/// as the tap target to screen readers.
 class SearchField extends StatelessWidget {
   const SearchField({
     super.key,

@@ -5,7 +5,7 @@ import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 import 'package:test/test.dart';
 
-/// Ruft den Serverkern direkt auf und merkt sich, was der Server sieht.
+/// Calls the server core directly and records what the server sees.
 class RecordingTransport implements SyncTransport {
   RecordingTransport(this.core);
   final SyncServerCore core;
@@ -37,7 +37,7 @@ class Device {
         CollectionSyncAdapter(rawCollection),
         DocumentSyncAdapter.teams(
           rawTeams,
-          conflictName: (n) => '$n (Konflikt)',
+          conflictName: (n) => '$n (conflict)',
         ),
       ],
     );
@@ -76,13 +76,13 @@ void main() {
   late SyncServerCore core;
   setUp(() => core = SyncServerCore(MemorySyncStore()));
 
-  test('Geräte mit gleichem Passwort gleichen verschlüsselt ab', () async {
+  test('devices with the same passphrase sync encrypted', () async {
     final a = Device(core);
     final b = Device(core);
     await a.rawTeams.save(
       Team(
         id: 't1',
-        name: 'Geheimteam',
+        name: 'Secret team',
         version: const GameVersionId('red'),
         updatedAt: t0,
       ),
@@ -95,17 +95,17 @@ void main() {
     await b.connect('richtig');
     await b.sync();
 
-    expect((await b.teams.loadAll()).single.name, 'Geheimteam');
+    expect((await b.teams.loadAll()).single.name, 'Secret team');
     expect((await b.collection.loadAll())[pikachu]?.caught, isTrue);
 
-    // Der Server sieht weder Namen noch Pokémon noch Arten.
+    // The server sees neither names nor Pokémon nor kinds.
     final seen = '${a.wire.seen}${b.wire.seen}';
-    for (final secret in ['Geheimteam', 'pikachu', 'game:red', '"team"']) {
+    for (final secret in ['Secret team', 'pikachu', 'game:red', '"team"']) {
       expect(seen, isNot(contains(secret)), reason: secret);
     }
   });
 
-  test('Löschungen kommen trotz unlesbarer Grabsteine an', () async {
+  test('deletions arrive despite unreadable tombstones', () async {
     final a = Device(core);
     final b = Device(core);
     await a.connect('pw');
@@ -127,7 +127,7 @@ void main() {
     expect(await b.teams.loadAll(), isEmpty);
   });
 
-  test('Konfliktkopien funktionieren auch verschlüsselt', () async {
+  test('conflict copies also work encrypted', () async {
     final a = Device(core);
     final b = Device(core);
     await a.connect('pw');
@@ -135,7 +135,7 @@ void main() {
     await a.teams.save(
       Team(
         id: 't1',
-        name: 'Rot',
+        name: 'Red',
         version: const GameVersionId('red'),
         updatedAt: t0,
       ),
@@ -145,7 +145,7 @@ void main() {
     await a.teams.save(
       Team(
         id: 't1',
-        name: 'Rot A',
+        name: 'Red A',
         version: const GameVersionId('red'),
         updatedAt: t0.add(const Duration(minutes: 1)),
       ),
@@ -153,7 +153,7 @@ void main() {
     await b.teams.save(
       Team(
         id: 't1',
-        name: 'Rot B',
+        name: 'Red B',
         version: const GameVersionId('red'),
         updatedAt: t0.add(const Duration(minutes: 2)),
       ),
@@ -164,12 +164,12 @@ void main() {
     for (final d in [a, b]) {
       expect(
         (await d.teams.loadAll()).map((t) => t.name),
-        unorderedEquals(['Rot A', 'Rot B (Konflikt)']),
+        unorderedEquals(['Red A', 'Red B (conflict)']),
       );
     }
   });
 
-  test('falsches Passwort wird erkannt', () async {
+  test('wrong passphrase is detected', () async {
     await Device(core).connect('richtig');
     expect(
       () => Device(core).connect('falsch'),
@@ -183,7 +183,7 @@ void main() {
     );
   });
 
-  test('Schlüssel übersteht Speichern und Laden', () async {
+  test('key survives saving and loading', () async {
     final key = await SyncKey.derive('pw', [1, 2, 3, 4], 1000);
     final again = SyncKey.fromJson(
       jsonDecode(jsonEncode(key.toJson())) as Map<String, Object?>,
@@ -193,7 +193,7 @@ void main() {
     expect(key.encryption, isNot(key.authentication));
   });
 
-  test('manipulierte Datensätze werden verworfen', () async {
+  test('tampered records are discarded', () async {
     final a = Device(core);
     final b = Device(core);
     await a.connect('pw');
@@ -207,7 +207,7 @@ void main() {
       ),
     );
     await a.sync();
-    // Ein Angreifer mit Serverzugriff vertauscht den Inhalt zweier IDs.
+    // An attacker with server access swaps the content of two IDs.
     final stored = core.handle('a', const SyncRequest(since: 0)).changes;
     final record = stored.firstWhere((r) => r.kind == SyncEncryption.kind);
     core.handle(

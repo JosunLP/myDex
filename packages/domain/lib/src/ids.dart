@@ -1,5 +1,5 @@
-/// Stabile interne IDs. Externe IDs (z. B. PokéAPI) werden in der Pipeline
-/// auf diese abgebildet. Nationaldex-Nummern sind bewusst keine Formschlüssel.
+/// Stable internal IDs. External IDs (e.g. PokéAPI) are mapped onto these in
+/// the pipeline. National Dex numbers are deliberately not form keys.
 library;
 
 extension type const SpeciesId(String value) {}

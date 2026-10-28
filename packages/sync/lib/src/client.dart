@@ -8,7 +8,7 @@ import 'package:mydex_user_store/mydex_user_store.dart';
 import 'http_transport.dart';
 import 'protocol.dart';
 
-/// Abgleichsstand eines Geräts: Cursor, bekannte Revisionen und Outbox.
+/// Sync state of a device: cursor, known revisions and outbox.
 class SyncState {
   SyncState({
     this.cursor = 0,
@@ -37,10 +37,10 @@ class SyncState {
 
   int cursor;
 
-  /// Zuletzt übernommene Server-Revision je Datensatz.
+  /// Last applied server revision per record.
   final Map<String, int> revisions;
 
-  /// Noch nicht bestätigte lokale Änderungen, je Datensatz zusammengefasst.
+  /// Local changes not yet confirmed, coalesced per record.
   final Map<String, SyncChange> outbox;
   DateTime? lastSync;
 
@@ -71,7 +71,7 @@ class MemorySyncStateStore implements SyncStateStore {
   Future<void> clear() async => _state = null;
 }
 
-/// Abgleichsstand als JSON-Datei (atomar, Schreibvorgänge nacheinander).
+/// Sync state as a JSON file (atomic, writes one after another).
 class FileSyncStateStore implements SyncStateStore {
   FileSyncStateStore(this.file);
 
@@ -86,7 +86,7 @@ class FileSyncStateStore implements SyncStateStore {
         jsonDecode(await file.readAsString()) as Map<String, Object?>,
       );
     } on Object {
-      // Ein unlesbarer Stand erzwingt einen vollständigen Neuabgleich.
+      // An unreadable state forces a full resync.
       await file.rename(
         '${file.path}.corrupt-${DateTime.now().toUtc().millisecondsSinceEpoch}',
       );
@@ -110,36 +110,36 @@ class FileSyncStateStore implements SyncStateStore {
   }
 }
 
-/// Lösung eines Konflikts zwischen lokaler Änderung und Serverstand.
+/// Resolution of a conflict between a local change and the server state.
 sealed class ConflictResolution {
   const ConflictResolution();
 }
 
-/// Der Serverstand gilt; die lokale Änderung wird verworfen.
+/// The server state wins; the local change is discarded.
 final class TakeServer extends ConflictResolution {
   const TakeServer();
 }
 
-/// Die lokale Änderung gilt und wird auf den Serverstand aufgesetzt.
+/// The local change wins and is rebased onto the server state.
 final class KeepLocal extends ConflictResolution {
   const KeepLocal();
 }
 
-/// Beide bleiben: der Serverstand unter der ursprünglichen ID, die lokale
-/// Fassung als neue Kopie [copy] (bereits lokal gespeichert).
+/// Both stay: the server state under the original ID, the local version as
+/// a new copy [copy] (already stored locally).
 final class KeepBoth extends ConflictResolution {
   const KeepBoth(this.copy);
   final SyncChange copy;
 }
 
-/// Bindet eine Art persönlicher Daten an den Abgleich.
+/// Binds one kind of personal data to the sync.
 abstract interface class SyncAdapter {
   String get kind;
 
-  /// Alle lokalen Datensätze, für die erste Übertragung.
+  /// All local records, for the initial upload.
   Future<List<SyncChange>> localRecords();
 
-  /// Übernimmt einen Serverdatensatz lokal, ohne ihn erneut zu senden.
+  /// Applies a server record locally without sending it again.
   Future<void> apply(SyncRecord record);
 
   Future<ConflictResolution> resolve(SyncChange local, SyncRecord server);
@@ -158,13 +158,13 @@ class SyncReport {
   final int received;
   final int conflicts;
 
-  /// Davon als Konfliktkopie erhalten.
+  /// Of which kept as conflict copies.
   final int copies;
 }
 
-/// Client-Seite: sammelt lokale Änderungen in einer Outbox und gleicht sie
-/// mit dem Server ab. Ohne Verbindung (`connected == false`) wird nichts
-/// aufgezeichnet.
+/// Client side: collects local changes in an outbox and syncs them with the
+/// server. Without a connection (`connected == false`) nothing is
+/// recorded.
 class SyncClient {
   SyncClient({
     required this.stateStore,
@@ -180,7 +180,7 @@ class SyncClient {
   Future<SyncReport>? _running;
   final _changes = StreamController<void>.broadcast();
 
-  /// Meldet jede neue lokale Änderung (für verzögertes automatisches Abgleichen).
+  /// Reports every new local change (for delayed automatic syncing).
   Stream<void> get localChanges => _changes.stream;
 
   bool get connected => _state != null;
@@ -190,7 +190,7 @@ class SyncClient {
 
   Future<void> open() async => _state = await stateStore.load();
 
-  /// Beginnt den Abgleich: alle lokalen Daten werden zur Übertragung vorgemerkt.
+  /// Starts syncing: all local data is queued for upload.
   Future<void> connect() async {
     final state = SyncState();
     for (final adapter in _adapters.values) {
@@ -202,17 +202,17 @@ class SyncClient {
     await stateStore.save(state);
   }
 
-  /// Beendet den Abgleich auf diesem Gerät; lokale Daten bleiben erhalten.
+  /// Stops syncing on this device; local data is kept.
   Future<void> disconnect() async {
     await _running?.catchError((Object _) => const SyncReport());
     _state = null;
     await stateStore.clear();
   }
 
-  /// Merkt eine lokale Änderung vor. Neuere Änderungen ersetzen ältere.
+  /// Queues a local change. Newer changes replace older ones.
   Future<void> record(SyncChange change) => recordAll([change]);
 
-  /// Merkt mehrere Änderungen auf einmal vor (z. B. beim Import).
+  /// Queues several changes at once (e.g. on import).
   Future<void> recordAll(Iterable<SyncChange> changes) async {
     final state = _state;
     if (state == null) return;
@@ -226,7 +226,7 @@ class SyncClient {
     await stateStore.save(state);
   }
 
-  /// Gleicht ab. Läuft bereits ein Abgleich, wird dessen Ergebnis geliefert.
+  /// Syncs. If a sync is already running, its result is returned.
   Future<SyncReport> sync(SyncTransport transport) {
     if (_state == null) {
       return Future.error(const SyncProtocolException('notConnected'));
@@ -249,7 +249,7 @@ class SyncClient {
           ],
         ),
       );
-      // Nur entfernen, was während der Anfrage nicht erneut geändert wurde.
+      // Only remove what was not changed again during the request.
       void settle(String key) {
         if (identical(state.outbox[key], batch[key])) state.outbox.remove(key);
       }
@@ -289,7 +289,7 @@ class SyncClient {
       }
       for (final record in response.changes) {
         if ((state.revisions[record.key] ?? 0) >= record.revision) continue;
-        // Offene lokale Änderung: der nächste Durchgang meldet den Konflikt.
+        // Pending local change: the next round reports the conflict.
         if (state.outbox.containsKey(record.key)) continue;
         await _adapters[record.kind]?.apply(record);
         state.revisions[record.key] = record.revision;

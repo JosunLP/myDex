@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Persönliche Einstellungen. Gespeichert getrennt vom Katalog.
+/// Personal settings. Stored separately from the catalog.
 @immutable
 class AppSettings {
   const AppSettings({
@@ -22,13 +22,13 @@ class AppSettings {
 
   final ThemeMode themeMode;
 
-  /// Gewählte Spielversion; `null` = neueste im Katalog.
+  /// Selected game version; `null` = newest in the catalog.
   final String? gameVersion;
 
-  /// Sprache der Spieldaten; `null` = wie App-Sprache.
+  /// Language of the game data; `null` = same as the app language.
   final String? dataLanguage;
 
-  /// Sprache der Oberfläche; `null` = Systemsprache.
+  /// UI language; `null` = system language.
   final String? uiLanguage;
 
   AppSettings copyWith({

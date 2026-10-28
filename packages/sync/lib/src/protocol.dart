@@ -1,25 +1,25 @@
 import 'package:meta/meta.dart';
 
-/// Protokollversion; der Server lehnt unbekannte Versionen ab.
+/// Protocol version; the server rejects unknown versions.
 const syncProtocolVersion = 1;
 
-/// Grenzen, die Client und Server gleichermaßen einhalten.
+/// Limits that client and server both respect.
 abstract final class SyncLimits {
-  /// Höchstens so viele Änderungen je Anfrage und je Antwortseite.
+  /// At most this many changes per request and per response page.
   static const changesPerRequest = 500;
 
-  /// Größte erlaubte Nutzlast eines Datensatzes (UTF-8, JSON).
+  /// Largest allowed payload of a record (UTF-8, JSON).
   static const recordBytes = 64 * 1024;
 
-  /// Größter Anfragekörper.
+  /// Largest request body.
   static const requestBytes = 8 * 1024 * 1024;
 
   static const kindPattern = r'^[a-z][a-z0-9_]{0,31}$';
   static const idMaxLength = 256;
 }
 
-/// Ein Datensatz, wie ihn der Server kennt. Gelöschte Datensätze bleiben als
-/// Grabstein (`deleted`) erhalten, damit andere Geräte die Löschung sehen.
+/// A record as the server knows it. Deleted records are kept as a tombstone
+/// (`deleted`) so that other devices see the deletion.
 @immutable
 class SyncRecord {
   const SyncRecord({
@@ -43,7 +43,7 @@ class SyncRecord {
   final String kind;
   final String id;
 
-  /// Kontoweit fortlaufend; steigt mit jeder angenommenen Änderung.
+  /// Increasing per account; grows with every accepted change.
   final int revision;
   final DateTime updatedAt;
   final bool deleted;
@@ -63,9 +63,8 @@ class SyncRecord {
 
 String recordKey(String kind, String id) => '$kind/$id';
 
-/// Eine lokale Änderung. [baseRevision] ist die zuletzt bekannte
-/// Server-Revision; weicht sie ab, meldet der Server einen Konflikt statt zu
-/// überschreiben.
+/// A local change. [baseRevision] is the last known server revision; if it
+/// differs, the server reports a conflict instead of overwriting.
 @immutable
 class SyncChange {
   const SyncChange({
@@ -131,7 +130,7 @@ class SyncRequest {
     );
   }
 
-  /// Höchste bereits empfangene Revision.
+  /// Highest revision received so far.
   final int since;
   final List<SyncChange> changes;
 
@@ -144,7 +143,7 @@ class SyncRequest {
 
 enum SyncResultStatus { applied, conflict }
 
-/// Ergebnis einer einzelnen eingereichten Änderung.
+/// Result of a single submitted change.
 @immutable
 class SyncResult {
   const SyncResult({
@@ -169,10 +168,10 @@ class SyncResult {
   final String id;
   final SyncResultStatus status;
 
-  /// Neue Revision bei `applied`.
+  /// New revision for `applied`.
   final int? revision;
 
-  /// Aktueller Serverstand bei `conflict`.
+  /// Current server state for `conflict`.
   final SyncRecord? current;
 
   String get key => recordKey(kind, id);
@@ -208,14 +207,14 @@ class SyncResponse {
     more: (j['more'] as bool?) ?? false,
   );
 
-  /// Neuer Stand für die nächste Anfrage (`since`).
+  /// New state for the next request (`since`).
   final int cursor;
   final List<SyncResult> results;
 
-  /// Fremde Änderungen seit `since`, aufsteigend nach Revision.
+  /// Other devices' changes since `since`, ascending by revision.
   final List<SyncRecord> changes;
 
-  /// Weitere Änderungen liegen bereit; sofort erneut abfragen.
+  /// More changes are available; fetch again right away.
   final bool more;
 
   Map<String, Object?> toJson() => {
@@ -227,8 +226,8 @@ class SyncResponse {
   };
 }
 
-/// Fehler im Protokoll oder bei der Anmeldung; [code] ist stabil und wird in
-/// der App übersetzt.
+/// Error in the protocol or during authentication; [code] is stable and is
+/// translated in the app.
 class SyncProtocolException implements Exception {
   const SyncProtocolException(this.code, [this.detail]);
 

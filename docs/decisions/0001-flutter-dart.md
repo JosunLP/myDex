@@ -1,15 +1,16 @@
-# 0001 – Flutter und Dart als gemeinsame Client-Codebase
+# 0001 – Flutter and Dart as the shared client codebase
 
-Status: angenommen
+Status: accepted
 
-## Kontext
-Zielplattformen sind Android (inkl. GrapheneOS ohne Play Services), iOS, Windows, macOS und Linux.
+## Context
+Target platforms are Android (including GrapheneOS without Play Services), iOS, Windows, macOS
+and Linux.
 
-## Entscheidung
-Flutter und Dart, Riverpod für Zustand/DI, go_router für Navigation. Fachlogik in reinen
-Dart-Paketen ohne Flutter-Abhängigkeit. Keine zusätzliche Rust-Schicht ohne gemessenen Bedarf.
+## Decision
+Flutter and Dart, Riverpod for state/DI, go_router for navigation. Domain logic in pure Dart
+packages without a Flutter dependency. No additional Rust layer without a measured need.
 
-## Konsequenzen
-- Plattformspezifisch bleiben Signierung, Paketierung, Dateidialoge, TTS, sichere Ablage.
-- iOS/macOS-Builds benötigen macOS-Runner.
-- Fachlogik ist mit `dart test` ohne Gerät testbar.
+## Consequences
+- Signing, packaging, file dialogs, TTS and secure storage stay platform-specific.
+- iOS/macOS builds need macOS runners.
+- Domain logic can be tested with `dart test` without a device.

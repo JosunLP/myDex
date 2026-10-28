@@ -3,16 +3,16 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 
-/// Festgehaltener Quellstand (reproduzierbarer Snapshot, keine Live-API).
+/// Pinned source snapshot (reproducible, no live API).
 const pokeApiRepository = 'https://github.com/PokeAPI/pokeapi';
 const pokeApiCommit = '2bf639e5572812a67d2b94903fdcb9d095f5aeb2';
 
-/// Commit-Zeit des Quellstands (Unix-Sekunden). Bestimmt mit der
-/// Schemaversion die Reihenfolge der Katalogpakete; beim Wechsel des
-/// Quellstands mit aktualisieren (`git log -1 --format=%ct <commit>`).
+/// Commit time of the source snapshot (Unix seconds). Together with the schema
+/// version it determines the sequence of the catalog packs; update it when the
+/// snapshot changes (`git log -1 --format=%ct <commit>`).
 const pokeApiCommitTime = 1792500364;
 
-/// Benötigte CSV-Tabellen aus `data/v2/csv`.
+/// Required CSV tables from `data/v2/csv`.
 const requiredTables = [
   'abilities',
   'ability_names',
@@ -72,8 +72,9 @@ Uri tableUrl(String table) => Uri.parse(
   'https://raw.githubusercontent.com/PokeAPI/pokeapi/$pokeApiCommit/data/v2/csv/$table.csv',
 );
 
-/// Lädt fehlende Tabellen in [cache] und prüft sie gegen das Quellmanifest.
-/// Ohne Manifest-Eintrag wird der Hash nur gemeldet (`--update-manifest`).
+/// Downloads missing tables into [cache] and checks them against the source
+/// manifest. Without a manifest entry the hash is only reported
+/// (`--update-manifest`).
 Future<Map<String, String>> fetchSource(
   Directory cache, {
   Map<String, String> expectedHashes = const {},
@@ -86,11 +87,11 @@ Future<Map<String, String>> fetchSource(
     for (final table in requiredTables) {
       final file = File('${cache.path}/$table.csv');
       if (!await file.exists()) {
-        log?.call('lade $table.csv');
+        log?.call('downloading $table.csv');
         final request = await client.getUrl(tableUrl(table));
         final response = await request.close();
         if (response.statusCode != 200) {
-          throw HttpException('HTTP ${response.statusCode} für $table.csv');
+          throw HttpException('HTTP ${response.statusCode} for $table.csv');
         }
         final tmp = File('${file.path}.part');
         await response.pipe(tmp.openWrite());
@@ -100,7 +101,7 @@ Future<Map<String, String>> fetchSource(
       final expected = expectedHashes[table];
       if (expected != null && expected != hash) {
         throw StateError(
-          '$table.csv weicht vom Quellmanifest ab (erwartet $expected, erhalten $hash)',
+          '$table.csv differs from the source manifest (expected $expected, got $hash)',
         );
       }
       hashes[table] = hash;
@@ -111,7 +112,7 @@ Future<Map<String, String>> fetchSource(
   return hashes;
 }
 
-/// Quellmanifest unter `data/source_manifests/pokeapi.json`.
+/// Source manifest at `data/source_manifests/pokeapi.json`.
 Map<String, String> readSourceManifest(File file) {
   if (!file.existsSync()) return const {};
   final j = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
@@ -124,6 +125,6 @@ void writeSourceManifest(File file, Map<String, String> hashes) {
     hashes.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
   );
   file.writeAsStringSync(
-    '${const JsonEncoder.withIndent('  ').convert({'source': pokeApiRepository, 'commit': pokeApiCommit, 'license': 'BSD-3-Clause (Code/Datenbank); Marken bei den Inhabern', 'files': sorted})}\n',
+    '${const JsonEncoder.withIndent('  ').convert({'source': pokeApiRepository, 'commit': pokeApiCommit, 'license': 'BSD-3-Clause (code/database); trademarks belong to their owners', 'files': sorted})}\n',
   );
 }

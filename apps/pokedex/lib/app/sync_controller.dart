@@ -9,31 +9,31 @@ import 'package:mydex_sync/mydex_sync.dart';
 import 'providers.dart';
 import 'sync_config.dart';
 
-/// Die Android-Ausgabe „offline“ hat keine Internet-Berechtigung und daher
-/// keinen Abgleich; alle anderen Ausgaben bieten ihn optional an.
+/// The Android flavor "offline" has no internet permission and therefore no
+/// sync; all other editions offer it optionally.
 final syncSupportedProvider = Provider<bool>((ref) => appFlavor != 'offline');
 
-/// Baut die (unverschlüsselte) Verbindung zum Server; in Tests ersetzbar.
+/// Builds the (unencrypted) connection to the server; replaceable in tests.
 final syncTransportFactoryProvider =
     Provider<SyncTransport Function(String serverUrl, String token)>(
       (ref) =>
           (serverUrl, token) => HttpSyncTransport(Uri.parse(serverUrl), token),
     );
 
-/// PBKDF2-Runden für neue Sync-Schlüssel (in Tests kleiner).
+/// PBKDF2 iterations for new sync keys (smaller in tests).
 final syncKdfIterationsProvider = Provider<int>(
   (ref) => SyncEncryption.defaultIterations,
 );
 
-/// Schlüsselableitung; außerhalb des Webs in einem Hintergrund-Isolate.
+/// Key derivation; outside the web in a background isolate.
 final syncKeyDerivationProvider = Provider<KeyDerivation>(
   (ref) => kIsWeb ? SyncKey.derive : _deriveInBackground,
 );
 
-/// Mindestlänge des Sync-Passworts.
+/// Minimum length of the sync passphrase.
 const syncPassphraseMinLength = 8;
 
-// Eigenständig, damit das Isolate nichts aus der Oberfläche einfängt.
+// Standalone so that the isolate captures nothing from the UI.
 Future<SyncKey> _deriveInBackground(
   String passphrase,
   List<int> salt,
@@ -51,13 +51,13 @@ class SyncStatus {
     this.lastReport,
   });
 
-  /// `null` = nicht verbunden.
+  /// `null` = not connected.
   final SyncConfig? config;
   final bool syncing;
   final DateTime? lastSync;
   final int pending;
 
-  /// Fehlercode des letzten Versuchs (siehe [SyncProtocolException.code]).
+  /// Error code of the last attempt (see [SyncProtocolException.code]).
   final String? error;
   final SyncReport? lastReport;
 
@@ -68,7 +68,7 @@ class SyncController extends Notifier<SyncStatus> {
   Timer? _debounce;
   StreamSubscription<void>? _changes;
 
-  /// Wartezeit nach einer lokalen Änderung bis zum automatischen Abgleich.
+  /// Delay after a local change until the automatic sync.
   static const debounce = Duration(seconds: 5);
 
   SyncClient get _client => ref.read(appStorageProvider).sync;
@@ -116,16 +116,16 @@ class SyncController extends Notifier<SyncStatus> {
   SyncTransport _base(SyncConfig config) =>
       ref.read(syncTransportFactoryProvider)(config.serverUrl, config.token);
 
-  /// Verschlüsselte Verbindung (ADR 0014).
+  /// Encrypted connection (ADR 0014).
   EncryptingTransport _transport(SyncConfig config) => EncryptingTransport(
     _base(config),
     config.key,
     ref.read(appStorageProvider).syncAliases,
   );
 
-  /// Verbindet mit einem Server und entsperrt die Verschlüsselung mit dem
-  /// Sync-Passwort. Scheitert Anmeldung, Adresse oder Passwort, bleibt die
-  /// App getrennt.
+  /// Connects to a server and unlocks the encryption with the sync
+  /// passphrase. If authentication, address or passphrase fail, the app stays
+  /// disconnected.
   Future<String?> connect(
     String serverUrl,
     String token,
@@ -172,7 +172,7 @@ class SyncController extends Notifier<SyncStatus> {
     return error;
   }
 
-  /// Gleicht jetzt ab; liefert einen Fehlercode oder `null`.
+  /// Syncs now; returns an error code or `null`.
   Future<String?> syncNow() async {
     final config = state.config;
     if (config == null) return 'notConnected';
@@ -194,7 +194,7 @@ class SyncController extends Notifier<SyncStatus> {
       if (ref.mounted) state = _status(error: e.code);
       return e.code;
     } on Object catch (e) {
-      debugPrint('Abgleich fehlgeschlagen: $e');
+      debugPrint('Sync failed: $e');
       if (ref.mounted) state = _status(error: 'server');
       return 'server';
     } finally {
@@ -202,8 +202,8 @@ class SyncController extends Notifier<SyncStatus> {
     }
   }
 
-  /// Trennt dieses Gerät; mit [wipeServer] werden vorher alle Daten des
-  /// Kontos auf dem Server gelöscht.
+  /// Disconnects this device; with [wipeServer] all data of the account on
+  /// the server is deleted first.
   Future<String?> disconnect({bool wipeServer = false}) async {
     final config = state.config;
     if (wipeServer && config != null) {

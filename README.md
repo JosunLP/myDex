@@ -1,135 +1,136 @@
+
 # myDex
 
-Offline-first Pokémon-Enzyklopädie für Android (inkl. GrapheneOS ohne Google-Dienste), iOS,
-Windows, macOS und Linux – eine gemeinsame Flutter/Dart-Codebase, lokale Datenhaltung,
-spielversionsabhängige Daten und optionaler Sync.
+Offline-first Pokémon encyclopedia for Android (including GrapheneOS without Google services),
+iOS, Windows, macOS and Linux – one shared Flutter/Dart codebase, local data storage,
+game-version-specific data and optional sync.
 
-> Inoffizielles Fanprojekt. Pokémon und alle zugehörigen Namen sind Marken ihrer jeweiligen
-> Inhaber. Dieses Projekt ist nicht mit Nintendo, Game Freak oder The Pokémon Company verbunden.
-> Private App, nicht zur öffentlichen Verbreitung bestimmt. Rechte je Quelle: `data/license_inventory/`.
+> Unofficial fan project. Pokémon and all related names are trademarks of their respective
+> owners. This project is not affiliated with Nintendo, Game Freak or The Pokémon Company.
+> Private app, not intended for public distribution. Rights per source: `data/license_inventory/`.
 
-## Stand
+## Status
 
-Phase 1 – Fundament und vertikaler Durchstich (abgeschlossen):
+Phase 1 – Foundation and vertical slice (done):
 
-- [x] Monorepo-Struktur und Dart-Workspace
-- [x] Domänenmodell: Art / Variante / Form, Spielkontext, Verfügbarkeitszustände
-- [x] Regelwerk: historische Typentabellen (Gen 1, Gen 2–5, ab Gen 6), Statuswertformeln, Basistypen-Teamanalyse
-- [x] Deklarative, validierte Entwicklungsbedingungen
-- [x] Lokale, sprachübergreifende Suche mit Ranking und Tippfehlertoleranz
-- [x] Lokale Sammlung (gesehen / gefangen / Shiny) mit atomarem Speichern
-- [x] Adaptive Flutter-App (Bottom Navigation / Rail / Sidebar), Deutsch und Englisch
-- [x] CI: Formatierung, Analyse, Tests; Builds für Linux, Android, Windows, macOS, iOS
-- [x] Android-Release ohne Internet-Berechtigung und ohne Google-Dienste
+- [x] Monorepo structure and Dart workspace
+- [x] Domain model: species / variety / form, game context, availability states
+- [x] Rules: historical type charts (Gen 1, Gen 2–5, Gen 6+), stat formulas, base team type analysis
+- [x] Declarative, validated evolution conditions
+- [x] Local cross-language search with ranking and typo tolerance
+- [x] Local collection (seen / caught / shiny) with atomic saves
+- [x] Adaptive Flutter app (bottom navigation / rail / sidebar), German and English
+- [x] CI: formatting, analysis, tests; builds for Linux, Android, Windows, macOS, iOS
+- [x] Android release without internet permission and without Google services
 
-Phase 2a – Wissenskatalog (abgeschlossen):
+Phase 2a – Knowledge catalog (done):
 
-- [x] Reproduzierbare Datenpipeline (`tools/data_pipeline`) aus einem festgehaltenen PokéAPI-Stand
-- [x] SQLite-Katalog mit allen Spielen, 1351 Formen, Attacken, Fähigkeiten, Items, Erlernbarkeit
-      und Entwicklungen; Namen in 11 Sprachen; FTS5-Suche
-- [x] Historische Werte: Typen, Basiswerte, Fähigkeiten und Attackenwerte je Spiel
-- [x] Sichere Katalog-Installation: Prüfsumme, Integritätstest, atomarer Wechsel, Rückfall
-- [x] App: Attacken je Spiel, Attacken- und Fähigkeitsseiten, Suche, Datenstand und Abdeckung
+- [x] Reproducible data pipeline (`tools/data_pipeline`) from a pinned PokéAPI snapshot
+- [x] SQLite catalog with all games, 1351 forms, moves, abilities, items, learnsets and
+      evolutions; names in 11 languages; FTS5 search
+- [x] Historical values: types, base stats, abilities and move data per game
+- [x] Safe catalog installation: checksum, integrity check, atomic switch, fallback
+- [x] App: moves per game, move and ability pages, search, data status and coverage
 
-Phase 2b – Fundorte und Beschaffung (abgeschlossen):
+Phase 2b – Locations and acquisition (done):
 
-- [x] Begegnungen je Version: Ort, Gebiet, Methode, Level, Wahrscheinlichkeit, Bedingungen
-- [x] Eigener Bereich „Fundorte“ mit Orten nach Region und Ortsseiten
-- [x] Beschaffung auf der Pokémon-Seite: Fundorte, Entwicklung, Zucht
-- [x] Datenlücken statt „nicht fangbar“, wenn ein Spiel keine Fundortdaten hat
-- [x] Tausch zwischen Spielen und Event-Pokémon (Mysteriöse); konkrete Event-Termine nicht enthalten
+- [x] Encounters per version: location, area, method, level, rate, conditions
+- [x] Dedicated “Locations” section with locations by region and location pages
+- [x] Acquisition on the Pokémon page: locations, evolution, breeding
+- [x] Data gaps instead of “not catchable” when a game has no encounter data
+- [x] Trading between games and event Pokémon (mythicals); concrete event dates not included
 
-Phase 3a – Teams (abgeschlossen):
+Phase 3a – Teams (done):
 
-- [x] Teams je Spiel, lokal gespeichert (atomar, unlesbare Einträge bleiben erhalten)
-- [x] Mitglieder mit Spitzname, Level, Fähigkeit, Item, Wesen, vier Attacken, IVs/EVs (Gen 1–2: DVs/Status-EP)
-- [x] Berechnete Werte je Regelwerk
-- [x] Prüfung: gültig / teilweise geprüft / Datenlage unzureichend / ungültig (ADR 0009)
-- [x] Typanalyse mit gemeinsamen Schwächen, Abdeckungslücken und Attackenvorschlägen
+- [x] Teams per game, stored locally (atomic; unreadable entries are preserved)
+- [x] Members with nickname, level, ability, item, nature, four moves, IVs/EVs (Gen 1–2: DVs/stat exp)
+- [x] Calculated stats per ruleset
+- [x] Validation: valid / partially checked / insufficient data / invalid (ADR 0009)
+- [x] Type analysis with shared weaknesses, coverage gaps and move suggestions
 
-Phase 3b – Sammlung und Datensicherung (abgeschlossen):
+Phase 3b – Collection and backup (done):
 
-- [x] Kombinierbare Dex-Filter: Typen (einer/alle), Generation, Sammlungsstatus, nur Standardformen
-- [x] Filtervorlagen (versioniert gespeichert)
-- [x] Globale Checkliste: Fortschritt über alle Spiele mit Spielen und erstem Fangdatum
-- [x] Export/Import aller persönlichen Daten, optional verschlüsselt, mit Vorschau (ADR 0010)
-- [x] Signierte Katalog-Updates über den eigenen Sync-Server (ADR 0015)
-- [ ] Signierte Release-Pakete je Plattform, GrapheneOS-Testgerät in der Abnahme
+- [x] Combinable Dex filters: types (any/all), generation, collection status, default forms only
+- [x] Filter presets (stored with versioning)
+- [x] Global checklist: progress across all games with games and first catch date
+- [x] Export/import of all personal data, optionally encrypted, with preview (ADR 0010)
+- [x] Signed catalog updates via your own sync server (ADR 0015)
+- [ ] Signed release packages per platform, GrapheneOS test device in acceptance
 
-Phase 4a – Sprachen, Hilfe, Vorlesen (abgeschlossen):
+Phase 4a – Languages, help, speech (done):
 
-- [x] Oberfläche auf Deutsch, Englisch, Französisch, Spanisch und Italienisch, wählbar oder nach System
-- [x] Spieldaten in allen elf Katalogsprachen
-- [x] Offline-Hilfe zu Spielauswahl, Datenlücken, Suche, Fundorten, Sammlung, Teams, Sicherung, Datenschutz
-- [x] Vorlesen über die Sprachausgabe des Systems, auch ohne Google-Dienste (ADR 0011)
-- [x] Galerie: Sprites je Spiel (ADR 0013)
+- [x] UI in German, English, French, Spanish and Italian, selectable or following the system
+- [x] Game data in all eleven catalog languages
+- [x] Offline help on game selection, data gaps, search, locations, collection, teams, backup, privacy
+- [x] Read-aloud via the system's text-to-speech, also without Google services (ADR 0011)
+- [x] Gallery: sprites per game (ADR 0013)
 
-Phase 4b – Optionaler Sync (abgeschlossen):
+Phase 4b – Optional sync (done):
 
-- [x] Abgleich von Sammlung, Teams und Filtervorlagen über einen selbst gehosteten Server (ADR 0012)
-- [x] Outbox, Revisionen, Grabsteine für Löschungen, Konfliktkopien statt Überschreiben
-- [x] Server mit SQLite und Kommandozeile für Konten (`tools/sync_server`)
-- [x] Android: Standardausgabe `offline` ohne Internet-Berechtigung, Ausgabe `sync` mit Abgleich
-- [x] Ende-zu-Ende-Verschlüsselung mit Sync-Passwort (ADR 0014)
+- [x] Sync of collection, teams and filter presets via a self-hosted server (ADR 0012)
+- [x] Outbox, revisions, tombstones for deletions, conflict copies instead of overwriting
+- [x] Server with SQLite and a command line for accounts (`tools/sync_server`)
+- [x] Android: default flavor `offline` without internet permission, flavor `sync` with sync
+- [x] End-to-end encryption with a sync passphrase (ADR 0014)
 
-Phase 5 – Stabilisierung und Veröffentlichung (dieser Stand):
+Phase 5 – Stabilization and release (current):
 
-- [x] Barrierefreiheit automatisch geprüft: Tippflächen, Beschriftungen, Kontrast (hell/dunkel, Smartphone/Desktop)
-- [x] Einheitlicher App-Name „myDex“ auf allen Plattformen
-- [x] Android-Release-Signatur über GitHub-Secrets; CI prüft die Berechtigungen der Release-APKs
-- [x] Release-Workflow: Pakete für Android, Linux, Windows, macOS und den Sync-Server, mit Prüfsummen
-- [x] Datenschutzerklärung, Sicherheitsrichtlinie, Changelog
-- [x] Abnahmeprotokoll für GrapheneOS (`docs/release/grapheneos-abnahme.md`)
-- [x] Galerie: offizielles Artwork, Standard-, Shiny- und Spiel-Bilder aller Generationen offline; Vorschaubilder in Dex, Sammlung und Teams
-- [x] Pokédex-Gestaltung: rotes Gehäuse, Linse mit Signal-LEDs, Anzeige mit Artwork und Digitalnummer; dunkle Variante in Scharnier-Schwarz
-- [ ] Release-Schlüssel erzeugen und als Secrets hinterlegen, erstes Release, Abnahme auf dem Gerät
-- [ ] iOS/macOS/Windows signieren (Entwicklerkonten)
+- [x] Accessibility checked automatically: tap targets, labels, contrast (light/dark, phone/desktop)
+- [x] Consistent app name “myDex” on all platforms
+- [x] Android release signing via GitHub secrets; CI checks the permissions of the release APKs
+- [x] Release workflow: packages for Android, Linux, Windows, macOS and the sync server, with checksums
+- [x] Privacy policy, security policy, changelog
+- [x] GrapheneOS acceptance checklist (`docs/release/grapheneos-acceptance.md`)
+- [x] Gallery: official artwork, default, shiny and in-game images of all generations offline; thumbnails in Dex, collection and teams
+- [x] Pokédex design: red casing, lens with signal LEDs, screen with artwork and digital number; dark variant in hinge black
+- [ ] Create release keys and store them as secrets, first release, on-device acceptance
+- [ ] Sign iOS/macOS/Windows builds (developer accounts)
 
-## Struktur
+## Structure
 
 ```text
-apps/pokedex/           Flutter-App (Presentation)
-packages/domain/        Fachmodelle, IDs, Spielkontext – reines Dart
-packages/game_rules/    Typentabellen, Statuswerte, Teamanalyse – reines Dart
-packages/application/   Anwendungsfälle, Repository-Schnittstellen, Suche
-packages/catalog_store/ SQLite-Katalog: Schema, Lesen, Prüfen, Installieren
-packages/user_store/    Persönliche Daten (Sammlung, Teams, Vorlagen, Sicherung)
-packages/sync/          Optionaler Abgleich: Protokoll, Client, Serverkern
-tools/data_pipeline/    Quellstand laden, normalisieren, prüfen, Katalog bauen
-tools/sync_server/      Selbst gehosteter Sync-Server (SQLite)
-data/source_manifests/  Festgehaltener Quellstand mit Prüfsummen
-data/fixtures/          Kleiner Testkatalog (von der Pipeline erzeugt)
-docs/                   Architektur, Entscheidungen (ADRs), Paritätsmatrix
+apps/pokedex/           Flutter app (presentation)
+packages/domain/        Domain models, IDs, game context – pure Dart
+packages/game_rules/    Type charts, stats, team analysis – pure Dart
+packages/application/   Use cases, repository interfaces, search
+packages/catalog_store/ SQLite catalog: schema, reading, validation, installation
+packages/user_store/    Personal data (collection, teams, presets, backup)
+packages/sync/          Optional sync: protocol, client, server core
+tools/data_pipeline/    Fetch, normalize and validate the source, build the catalog
+tools/sync_server/      Self-hosted sync server (SQLite)
+data/source_manifests/  Pinned source snapshot with checksums
+data/fixtures/          Small test catalog (generated by the pipeline)
+docs/                   Architecture, decisions (ADRs), parity matrix
 ```
 
-Abhängigkeitsrichtung: `apps → application → domain/game_rules`; `catalog_store` und
-`user_store` implementieren Schnittstellen aus `application`. Die Domäne kennt weder Flutter
-noch eine Datenbank.
+Dependency direction: `apps → application → domain/game_rules`; `catalog_store` and
+`user_store` implement interfaces from `application`. The domain knows neither Flutter nor a
+database.
 
-## Entwicklung
+## Development
 
 ```sh
-flutter pub get                      # löst den gesamten Workspace auf
-(cd packages/domain && dart test)   # usw. für jedes reine Dart-Paket
+flutter pub get                      # resolves the whole workspace
+(cd packages/domain && dart test)   # likewise for every pure Dart package
 cd apps/pokedex && flutter test
-cd apps/pokedex && flutter run -d linux   # oder ios, macos, windows
-cd apps/pokedex && flutter run --flavor offline   # Android (oder --flavor sync)
+cd apps/pokedex && flutter run -d linux   # or ios, macos, windows
+cd apps/pokedex && flutter run --flavor offline   # Android (or --flavor sync)
 ```
 
-Katalog neu bauen (lädt den festgehaltenen Quellstand einmalig nach `.dart_tool/`):
+Rebuild the catalog (downloads the pinned source once into `.dart_tool/`):
 
 ```sh
 dart run tools/data_pipeline/bin/data_pipeline.dart build
 ```
 
-Das erzeugt `apps/pokedex/assets/catalog/catalog.sqlite.gz` (+ Manifest) und den Testkatalog in
-`data/fixtures/`. Danach baut `dart run tools/data_pipeline/bin/data_pipeline.dart media` die
-Medienpakete (Sprites, ADR 0013). Der Build ist deterministisch; die CI baut neu und prüft, dass die
-eingecheckten Pakete exakt übereinstimmen. Regeln und bekannte Lücken: ADR 0008.
+This produces `apps/pokedex/assets/catalog/catalog.sqlite.gz` (+ manifest) and the test catalog
+in `data/fixtures/`. Then `dart run tools/data_pipeline/bin/data_pipeline.dart media` builds the
+media packs (sprites, ADR 0013). The build is deterministic; CI rebuilds and checks that the
+committed packs match exactly. Rules and known gaps: ADR 0008.
 
-Datenquelle: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), Lizenzhinweis in der App.
+Data source: [PokéAPI](https://github.com/PokeAPI/pokeapi) (BSD-3-Clause), license notice in the app.
 
-Sync-Server selbst betreiben: `tools/sync_server/README.md`. Releases: `docs/release/README.md`.
-Datenschutz: `PRIVACY.md`. Sicherheitslücken melden: `SECURITY.md`.
+Running your own sync server: `tools/sync_server/README.md`. Releases: `docs/release/README.md`.
+Privacy: `PRIVACY.md`. Reporting vulnerabilities: `SECURITY.md`.
 
-Siehe `docs/architecture/overview.md`, `docs/decisions/` und `docs/parity/`.
+See `docs/architecture/overview.md`, `docs/decisions/` and `docs/parity/`.

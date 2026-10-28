@@ -8,7 +8,7 @@ import '../../app/providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/move_row.dart';
 
-/// Erlernbare Attacken einer Form im gewählten Spiel, nach Methode gruppiert.
+/// Learnable moves of a form in the selected game, grouped by method.
 class LearnsetSection extends ConsumerWidget {
   const LearnsetSection({super.key, required this.form});
 
@@ -24,7 +24,7 @@ class LearnsetSection extends ConsumerWidget {
     final entries = details.learnset(form, ctx.versionGroupId);
     if (entries.isEmpty) return Text(l10n.noLearnset);
 
-    // Gruppen in fester Reihenfolge; Sondermethoden je Quellschlüssel getrennt.
+    // Groups in a fixed order; special methods separated by source key.
     final groups = <String, List<LearnsetEntry>>{};
     for (final method in LearnMethod.values) {
       for (final e in entries.where((e) => e.method == method)) {
@@ -57,7 +57,7 @@ class LearnsetSection extends ConsumerWidget {
     for (final e in groups.entries) {
       if (e.key != 'level-up' && e.key != 'machine') e.value.sort(byName);
     }
-    // Attacken der Vorentwicklungen bleiben beim Entwickeln erhalten.
+    // Moves of pre-evolutions are kept on evolution.
     final own = {for (final e in entries) e.move};
     final inherited = <MoveId, FormId>{};
     for (final pre in preEvolutionsOf(catalog, form, ctx.versionGroupId)) {

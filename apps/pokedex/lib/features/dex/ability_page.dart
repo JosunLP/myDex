@@ -8,7 +8,7 @@ import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/game_context_selector.dart';
 
-/// Fähigkeit und die Pokémon, die sie im gewählten Spiel haben.
+/// An ability and the Pokémon that have it in the selected game.
 class AbilityPage extends ConsumerWidget {
   const AbilityPage({super.key, required this.abilityId});
 

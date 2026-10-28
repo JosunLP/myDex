@@ -5,7 +5,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../app/providers.dart';
 import '../l10n/generated/app_localizations.dart';
 
-/// Schalter „gefangen“ für eine Form im aktuellen Spiel.
+/// "Caught" switch for a form in the current game.
 class CaughtButton extends ConsumerWidget {
   const CaughtButton({super.key, required this.form, this.shiny = false});
 
@@ -37,7 +37,7 @@ class CaughtButton extends ConsumerWidget {
   }
 }
 
-/// Sammlungsstatus auf der Detailseite: gesehen, gefangen, Shiny.
+/// Collection status on the detail page: seen, caught, shiny.
 class CollectionToggles extends ConsumerWidget {
   const CollectionToggles({super.key, required this.form});
 

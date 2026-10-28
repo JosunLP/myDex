@@ -1,5 +1,5 @@
 name: mydex_sync_server
-description: Selbst hostbarer Sync-Server für myDex (SQLite, ein Prozess).
+description: Self-hostable sync server for myDex (SQLite, one process).
 publish_to: none
 version: 0.1.0
 resolution: workspace

@@ -3,7 +3,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import '../l10n/generated/app_localizations.dart';
 
-/// Erzeugt aus der deklarativen Bedingung einen lokalisierten Text.
+/// Builds a localized text from the declarative condition.
 String describeEvolution(
   EvolutionCondition c,
   AppLocalizations l10n,

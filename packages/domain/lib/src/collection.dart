@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'ids.dart';
 
-/// Umfang einer Sammlungsmarkierung: ein bestimmtes Spiel oder global.
+/// Scope of a collection mark: a specific game or global.
 @immutable
 sealed class CollectionScope {
   const CollectionScope();
@@ -14,7 +14,7 @@ sealed class CollectionScope {
     if (key.startsWith('game:')) {
       return GameScope(GameVersionId(key.substring(5)));
     }
-    throw FormatException('Unbekannter Sammlungsumfang: $key');
+    throw FormatException('Unknown collection scope: $key');
   }
 
   @override
@@ -38,8 +38,8 @@ final class GameScope extends CollectionScope {
   String get key => 'game:${game.value}';
 }
 
-/// Eindeutiger Schlüssel eines Sammlungseintrags. Shiny ist eine Eigenschaft
-/// des Eintrags, keine eigene Form.
+/// Unique key of a collection entry. Shiny is a property of the entry, not a
+/// form of its own.
 @immutable
 class CollectionKey {
   const CollectionKey({
@@ -58,7 +58,7 @@ class CollectionKey {
   static CollectionKey decode(String s) {
     final parts = s.split('|');
     if (parts.length != 3) {
-      throw FormatException('Ungültiger Sammlungsschlüssel: $s');
+      throw FormatException('Invalid collection key: $s');
     }
     return CollectionKey(
       scope: CollectionScope.parse(parts[0]),
@@ -66,7 +66,7 @@ class CollectionKey {
       shiny: switch (parts[2]) {
         'shiny' => true,
         'normal' => false,
-        _ => throw FormatException('Ungültige Shiny-Angabe: ${parts[2]}'),
+        _ => throw FormatException('Invalid shiny flag: ${parts[2]}'),
       },
     );
   }
@@ -110,7 +110,7 @@ class CollectionEntry {
 
   bool get isEmpty => !seen && !caught && (note == null || note!.isEmpty);
 
-  /// Gefangen impliziert gesehen; Entfernen von „gefangen“ löscht das Fangdatum.
+  /// Caught implies seen; removing "caught" clears the catch date.
   CollectionEntry withCaught(bool value, DateTime now) => CollectionEntry(
     key: key,
     seen: seen || value,
@@ -120,7 +120,7 @@ class CollectionEntry {
     updatedAt: now,
   );
 
-  /// „Nicht gesehen“ impliziert „nicht gefangen“.
+  /// "Not seen" implies "not caught".
   CollectionEntry withSeen(bool value, DateTime now) => CollectionEntry(
     key: key,
     seen: value,

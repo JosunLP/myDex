@@ -4,7 +4,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
 
-/// Unterscheidet Datenlücken von bestätigter Nichtverfügbarkeit (ADR 0005).
+/// Distinguishes data gaps from confirmed unavailability (ADR 0005).
 class AvailabilityNotice extends StatelessWidget {
   const AvailabilityNotice({
     super.key,
@@ -72,7 +72,7 @@ class AvailabilityNotice extends StatelessWidget {
   }
 }
 
-/// Kleine Markierung für Listen.
+/// Small marker for lists.
 class DataGapChip extends StatelessWidget {
   const DataGapChip({super.key});
 

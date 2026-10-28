@@ -3,30 +3,30 @@ import 'package:mydex_domain/mydex_domain.dart';
 import 'catalog_details.dart';
 import 'catalog_snapshot.dart';
 
-/// Ein geladener Katalog: Kerndaten im Speicher, große Tabellen auf Abruf.
+/// A loaded catalog: core data in memory, large tables on demand.
 class LoadedCatalog {
   const LoadedCatalog(this.snapshot, this.details);
   final CatalogSnapshot snapshot;
   final CatalogDetails details;
 }
 
-/// Nur lesbarer öffentlicher Katalog (ADR 0003).
+/// Read-only public catalog (ADR 0003).
 abstract interface class CatalogRepository {
   Future<LoadedCatalog> load();
 }
 
-/// Persönliche Sammlungsdaten, getrennt vom Katalog.
+/// Personal collection data, separate from the catalog.
 abstract interface class CollectionRepository {
   Future<Map<CollectionKey, CollectionEntry>> loadAll();
 
-  /// Speichert einen Eintrag; leere Einträge werden entfernt.
+  /// Saves an entry; empty entries are removed.
   Future<void> put(CollectionEntry entry);
 
-  /// Ersetzt alle Einträge (Import).
+  /// Replaces all entries (import).
   Future<void> replaceAll(Iterable<CollectionEntry> entries);
 }
 
-/// Persönliche Teams, getrennt vom Katalog.
+/// Personal teams, separate from the catalog.
 abstract interface class TeamRepository {
   Future<List<Team>> loadAll();
 
@@ -34,11 +34,11 @@ abstract interface class TeamRepository {
 
   Future<void> delete(String id);
 
-  /// Ersetzt alle Teams (Import).
+  /// Replaces all teams (import).
   Future<void> replaceAll(Iterable<Team> teams);
 }
 
-/// Gespeicherte Filtervorlagen.
+/// Saved filter presets.
 abstract interface class FilterPresetRepository {
   Future<List<FilterPreset>> loadAll();
 

@@ -4,20 +4,20 @@ import 'package:mydex_domain/mydex_domain.dart';
 import 'client.dart';
 import 'protocol.dart';
 
-/// Datenarten im Abgleich. Neue Arten bekommen einen neuen Namen; der Server
-/// speichert sie, ohne sie zu kennen.
+/// Kinds of data in the sync. New kinds get a new name; the server stores them
+/// without knowing them.
 abstract final class SyncKinds {
   static const collection = 'collection';
   static const team = 'team';
   static const filterPreset = 'filter_preset';
 }
 
-/// Sammlungseinträge: bei Konflikt gewinnt der neuere Stand (je Eintrag).
-/// Einträge sind klein und unabhängig; eine Konfliktkopie wäre hier sinnlos.
+/// Collection entries: on conflict the newer state wins (per entry).
+/// Entries are small and independent; a conflict copy would make no sense.
 class CollectionSyncAdapter implements SyncAdapter {
   CollectionSyncAdapter(this.repository);
 
-  /// Das ungekapselte Repository – Übernahmen landen nicht in der Outbox.
+  /// The unwrapped repository – applied changes do not end up in the outbox.
   final CollectionRepository repository;
 
   @override
@@ -49,7 +49,7 @@ class CollectionSyncAdapter implements SyncAdapter {
     try {
       key = CollectionKey.decode(record.id);
     } on FormatException {
-      return; // Fremdes Format einer neueren Version: ignorieren.
+      return; // Unknown format of a newer version: ignore.
     }
     if (record.deleted) {
       await repository.put(
@@ -78,11 +78,11 @@ class CollectionSyncAdapter implements SyncAdapter {
       : const TakeServer();
 }
 
-/// Dokumente mit eigener ID (Teams, Filtervorlagen):
-/// - lokal geändert, auf dem Server gelöscht → lokale Fassung bleibt;
-/// - lokal gelöscht, auf dem Server geändert → Serverfassung bleibt;
-/// - beide geändert → Serverfassung unter der ID, lokale als Konfliktkopie.
-/// So geht keine Bearbeitung still verloren.
+/// Documents with their own ID (teams, filter presets):
+/// - changed locally, deleted on the server → the local version stays;
+/// - deleted locally, changed on the server → the server version stays;
+/// - changed on both → the server version under the ID, the local one as a conflict copy.
+/// This way no edit is ever lost silently.
 class DocumentSyncAdapter implements SyncAdapter {
   DocumentSyncAdapter({
     required this.kind,
@@ -96,14 +96,14 @@ class DocumentSyncAdapter implements SyncAdapter {
   @override
   final String kind;
 
-  /// Lokale Dokumente als JSON mit `id`, `name`, `updatedAt`.
+  /// Local documents as JSON with `id`, `name`, `updatedAt`.
   final Future<List<Map<String, Object?>>> Function() loadAll;
 
-  /// Speichert ein Dokument aus JSON; wirft bei unlesbaren Daten.
+  /// Stores a document from JSON; throws for unreadable data.
   final Future<void> Function(Map<String, Object?> json) save;
   final Future<void> Function(String id) delete;
 
-  /// Name der Konfliktkopie, z. B. „Team (Konflikt)“.
+  /// Name of the conflict copy, e.g. "Team (conflict)".
   final String Function(String name) conflictName;
   final String Function() _newId;
 
@@ -156,7 +156,7 @@ class DocumentSyncAdapter implements SyncAdapter {
     try {
       await save(data);
     } on Object {
-      // Unlesbares Dokument (z. B. neuere Version): lokal nicht übernehmen.
+      // Unreadable document (e.g. newer version): do not apply locally.
     }
   }
 
@@ -192,7 +192,7 @@ SyncChange documentChange(String kind, Map<String, Object?> json) => SyncChange(
 SyncChange deletionChange(String kind, String id) =>
     SyncChange(kind: kind, id: id, updatedAt: DateTime.now(), deleted: true);
 
-/// Strukturgleichheit von JSON-Werten, unabhängig von der Schlüsselreihenfolge.
+/// Structural equality of JSON values, independent of key order.
 bool jsonEquals(Object? a, Object? b) {
   if (a is Map && b is Map) {
     if (a.length != b.length) return false;
@@ -211,7 +211,7 @@ bool jsonEquals(Object? a, Object? b) {
   return a == b;
 }
 
-/// Sammlung mit Aufzeichnung für den Abgleich.
+/// Collection with recording for the sync.
 class SyncingCollectionRepository implements CollectionRepository {
   SyncingCollectionRepository(this.inner, this.client);
 

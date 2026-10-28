@@ -1,4 +1,4 @@
-# Architekturentscheidungen (ADRs)
+# Architecture decision records (ADRs)
 
-Format: Kontext → Entscheidung → Konsequenzen. Neue Entscheidungen bekommen die nächste Nummer;
-überholte ADRs werden als „ersetzt durch“ markiert, nicht gelöscht.
+Format: context → decision → consequences. New decisions get the next number; superseded ADRs
+are marked “superseded by”, not deleted.

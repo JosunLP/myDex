@@ -31,7 +31,7 @@ class ResolvedEvolution {
   final EvolutionCondition condition;
 }
 
-/// Alles, was eine Detailseite im gewählten Spielkontext zeigt.
+/// Everything a detail page shows in the selected game context.
 @immutable
 class PokemonDetail {
   const PokemonDetail({
@@ -50,22 +50,22 @@ class PokemonDetail {
   final FormGameProfile profile;
   final List<ResolvedAbility> abilities;
 
-  /// Entwicklungsfamilie in diesem Spielkontext (nur hier gültige Kanten).
+  /// Evolution family in this game context (only edges valid here).
   final List<ResolvedEvolution> evolutions;
   final List<PokemonForm> otherForms;
 
-  /// Fähigkeiten gibt es erst ab Gen 3: dann „nicht anwendbar“ statt leer.
+  /// Abilities only exist from Gen 3: then "not applicable" instead of empty.
   bool get abilitiesApplicable => context.ruleset.hasAbilities;
 }
 
-/// Lesende Anwendungsfälle, alle explizit im Spielkontext (ADR 0004).
+/// Read-only use cases, all explicitly in the game context (ADR 0004).
 class PokemonQueries {
   const PokemonQueries(this.catalog);
 
   final CatalogSnapshot catalog;
 
-  /// Formen, sortiert nach nationaler Nummer (Standardform zuerst).
-  /// Bestätigt nicht existierende Formen werden ausgeblendet, Datenlücken nicht.
+  /// Forms, sorted by national number (default form first).
+  /// Forms confirmed not to exist are hidden, data gaps are not.
   List<PokemonListItem> list(
     GameContext ctx, {
     bool includeUnavailable = false,
@@ -97,7 +97,7 @@ class PokemonQueries {
 
   PokemonDetail detail(FormId id, GameContext ctx) {
     final form = catalog.forms[id];
-    if (form == null) throw ArgumentError('Unbekannte Form: ${id.value}');
+    if (form == null) throw ArgumentError('Unknown form: ${id.value}');
     final profile = form.profileFor(ctx.versionGroupId);
     return PokemonDetail(
       context: ctx,
@@ -124,7 +124,7 @@ class PokemonQueries {
       for (final e in catalog.evolutions)
         if (e.versionGroups.contains(group)) e,
     ];
-    // Zur Wurzel der Familie laufen, dann alle erreichbaren Kanten sammeln.
+    // Walk to the root of the family, then collect all reachable edges.
     var root = form.id;
     final visited = <FormId>{root};
     while (true) {
@@ -152,8 +152,8 @@ class PokemonQueries {
   }
 }
 
-/// Vorentwicklungen einer Form im Spiel, nächste zuerst (z. B. Raichu → Pikachu, Pichu).
-/// Ihre Attacken bleiben beim Entwickeln erhalten.
+/// Pre-evolutions of a form in the game, closest first (e.g. Raichu → Pikachu, Pichu).
+/// Their moves are kept on evolution.
 List<FormId> preEvolutionsOf(
   CatalogSnapshot catalog,
   FormId form,

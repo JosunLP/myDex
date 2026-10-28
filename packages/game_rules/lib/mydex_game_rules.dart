@@ -1,4 +1,4 @@
-/// Spielmechanische Regeln von myDex.
+/// Game-mechanical rules of myDex.
 library;
 
 export 'src/stat_calculator.dart';

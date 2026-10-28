@@ -1,7 +1,7 @@
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
-/// Flüchtiger Speicher für Tests und Vorschauen.
+/// Volatile store for tests and previews.
 class MemoryCollectionRepository implements CollectionRepository {
   final _entries = <CollectionKey, CollectionEntry>{};
 

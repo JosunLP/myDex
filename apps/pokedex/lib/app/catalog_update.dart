@@ -8,8 +8,8 @@ import 'package:mydex_sync/mydex_sync.dart';
 
 import 'providers.dart';
 
-/// Vertrauenswürdige öffentliche Schlüssel für Katalog-Updates, beim Bauen
-/// gesetzt: `--dart-define=MYDEX_CATALOG_KEY=<base64>[,<base64>]` (ADR 0015).
+/// Trusted public keys for catalog updates, set at build time:
+/// `--dart-define=MYDEX_CATALOG_KEY=<base64>[,<base64>]` (ADR 0015).
 final catalogUpdateKeysProvider = Provider<List<String>>(
   (ref) => [
     for (final k in const String.fromEnvironment(
@@ -19,14 +19,14 @@ final catalogUpdateKeysProvider = Provider<List<String>>(
   ],
 );
 
-/// Verbindung zur Update-Quelle (in Tests ersetzbar).
+/// Connection to the update source (replaceable in tests).
 final catalogUpdateSourceFactoryProvider =
     Provider<CatalogUpdateSource Function(String serverUrl, String token)>(
       (ref) =>
           (serverUrl, token) => HttpSyncTransport(Uri.parse(serverUrl), token),
     );
 
-/// Ergebnis der letzten Prüfung.
+/// Result of the last check.
 @immutable
 class CatalogUpdateStatus {
   const CatalogUpdateStatus({this.busy = false, this.result, this.revision});
@@ -39,7 +39,7 @@ class CatalogUpdateStatus {
   final String? revision;
 }
 
-// Eigenständig, damit das Isolate nichts aus der Oberfläche einfängt.
+// Standalone so that the isolate captures nothing from the UI.
 Future<InstalledCatalog> _install(
   String directory,
   CatalogPackManifest manifest,
@@ -52,8 +52,8 @@ class CatalogUpdateController extends Notifier<CatalogUpdateStatus> {
   @override
   CatalogUpdateStatus build() => const CatalogUpdateStatus();
 
-  /// Prüft beim eigenen Sync-Server auf ein signiertes, neueres Katalogpaket
-  /// und installiert es. Bei jedem Fehler bleibt der bisherige Katalog aktiv.
+  /// Checks your own sync server for a signed, newer catalog pack and
+  /// installs it. On any error the previous catalog stays active.
   Future<CatalogUpdateStatus> check() async {
     state = const CatalogUpdateStatus(busy: true);
     final result = await _check();
@@ -105,8 +105,8 @@ class CatalogUpdateController extends Notifier<CatalogUpdateStatus> {
     } on SyncProtocolException catch (e) {
       return done(result: e.code == 'network' ? 'network' : 'failed');
     } on Object catch (e) {
-      // Auch Dateifehler o. Ä.: der bisherige Katalog bleibt aktiv.
-      debugPrint('Katalog-Update verworfen: $e');
+      // Also file errors etc.: the previous catalog stays active.
+      debugPrint('Catalog update discarded: $e');
       return done(result: 'failed');
     } finally {
       if (source case final HttpSyncTransport http) http.close();

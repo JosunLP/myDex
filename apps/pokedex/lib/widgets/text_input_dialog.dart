@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Einfacher Eingabedialog. Der Controller lebt so lange wie der Dialog
-/// (auch während der Schließ-Animation).
+/// Simple input dialog. The controller lives as long as the dialog (including
+/// the closing animation).
 Future<String?> showTextInputDialog(
   BuildContext context, {
   required String title,

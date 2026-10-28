@@ -2,24 +2,24 @@ import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
-/// Größe der Artworks im Medienpaket (Kantenlänge in Pixeln).
+/// Size of the artworks in the media pack (edge length in pixels).
 const artworkSize = 256;
 
-/// Version des Verkleinerungsverfahrens; Teil des Cache-Pfads, damit eine
-/// Änderung alte Ergebnisse nicht wiederverwendet.
+/// Version of the downscaling process; part of the cache path so that a
+/// change does not reuse old results.
 const artworkProcess = 'a256-v1';
 
-/// Verkleinert ein offizielles Artwork und speichert es als PNG mit
-/// 256-Farben-Palette, ohne die Transparenz zu verlieren:
-/// - 224 Einträge für deckende Farben (Octree über RGB),
-/// - 31 Einträge für halbtransparente Kanten (je Deckkraftstufe die
-///   Durchschnittsfarbe; Kanten sind fast immer Konturen),
-/// - 1 Eintrag voll transparent.
-/// Etwa 17 KB statt 120 KB je Bild, optisch kaum vom Original zu unterscheiden.
-/// Deterministisch: gleiche Eingabe ergibt gleiche Bytes.
+/// Downscales an official artwork and stores it as a PNG with a 256-colour
+/// palette without losing transparency:
+/// - 224 entries for opaque colours (octree over RGB),
+/// - 31 entries for semi-transparent edges (the average colour per opacity
+///   level; edges are almost always outlines),
+/// - 1 fully transparent entry.
+/// About 17 KB instead of 120 KB per image, visually hard to tell apart.
+/// Deterministic: the same input gives the same bytes.
 Uint8List shrinkArtwork(List<int> png) {
   final decoded = img.decodePng(Uint8List.fromList(png));
-  if (decoded == null) throw const FormatException('Kein lesbares PNG');
+  if (decoded == null) throw const FormatException('Not a readable PNG');
   return _palettePng(
     img.copyResize(
       decoded.convert(numChannels: 4),
@@ -30,26 +30,25 @@ Uint8List shrinkArtwork(List<int> png) {
   );
 }
 
-/// Größte Kantenlänge der Spiel-Bilder ab Gen 7 (Einzelbild bzw. Symbol).
+/// Largest edge length of the in-game images from Gen 7 (still or icon).
 const stillSize = 96;
 
-/// Version des Einzelbild-Verfahrens (Teil von Cache-Pfad und Revision).
+/// Version of the still image process (part of the cache path and revision).
 const stillProcess = 's96-v1';
 
-/// Einzelbild aus einem Spiel-Bild ab Gen 7 (animiertes GIF/WebP oder
-/// Symbol): erstes Bild, transparenter Rand abgeschnitten, auf höchstens
-/// [stillSize] px verkleinert (nie vergrößert), PNG mit Palette wie beim
-/// Artwork. Deterministisch.
+/// Still image from an in-game image from Gen 7 (animated GIF/WebP or icon):
+/// first frame, transparent border trimmed, scaled down to at most
+/// [stillSize] px (never up), palette PNG like the artwork. Deterministic.
 Uint8List shrinkStill(List<int> bytes) {
-  // Nur das erste Bild dekodieren: schneller, und manche Animationen der
-  // Quelle sind in späteren Bildern fehlerhaft.
+  // Decode only the first frame: faster, and some animations in the source
+  // are broken in later frames.
   final data = Uint8List.fromList(bytes);
   final decoder = img.findDecoderForData(data);
   if (decoder == null || decoder.startDecode(data) == null) {
-    throw const FormatException('Kein lesbares Bild');
+    throw const FormatException('Not a readable image');
   }
   final first = decoder.decodeFrame(0);
-  if (first == null) throw const FormatException('Kein lesbares Bild');
+  if (first == null) throw const FormatException('Not a readable image');
   var src = img.trim(
     first.convert(numChannels: 4),
     mode: img.TrimMode.transparent,
@@ -66,7 +65,7 @@ Uint8List shrinkStill(List<int> bytes) {
   return _palettePng(src);
 }
 
-/// PNG mit 256-Farben-Palette inkl. halbtransparenter Kanten (siehe oben).
+/// PNG with a 256-colour palette including semi-transparent edges (see above).
 Uint8List _palettePng(img.Image src) {
   final w = src.width, h = src.height;
 
@@ -130,20 +129,20 @@ Uint8List _palettePng(img.Image src) {
   return img.encodePng(out, level: 9);
 }
 
-/// Version der Farbableitung (Teil der Medien-Revision).
+/// Version of the colour derivation (part of the media revision).
 const artworkColorProcess = 'c1';
 
-/// Hauptfarbe eines Artworks als `0xRRGGBB` – für den Hintergrund der
-/// Pokédex-Anzeige.
+/// Main colour of an artwork as `0xRRGGBB` – for the background of the
+/// Pokédex screen.
 ///
-/// Gezählt werden nur deckende Pixel ohne Konturen und Glanzlichter (sehr
-/// dunkel oder sehr hell). Die Pixel werden in Farbwürfel (je Kanal 8 Stufen)
-/// einsortiert und nach Farbintensität (Chroma) gewichtet, damit die
-/// Körperfarbe gegen helle oder graue Flächen nicht untergeht. Ergebnis ist
-/// die Durchschnittsfarbe des schwersten Würfels. Deterministisch.
+/// Only opaque pixels without outlines and highlights (very dark or very
+/// bright) are counted. The pixels are sorted into colour cubes (8 levels per
+/// channel) and weighted by chroma so that the body colour is not drowned out
+/// by bright or grey areas. The result is the average colour of the heaviest
+/// cube. Deterministic.
 int artworkColor(List<int> png) {
   final decoded = img.decodePng(Uint8List.fromList(png));
-  if (decoded == null) throw const FormatException('Kein lesbares PNG');
+  if (decoded == null) throw const FormatException('Not a readable PNG');
   final image = decoded.convert(numChannels: 4);
   final weight = <int, double>{};
   final sums = <int, List<int>>{};
@@ -173,7 +172,7 @@ int artworkColor(List<int> png) {
     if (all[3] == 0) return 0x808080;
     pick = all;
   } else {
-    // Bei Gleichstand entscheidet der kleinere Schlüssel (deterministisch).
+    // On a tie the smaller key wins (deterministic).
     final best = (weight.keys.toList()..sort()).reduce(
       (a, b) => weight[b]! > weight[a]! ? b : a,
     );

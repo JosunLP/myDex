@@ -6,8 +6,8 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Release-Signatur: aus android/key.properties (lokal) oder aus Umgebungsvariablen
-// (CI, Werte aus GitHub-Secrets). Siehe docs/release/README.md.
+// Release signing: from android/key.properties (local) or from environment variables
+// (CI, values from GitHub secrets). See docs/release/README.md.
 val keyProperties = Properties().apply {
     val file = rootProject.file("key.properties")
     if (file.exists()) file.inputStream().use { load(it) }
@@ -45,8 +45,8 @@ android {
         versionName = flutter.versionName
     }
 
-    // „offline“: Standardausgabe ohne Internet-Berechtigung (GrapheneOS-Abnahme).
-    // „sync“: zusätzlich Internet für den optionalen Abgleich (ADR 0012).
+    // "offline": default flavor without internet permission (GrapheneOS acceptance).
+    // "sync": additionally internet for the optional sync (ADR 0012).
     flavorDimensions += "edition"
     productFlavors {
         create("offline") {
@@ -74,9 +74,9 @@ android {
 
     buildTypes {
         release {
-            // Ohne Release-Schlüssel (lokale Entwicklung) mit dem Debug-Schlüssel,
-            // damit `flutter run --release` funktioniert. Veröffentlichte Pakete
-            // werden nur mit MYDEX_REQUIRE_SIGNING=true gebaut.
+            // Without a release key (local development) use the debug key so that
+            // `flutter run --release` works. Published packages are only built
+            // with MYDEX_REQUIRE_SIGNING=true.
             signingConfig = if (releaseStoreFile != null) {
                 signingConfigs.getByName("release")
             } else {

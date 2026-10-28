@@ -1,5 +1,5 @@
 name: mydex_user_store
-description: Persönliche Nutzerdaten (Sammlung), getrennt vom Katalog.
+description: Personal user data (collection, teams, presets, backup), separate from the catalog.
 publish_to: none
 version: 0.1.0
 resolution: workspace

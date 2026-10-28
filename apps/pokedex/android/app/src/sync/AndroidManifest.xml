@@ -1,4 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Nur die Ausgabe „sync“: Verbindung zum eigenen Sync-Server (ADR 0012). -->
+    <!-- "sync" flavor only: connection to your own sync server (ADR 0012). -->
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

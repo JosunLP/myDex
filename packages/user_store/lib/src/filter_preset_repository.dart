@@ -5,7 +5,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'json_file_store.dart';
 
-/// Filtervorlagen als JSON-Datei.
+/// Filter presets as a JSON file.
 class FileFilterPresetRepository implements FilterPresetRepository {
   FileFilterPresetRepository(File file)
     : _store = JsonFileStore(file, schemaVersion: 1);
@@ -21,7 +21,7 @@ class FileFilterPresetRepository implements FilterPresetRepository {
         final preset = FilterPreset.fromJson(j);
         result[preset.id] = preset;
       } on Object {
-        // Unlesbare Vorlage überspringen.
+        // Skip unreadable preset.
       }
     }
     return _presets = result;

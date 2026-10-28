@@ -1,5 +1,5 @@
 name: mydex_data_pipeline
-description: Erzeugt den SQLite-Katalog aus einem festgehaltenen Quellstand.
+description: Builds the SQLite catalog and media packs from a pinned source snapshot.
 publish_to: none
 version: 0.1.0
 resolution: workspace

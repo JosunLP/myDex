@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import 'ids.dart';
 import 'stats.dart';
 
-/// Ein Teammitglied. Welche Felder sinnvoll sind, bestimmt das Regelwerk.
+/// A team member. Which fields make sense is decided by the ruleset.
 @immutable
 class TeamMember {
   const TeamMember({
@@ -47,13 +47,13 @@ class TeamMember {
   final ItemId? item;
   final NatureId? nature;
 
-  /// Höchstens vier Attacken.
+  /// At most four moves.
   final List<MoveId> moves;
 
-  /// Fehlende Werte gelten als Maximum (ab Gen 3: 31; Gen 1–2: 15).
+  /// Missing values count as the maximum (from Gen 3: 31; Gen 1–2: 15).
   final Map<Stat, int> ivs;
 
-  /// Fehlende Werte gelten als 0.
+  /// Missing values count as 0.
   final Map<Stat, int> evs;
   final bool shiny;
 
@@ -99,7 +99,7 @@ class TeamMember {
   };
 }
 
-/// Ein Team gehört zu genau einem Spiel (und damit einem Regelwerk).
+/// A team belongs to exactly one game (and thus one ruleset).
 @immutable
 class Team {
   const Team({

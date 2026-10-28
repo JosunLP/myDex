@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
-/// Herkunft und Stand eines Katalogpakets.
+/// Origin and state of a catalog pack.
 @immutable
 class CatalogSourceInfo {
   const CatalogSourceInfo({
@@ -14,14 +14,14 @@ class CatalogSourceInfo {
   final String revision;
   final int schemaVersion;
 
-  /// Z. B. `PokéAPI`.
+  /// E.g. `PokéAPI`.
   final String source;
 
-  /// Festgehaltener Quellstand (z. B. Commit-Hash).
+  /// Pinned source snapshot (e.g. commit hash).
   final String sourceRevision;
 }
 
-/// Datenabdeckung je Spielgruppe – fehlende Daten sind sichtbar (ADR 0005).
+/// Data coverage per version group – missing data is visible (ADR 0005).
 @immutable
 class CoverageRow {
   const CoverageRow({
@@ -39,7 +39,7 @@ class CoverageRow {
   final int formsGaps;
   final int learnsetEntries;
 
-  /// 0 = für diese Spielgruppe liegen keine Fundortdaten vor.
+  /// 0 = no location data is available for this version group.
   final int encounterEntries;
 }
 
@@ -59,7 +59,7 @@ class EntityHit {
   int get hashCode => Object.hash(kind, id);
 }
 
-/// Wer eine Attacke in einer Spielgruppe erlernt.
+/// Who learns a move in a version group.
 @immutable
 class MoveLearner {
   const MoveLearner(this.form, this.methods);
@@ -67,34 +67,34 @@ class MoveLearner {
   final Set<LearnMethod> methods;
 }
 
-/// Bedarfsweise Abfragen auf den Katalog (große Tabellen wie Erlernbarkeit),
-/// ergänzend zum vollständig geladenen [CatalogSnapshot].
+/// On-demand queries against the catalog (large tables such as learnsets),
+/// complementing the fully loaded [CatalogSnapshot].
 abstract interface class CatalogDetails {
   CatalogSourceInfo get source;
 
   List<LearnsetEntry> learnset(FormId form, VersionGroupId group);
 
-  /// `null`, wenn die Attacke in dieser Spielgruppe nicht existiert.
+  /// `null` if the move does not exist in this version group.
   MoveGameProfile? moveProfile(MoveId move, VersionGroupId group);
 
-  /// Werte je Spielgruppe in chronologischer Reihenfolge.
+  /// Data per version group in chronological order.
   List<(VersionGroupId, MoveGameProfile)> moveHistory(MoveId move);
 
   List<MoveLearner> learnersOf(MoveId move, VersionGroupId group);
 
-  /// Begegnungen einer Form in einer Spielversion.
+  /// Encounters of a form in a game version.
   List<Encounter> encountersOf(FormId form, GameVersionId version);
 
-  /// Alle Begegnungen an einem Ort in einer Spielversion.
+  /// All encounters at a location in a game version.
   List<Encounter> encountersAt(LocationId location, GameVersionId version);
 
-  /// Orte mit Begegnungsdaten in einer Spielversion.
+  /// Locations with encounter data in a game version.
   List<LocationId> locationsWithEncounters(GameVersionId version);
 
-  /// Ob für diese Spielversion überhaupt Fundortdaten vorliegen.
+  /// Whether there is any location data for this game version.
   bool hasEncounterData(GameVersionId version);
 
-  /// Volltextsuche über Attacken, Fähigkeiten und Items.
+  /// Full-text search over moves, abilities and items.
   List<EntityHit> searchEntities(String query, {int limit = 30});
 
   List<CoverageRow> coverage();

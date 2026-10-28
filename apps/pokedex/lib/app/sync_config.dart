@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mydex_sync/mydex_sync.dart';
 import 'package:mydex_user_store/mydex_user_store.dart';
 
-/// Verbindung zum eigenen Sync-Server.
+/// Connection to your own sync server.
 @immutable
 class SyncConfig {
   const SyncConfig({
@@ -23,8 +23,8 @@ class SyncConfig {
   final String serverUrl;
   final String token;
 
-  /// Aus dem Sync-Passwort abgeleitete Schlüssel (ADR 0014). Das Passwort
-  /// selbst wird nicht gespeichert.
+  /// Keys derived from the sync passphrase (ADR 0014). The passphrase itself
+  /// is not stored.
   final SyncKey key;
 
   Map<String, Object?> toJson() => {
@@ -53,7 +53,7 @@ class MemorySyncConfigStore implements SyncConfigStore {
   Future<void> clear() async => _config = null;
 }
 
-/// Im privaten App-Verzeichnis; Zugriff haben nur die App und das System.
+/// In the app's private directory; only the app and the system have access.
 class FileSyncConfigStore implements SyncConfigStore {
   FileSyncConfigStore(this.file);
 

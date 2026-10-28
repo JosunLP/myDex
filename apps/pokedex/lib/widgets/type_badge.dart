@@ -4,7 +4,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
 
-/// Typ mit Farbe und immer mit Text (keine Information nur durch Farbe).
+/// A type with its colour and always with text (no information by colour alone).
 class TypeBadge extends StatelessWidget {
   const TypeBadge(this.type, {super.key, this.dense = false});
 

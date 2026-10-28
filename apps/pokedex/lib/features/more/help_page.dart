@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Offline-Hilfe zu den Grundbegriffen der App.
+/// Offline help on the basic concepts of the app.
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key});
 
