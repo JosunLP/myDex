@@ -7,13 +7,25 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'schema.dart';
 
-/// Opens a catalog file read-only. `immutable=1` prevents lock and journal
-/// files next to the catalog.
+/// Opens a catalog file read-only.
+///
+/// Elsewhere the file is opened as a `file:` URI with `immutable=1`, which
+/// prevents lock and journal files next to the catalog. On Windows such URIs
+/// fail for some paths (drive letters, user profiles with special characters:
+/// `SqliteException(14)`), so the plain path is used there; the catalog is
+/// never written, so read-only mode is enough.
 Database openCatalogDatabase(String path) {
-  final uri = Uri.file(
-    File(path).absolute.path,
-  ).replace(queryParameters: {'immutable': '1'});
-  return sqlite3.open(uri.toString(), mode: OpenMode.readOnly, uri: true);
+  final absolute = File(path).absolute.path;
+  if (Platform.isWindows) {
+    return sqlite3.open(absolute, mode: OpenMode.readOnly);
+  }
+  final uri = Uri.file(absolute).replace(queryParameters: {'immutable': '1'});
+  try {
+    return sqlite3.open(uri.toString(), mode: OpenMode.readOnly, uri: true);
+  } on SqliteException {
+    // Fallback for SQLite builds or file systems that reject the URI form.
+    return sqlite3.open(absolute, mode: OpenMode.readOnly);
+  }
 }
 
 /// Reads the metadata and checks the schema version.
