@@ -110,6 +110,7 @@ class TeamEvaluator {
     final result = <MoveId, FormId>{};
     // All from one game, also in the International Pokédex.
     final group = learnsetGroupOf(form, context, details);
+    if (group == null) return result; // data gap
     for (final source in [
       form,
       ...preEvolutionsOf(catalog, form, context.versionGroupId),

@@ -1040,15 +1040,19 @@ void main() {
   });
 
   group('upgrade from 1.0 settings (no game chosen)', () {
-    Future<_Harness> start(WidgetTester tester, {required bool marks}) async {
+    Future<_Harness> start(
+      WidgetTester tester, {
+      required bool marks,
+      String game = 'champions',
+    }) async {
       final h = _Harness();
       if (marks) {
         final at = DateTime.utc(2026, 9, 1);
         await h.collection.put(
           CollectionEntry(
-            key: const CollectionKey(
-              scope: GameScope(GameVersionId('champions')),
-              form: FormId('pikachu'),
+            key: CollectionKey(
+              scope: GameScope(GameVersionId(game)),
+              form: const FormId('pikachu'),
             ),
             updatedAt: at,
           ).withCaught(true, at),
@@ -1084,6 +1088,20 @@ void main() {
         const GameVersionId('champions'),
       );
       expect(container.read(settingsProvider).schema, 2);
+    });
+
+    testWidgets('marks under an older "newest" game keep that game', (
+      tester,
+    ) async {
+      // In 1.0 the default followed the catalog of its time.
+      await start(tester, marks: true, game: 'scarlet');
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      expect(
+        container.read(gameContextProvider).versionId,
+        const GameVersionId('scarlet'),
+      );
     });
 
     testWidgets('users without marks get the International Pokédex', (

@@ -10,6 +10,7 @@ import '../l10n/generated/app_localizations.dart';
 import 'motion.dart';
 import 'providers.dart';
 import 'router.dart';
+import 'settings.dart';
 import 'sync_controller.dart';
 import 'theme.dart';
 
@@ -99,15 +100,22 @@ class _CatalogGateState extends ConsumerState<CatalogGate> {
   /// The install error already reported (each one is shown once).
   Object? _reported;
 
-  bool _migrated = false;
+  bool _migrating = false;
 
-  /// Once the catalog and the collection are loaded, upgrade 1.0 settings.
+  /// Upgrades 1.0 settings once the catalog and the collection are loaded:
+  /// at startup and after restoring an old backup. Settings stay
+  /// unmigrated (and are retried) if the collection cannot be read.
   Future<void> _migrate(CatalogSnapshot catalog) async {
-    final collection = await ref.read(collectionProvider.future);
-    if (!mounted) return;
-    ref
-        .read(settingsProvider.notifier)
-        .migrateLegacyDefault(catalog, collection);
+    _migrating = true;
+    try {
+      final collection = await ref.read(collectionProvider.future);
+      if (!mounted) return;
+      ref
+          .read(settingsProvider.notifier)
+          .migrateLegacyDefault(catalog, collection);
+    } finally {
+      _migrating = false;
+    }
   }
 
   @override
@@ -130,9 +138,11 @@ class _CatalogGateState extends ConsumerState<CatalogGate> {
         );
       });
     }
-    if (!_migrated) {
+    final legacy = ref.watch(
+      settingsProvider.select((s) => s.schema < AppSettings.currentSchema),
+    );
+    if (legacy && !_migrating) {
       if (catalog case AsyncData(:final value)) {
-        _migrated = true;
         _migrate(value.snapshot).ignore();
       }
     }

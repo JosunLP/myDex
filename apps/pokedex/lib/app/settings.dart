@@ -95,6 +95,7 @@ class AppSettings {
     if (reduceMotion) 'reduceMotion': true,
     if (recentGames.isNotEmpty) 'recentGames': recentGames,
     if (dexLayout != DexLayout.list) 'dexLayout': dexLayout.name,
-    'schema': currentSchema,
+    // The instance's own schema: unmigrated settings stay recognisable.
+    'schema': schema,
   };
 }

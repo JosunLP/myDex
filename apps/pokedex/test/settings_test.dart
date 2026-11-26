@@ -23,6 +23,9 @@ void main() {
     // 1.0 wrote no schema: it is migrated once the catalog is loaded.
     expect(settings.schema, 1);
     expect(const AppSettings().toJson()['schema'], AppSettings.currentSchema);
+    // Unmigrated settings (e.g. from a restored 1.0 backup) keep their
+    // schema when saved, so the upgrade still runs for them.
+    expect(settings.toJson()['schema'], 1);
   });
 
   test('new settings survive a round trip and tolerate bad values', () {

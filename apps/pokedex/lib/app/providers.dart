@@ -191,13 +191,19 @@ class SettingsController extends Notifier<AppSettings> {
     Map<CollectionKey, CollectionEntry> collection,
   ) {
     if (state.schema >= AppSettings.currentSchema) return;
-    final newest = catalog.versions.lastOrNull?.id;
-    final hasMarks =
-        newest != null &&
-        collection.keys.any((k) => k.scope == GameScope(newest));
+    // The default followed the catalog of its time: the newest game that
+    // actually has marks is the one the user saw.
+    final marked = {
+      for (final k in collection.keys)
+        if (k.scope case GameScope(:final game)) game,
+    };
+    final newest = catalog.versions.reversed
+        .where((v) => marked.contains(v.id))
+        .firstOrNull
+        ?.id;
     _update(
       state.copyWith(
-        gameVersion: state.gameVersion == null && hasMarks
+        gameVersion: state.gameVersion == null && newest != null
             ? () => newest.value
             : null,
         schema: AppSettings.currentSchema,

@@ -119,7 +119,13 @@ class NationalCatalogDetails implements CatalogDetails {
 
   @override
   List<GameVersionId> encounterVersionsAt(LocationId location) =>
-      _chronological(inner.encounterVersionsAt(location));
+      _versionsAt.putIfAbsent(
+        location,
+        () => _chronological(inner.encounterVersionsAt(location)),
+      );
+
+  /// Cached: the query scans the encounter table (keyed by form).
+  final _versionsAt = <LocationId, List<GameVersionId>>{};
 
   /// In the order of the game picker (the snapshot's chronology).
   List<GameVersionId> _chronological(List<GameVersionId> versions) {
@@ -146,10 +152,12 @@ class NationalCatalogDetails implements CatalogDetails {
 /// Version group whose learnsets apply to [form] in [context]: the game
 /// itself, or – in the International Pokédex – the form's source game, so
 /// that moves inherited from pre-evolutions come from the same game.
-VersionGroupId learnsetGroupOf(
+/// `null` in the International Pokédex when the form has no learnset in any
+/// game: a data gap, so nothing is inherited from other games either.
+VersionGroupId? learnsetGroupOf(
   FormId form,
   GameContext context,
   CatalogDetails details,
 ) => NationalDex.isNational(context.versionId)
-    ? details.newestLearnsetGroups()[form] ?? context.versionGroupId
+    ? details.newestLearnsetGroups()[form]
     : context.versionGroupId;

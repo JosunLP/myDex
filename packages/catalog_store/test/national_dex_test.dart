@@ -169,6 +169,18 @@ void main() {
       expect(checked, greaterThan(0));
     });
 
+    test('forms without any learnset inherit nothing (data gap)', () {
+      final evaluator = TeamEvaluator(catalog, details, national);
+      final withoutLearnset = [
+        for (final f in catalog.forms.keys)
+          if (!details.newestLearnsetGroups().containsKey(f)) f,
+      ];
+      expect(withoutLearnset, isNotEmpty);
+      for (final f in withoutLearnset) {
+        expect(evaluator.learnable(f), isEmpty, reason: f.value);
+      }
+    });
+
     test('detail and evolutions with the newest conditions', () {
       final detail = PokemonQueries(
         catalog,
