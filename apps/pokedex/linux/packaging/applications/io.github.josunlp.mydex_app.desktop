@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=myDex
+GenericName=Pokédex
+GenericName[de]=Pokédex
+Comment=Offline Pokémon encyclopedia for every game
+Comment[de]=Offline-Pokémon-Lexikon für alle Spiele
+Comment[fr]=Encyclopédie Pokémon hors ligne pour tous les jeux
+Comment[es]=Enciclopedia Pokémon sin conexión para todos los juegos
+Comment[it]=Enciclopedia Pokémon offline per tutti i giochi
+Exec=mydex_app
+Icon=io.github.josunlp.mydex_app
+Terminal=false
+Categories=Education;Game;Utility;
+Keywords=Pokemon;Pokédex;Pokedex;Dex;Team;Collection;
+StartupWMClass=io.github.josunlp.mydex_app

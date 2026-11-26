@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
+import '../app/motion.dart';
 import '../app/providers.dart';
 
 /// Sprite of a form – in the selected game that game's sprite, otherwise the
@@ -51,8 +52,28 @@ class FormSprite extends ConsumerWidget {
       fit: BoxFit.contain,
       filterQuality: FilterQuality.none,
       gaplessPlayback: true,
+      frameBuilder: fadeInFrame,
       semanticLabel: semanticLabel,
       excludeFromSemantics: semanticLabel == null,
     );
   }
+}
+
+/// Fades an image in once its first frame is decoded (instant when it was
+/// already cached or motion is reduced).
+Widget fadeInFrame(
+  BuildContext context,
+  Widget child,
+  int? frame,
+  bool wasSynchronouslyLoaded,
+) {
+  if (wasSynchronouslyLoaded) return child;
+  return AnimatedOpacity(
+    opacity: frame == null ? 0 : 1,
+    // The description is there even before the picture is.
+    alwaysIncludeSemantics: true,
+    duration: Motion.of(context, Motion.medium),
+    curve: Motion.enter,
+    child: child,
+  );
 }

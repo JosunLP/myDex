@@ -202,7 +202,7 @@
     }
   },
   "scopeThisGame": "This game",
-  "scopeGlobal": "All games",
+  "scopeGlobal": "International",
   "collectionShinyToggle": "Shiny collection",
   "teamsTitle": "Teams",
   "detailEmpty": "Select a Pokémon from the list.",
@@ -448,7 +448,7 @@
     }
   },
   "coverageNoEncounters": "no location data",
-  "teamsEmpty": "No teams yet. Create one for the selected game.",
+  "teamsEmpty": "Teams belong to the selected Pokédex or game – with stats, validation and type analysis.",
   "newTeam": "New team",
   "defaultTeamName": "Team {number}",
   "@defaultTeamName": {
@@ -621,7 +621,7 @@
   "typeMatchAny": "Any of these",
   "typeMatchAll": "All of these",
   "filterGenerations": "Generation",
-  "filterCollection": "Collection (this game)",
+  "filterCollection": "Collection (current Pokédex)",
   "collectionFilterAll": "All",
   "collectionFilterCaught": "Caught",
   "collectionFilterMissing": "Missing",
@@ -651,7 +651,7 @@
       }
     }
   },
-  "ownChecklist": "own list",
+  "ownChecklist": "International Pokédex",
   "backupTitle": "Backup",
   "backupExplanation": "Collection, teams, filter presets and settings as a file. The catalog is not included.",
   "exportBackup": "Export",
@@ -780,7 +780,7 @@
   "helpTitle": "Help",
   "helpSubtitle": "How myDex works – available offline",
   "helpGameTitle": "Game selection",
-  "helpGameBody": "Almost everything depends on the selected game: types, base stats, abilities, moves, locations and team checks. Switch the game at the top of the Dex; the newest game is preselected. Example: Clefairy is Normal up to Generation 5 and Fairy from X/Y on.",
+  "helpGameBody": "Preselected is the International Pokédex: every Pokémon with its newest data, independent of any game. Choose a game at the top to see exactly its values – types, base stats, abilities, moves, locations and team checks then follow that game. Example: Clefairy is Normal up to Generation 5 and Fairy from X/Y on.",
   "helpAvailabilityTitle": "Data gaps and availability",
   "helpAvailabilityBody": "myDex distinguishes \"confirmed not in the game\" from \"not researched yet\". A data gap never means a Pokémon is missing. \"Data & coverage\" shows how complete the data is for each game.",
   "helpSearchTitle": "Search",
@@ -916,6 +916,107 @@
         "type": "String"
       },
       "revision": {
+        "type": "String"
+      }
+    }
+  },
+  "nationalDexSubtitle": "Every Pokémon with the newest data from all games",
+  "gamePickerTitle": "Choose Pokédex",
+  "gamePickerSearch": "Search games",
+  "recentGames": "Recently used",
+  "gamesHeader": "Games",
+  "dataAsOf": "Data as of {game}",
+  "@dataAsOf": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "dataAsOfHint": "The International Pokédex shows the newest data of every Pokémon. Choose a game for its exact values.",
+  "learnsetAsOf": "Moves as in {game}",
+  "@learnsetAsOf": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "encounterGames": "Found in these games – tap one to switch to it",
+  "noEncounterGames": "No game lists locations for this Pokémon.",
+  "switchedToGame": "Switched to {game}",
+  "@switchedToGame": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Undo",
+  "locationNationalHint": "Choose a game to see its encounters here.",
+  "reduceMotion": "Reduce motion",
+  "reduceMotionHint": "Turns animations off, in addition to the system setting",
+  "layoutList": "List view",
+  "layoutGrid": "Grid view",
+  "previousPokemon": "Previous Pokémon",
+  "nextPokemon": "Next Pokémon",
+  "pokemonCount": "{count, plural, =1{1 Pokémon} other{{count} Pokémon}}",
+  "@pokemonCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadingCatalog": "Preparing your Pokédex…",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appTagline": "Your offline Pokédex for every game",
+  "teamsEmptyTitle": "Build your first team",
+  "settingsMotion": "Motion",
+  "statsAverage": "Average {value}",
+  "@statsAverage": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "percentCaught": "{percent} % complete",
+  "@percentCaught": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "searchFieldLabel": "Search",
+  "showAllForms": "{count, plural, =1{1 form} other{{count} forms}}",
+  "@showAllForms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionMatchups": "Type matchups",
+  "matchupWeak": "Weak to",
+  "matchupResist": "Resists",
+  "matchupImmune": "Immune to",
+  "matchupHint": "Damage taken from attacks of each type.",
+  "matchupNeutral": "No weaknesses or resistances.",
+  "moveLearnersNational": "Pokémon that learn it (newest data)",
+  "abilityHoldersNational": "Pokémon with this ability",
+  "teamNational": "Pokédex: {name}",
+  "@teamNational": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }

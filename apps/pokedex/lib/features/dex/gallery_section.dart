@@ -53,7 +53,8 @@ class GallerySection extends ConsumerWidget {
       runSpacing: Space.m,
       children: [
         if (hasArtwork)
-          Card.outlined(
+          Card.filled(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             child: Padding(
               padding: const EdgeInsets.all(Space.s),
               child: Column(
@@ -73,7 +74,8 @@ class GallerySection extends ConsumerWidget {
             ),
           ),
         for (final slot in slots)
-          Card.outlined(
+          Card.filled(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             child: Padding(
               padding: const EdgeInsets.all(Space.s),
               child: Column(

@@ -6,6 +6,33 @@ version; the release workflow takes that section as release notes.
 
 ## [Unreleased]
 
+### Added
+- **International Pokédex** as the new default: every Pokémon with its newest data, independent
+  of a single game – types, base stats and abilities from the newest game that confirms the
+  form, evolutions with their newest conditions, moves from the newest core-series learnset.
+  The source game is shown. Locations list the games with encounters; one tap switches to a
+  game (with undo). Its collection marks are the game-independent list.
+- New game picker: searchable sheet (phones) or dialog (desktops) with the International
+  Pokédex, recently used games and all games by generation.
+- Dex grid view with artwork cards; list or grid is remembered.
+- Pokémon page: colour header from the artwork, artwork flies in from the list, swipe to the
+  previous/next Pokémon (buttons next to the list on desktops), type matchups (weaknesses,
+  resistances, immunities), evolution chain with pictures, other forms as a strip.
+- Setting "Reduce motion" in addition to the system setting.
+- Own logo and app icons for Android (adaptive, round and themed), iOS, macOS, Windows and
+  Linux; branded splash screens (light and dark) and an animated loading screen.
+- Linux desktop entry, AppStream metadata and window icon; Windows version information.
+
+### Changed
+- Complete visual overhaul: bundled typefaces (Plus Jakarta Sans, JetBrains Mono), calm neutral
+  surfaces, cards and rounded shapes, redesigned navigation, collection, teams and settings.
+- Motion throughout: fade-through between sections, staggered entrances, animated stat bars,
+  progress ring and header colours, confirmation pop with haptics when marking Pokémon.
+- The collection list builds lazily (faster with all 1351 forms).
+- Without a chosen game the app now opens on the International Pokédex instead of the newest
+  game; an explicitly chosen game stays selected.
+- macOS: the app bundle is now called `myDex.app`.
+
 ## [1.0.0] – 2026-10-27
 
 First version.

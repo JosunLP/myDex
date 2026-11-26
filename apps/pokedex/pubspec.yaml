@@ -1,5 +1,7 @@
 name: mydex_app
-description: Offline-first Pokémon encyclopedia.
+description: >-
+  myDex – the private, offline-first Pokémon encyclopedia: the International
+  Pokédex with the newest data plus every game, collection and teams.
 publish_to: none
 version: 1.0.0+100000
 resolution: workspace
@@ -33,10 +35,29 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Bold.ttf
+          weight: 700
   assets:
     - assets/catalog/catalog.manifest.json
     - assets/catalog/catalog.sqlite.gz
     - assets/licenses/pokeapi.txt
     - assets/licenses/sprites.txt
+    - assets/licenses/plus_jakarta_sans.txt
+    - assets/licenses/jetbrains_mono.txt
     - assets/media/media.manifest.json
     - assets/media/media.sqlite.gz

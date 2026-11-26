@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
+import '../app/motion.dart';
 import '../app/providers.dart';
+import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
+import 'motion.dart';
 
-/// "Caught" switch for a form in the current game.
+/// "Caught" switch for a form in the current context (game or the
+/// International Pokédex). Pops with a little bounce when marked.
 class CaughtButton extends ConsumerWidget {
   const CaughtButton({super.key, required this.form, this.shiny = false});
 
@@ -16,8 +21,9 @@ class CaughtButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final ctx = ref.watch(gameContextProvider);
+    final scheme = Theme.of(context).colorScheme;
     final key = CollectionKey(
-      scope: GameScope(ctx.versionId),
+      scope: collectionScopeOf(ctx),
       form: form,
       shiny: shiny,
     );
@@ -27,12 +33,27 @@ class CaughtButton extends ConsumerWidget {
     return IconButton(
       tooltip: l10n.markCaught,
       isSelected: caught,
-      icon: Icon(
-        shiny ? Icons.auto_awesome_outlined : Icons.check_circle_outline,
+      icon: PopOnActivate(
+        active: caught,
+        child: AnimatedSwitcher(
+          duration: Motion.of(context, Motion.short),
+          transitionBuilder: (child, animation) =>
+              ScaleTransition(scale: animation, child: child),
+          child: Icon(
+            caught
+                ? (shiny ? Icons.auto_awesome : Icons.check_circle)
+                : (shiny
+                      ? Icons.auto_awesome_outlined
+                      : Icons.check_circle_outline),
+            key: ValueKey(caught),
+            color: caught ? scheme.primary : scheme.onSurfaceVariant,
+          ),
+        ),
       ),
-      selectedIcon: Icon(shiny ? Icons.auto_awesome : Icons.check_circle),
-      onPressed: () =>
-          ref.read(collectionProvider.notifier).setCaught(key, !caught),
+      onPressed: () {
+        HapticFeedback.lightImpact();
+        ref.read(collectionProvider.notifier).setCaught(key, !caught);
+      },
     );
   }
 }
@@ -49,30 +70,54 @@ class CollectionToggles extends ConsumerWidget {
     final ctx = ref.watch(gameContextProvider);
     final entries = ref.watch(collectionProvider).value ?? const {};
     final controller = ref.read(collectionProvider.notifier);
-    CollectionKey k(bool shiny) => CollectionKey(
-      scope: GameScope(ctx.versionId),
-      form: form,
-      shiny: shiny,
-    );
+    CollectionKey k(bool shiny) =>
+        CollectionKey(scope: collectionScopeOf(ctx), form: form, shiny: shiny);
     final normal = entries[k(false)];
     final shiny = entries[k(true)];
+
+    Widget chip({
+      required String label,
+      required IconData icon,
+      required IconData selectedIcon,
+      required bool selected,
+      required ValueChanged<bool> onSelected,
+    }) => PopOnActivate(
+      active: selected,
+      child: FilterChip(
+        showCheckmark: false,
+        avatar: Icon(selected ? selectedIcon : icon, size: 18),
+        label: Text(label),
+        selected: selected,
+        onSelected: (v) {
+          HapticFeedback.lightImpact();
+          onSelected(v);
+        },
+      ),
+    );
+
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: Space.s,
+      runSpacing: Space.s,
+      alignment: WrapAlignment.center,
       children: [
-        FilterChip(
-          label: Text(l10n.seen),
+        chip(
+          label: l10n.seen,
+          icon: Icons.visibility_outlined,
+          selectedIcon: Icons.visibility,
           selected: normal?.seen ?? false,
           onSelected: (v) => controller.setSeen(k(false), v),
         ),
-        FilterChip(
-          label: Text(l10n.caught),
+        chip(
+          label: l10n.caught,
+          icon: Icons.check_circle_outline,
+          selectedIcon: Icons.check_circle,
           selected: normal?.caught ?? false,
           onSelected: (v) => controller.setCaught(k(false), v),
         ),
-        FilterChip(
-          avatar: const Icon(Icons.auto_awesome, size: 18),
-          label: Text(l10n.shiny),
+        chip(
+          label: l10n.shiny,
+          icon: Icons.auto_awesome_outlined,
+          selectedIcon: Icons.auto_awesome,
           selected: shiny?.caught ?? false,
           onSelected: (v) => controller.setCaught(k(true), v),
         ),

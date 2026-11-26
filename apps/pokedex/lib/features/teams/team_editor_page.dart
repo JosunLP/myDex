@@ -124,7 +124,11 @@ class _TeamEditorPageState extends ConsumerState<TeamEditorPage> {
             onChanged: (v) => _rename(team, v),
           ),
           const SizedBox(height: Space.s),
-          Text(l10n.teamGame(ctx.version.name(lang))),
+          Text(
+            NationalDex.isNational(ctx.versionId)
+                ? l10n.teamNational(ctx.version.name(lang))
+                : l10n.teamGame(ctx.version.name(lang)),
+          ),
           const SizedBox(height: Space.m),
           CheckStatusIcon(check.status, showLabel: true),
           for (final issue in check.teamIssues)
@@ -213,7 +217,10 @@ TeamMember defaultMember(
 ) {
   const level = 50;
   final ctx = evaluator.context;
-  final profile = evaluator.catalog.forms[form]!.profileFor(ctx.versionGroupId);
+  final profile = evaluator.catalog.profileOf(
+    evaluator.catalog.forms[form]!,
+    ctx.versionGroupId,
+  );
   final levelMoves = <MoveId>[];
   for (final e in details.learnset(form, ctx.versionGroupId)) {
     if (e.method == LearnMethod.levelUp && (e.level ?? 0) <= level) {

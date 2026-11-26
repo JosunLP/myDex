@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/dex_decor.dart';
 import '../../widgets/game_context_selector.dart';
 
 /// An ability and the Pokémon that have it in the selected game.
@@ -46,7 +48,7 @@ class AbilityPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         actions: const [
-          GameContextSelector(),
+          Flexible(child: GameContextSelector()),
           SizedBox(width: Space.s),
         ],
       ),
@@ -61,7 +63,9 @@ class AbilityPage extends ConsumerWidget {
           Semantics(
             header: true,
             child: Text(
-              l10n.abilityHolders(ctx.version.name(lang)),
+              NationalDex.isNational(ctx.versionId)
+                  ? l10n.abilityHoldersNational
+                  : l10n.abilityHolders(ctx.version.name(lang)),
               style: textTheme.titleMedium,
             ),
           ),
@@ -73,15 +77,13 @@ class AbilityPage extends ConsumerWidget {
           else
             for (final (item, slot) in holders)
               ListTile(
-                contentPadding: EdgeInsets.zero,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: Space.xs,
+                ),
                 title: Text(catalog.displayName(item.form)(lang)),
                 subtitle: slot!.hidden ? Text(l10n.abilityHidden) : null,
-                leading: Text(
-                  '#${item.species.nationalNumber.toString().padLeft(4, '0')}',
-                  style: textTheme.labelMedium?.copyWith(
-                    fontFeatures: tabularFigures,
-                  ),
-                ),
+                leading: DexThumb(item.form.id, size: 48),
+                trailing: DexNumber(item.species.nationalNumber, dense: true),
                 onTap: () => openPokemon(context, item.form.id, wide: wide),
               ),
         ],

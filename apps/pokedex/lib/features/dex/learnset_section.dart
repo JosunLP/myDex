@@ -5,8 +5,10 @@ import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
+import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/move_row.dart';
+import 'detail_sections.dart';
 
 /// Learnable moves of a form in the selected game, grouped by method.
 class LearnsetSection extends ConsumerWidget {
@@ -72,9 +74,23 @@ class LearnsetSection extends ConsumerWidget {
         ),
       );
     final first = groups.keys.first;
+    final source = NationalDex.isNational(ctx.versionId)
+        ? details.newestLearnsetGroups()[form]
+        : null;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (source != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Space.s),
+            child: InfoPill(
+              icon: Icons.history_rounded,
+              text: l10n.learnsetAsOf(
+                catalog.versionGroups[source]?.name(lang) ?? source.value,
+              ),
+            ),
+          ),
         for (final MapEntry(key: key, value: list) in groups.entries)
           ExpansionTile(
             key: PageStorageKey('learnset-$key'),

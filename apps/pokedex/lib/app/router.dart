@@ -23,8 +23,12 @@ import 'shell.dart';
 GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
   initialLocation: initialLocation,
   routes: [
-    StatefulShellRoute.indexedStack(
+    StatefulShellRoute(
       builder: (context, state, shell) => AppShell(shell: shell),
+      // Sections keep their state (like an IndexedStack) and fade through
+      // when switching.
+      navigatorContainerBuilder: (context, shell, children) =>
+          AnimatedBranches(index: shell.currentIndex, children: children),
       branches: [
         StatefulShellBranch(
           routes: [

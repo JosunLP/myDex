@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../widgets/encounter_tile.dart';
+import '../../widgets/game_context_selector.dart';
 
 /// Locations and further ways of acquisition in the selected game.
 /// Missing data is marked as a gap, never as "not catchable".
@@ -27,8 +28,9 @@ class AcquisitionSection extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
 
+    final national = NationalDex.isNational(ctx.versionId);
     final hasData = details.hasEncounterData(ctx.versionId);
-    final encounters = hasData
+    final encounters = hasData && !national
         ? details.encountersOf(form, ctx.versionId)
         : const <Encounter>[];
     final byLocation = <LocationId, List<Encounter>>{};
@@ -57,7 +59,7 @@ class AcquisitionSection extends ConsumerWidget {
     // Trades from other games (only if no locations are known here) and
     // event distributions for mythical Pokémon.
     final acquisition = AcquisitionQueries(catalog, details);
-    final tradeFrom = byLocation.isEmpty
+    final tradeFrom = byLocation.isEmpty && !national
         ? acquisition.tradeSources(form, ctx)
         : const <GameVersion>[];
     final eventOnly = acquisition.isEventOnly(form, ctx);
@@ -65,68 +67,86 @@ class AcquisitionSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (eventOnly)
+        if (national)
+          _EncounterGames(form: form)
+        else ...[
+          if (eventOnly)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.s),
+              child: _Notice(
+                icon: Icons.card_giftcard,
+                text: l10n.acquireByEvent,
+                color: scheme.primary,
+              ),
+            ),
+          if (!hasData && !eventOnly)
+            _Notice(
+              icon: Icons.construction_outlined,
+              text: l10n.noEncounterData(gameName),
+              color: scheme.tertiary,
+            )
+          else if (byLocation.isEmpty && !eventOnly)
+            Text(l10n.noEncountersForForm(gameName))
+          else
+            for (final MapEntry(key: location, value: list)
+                in byLocation.entries)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Space.s),
+                child: Card.outlined(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => context.push(
+                      '/dex/location/${Uri.encodeComponent(location.value)}',
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(Space.m),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.place_outlined, size: 18),
+                              const SizedBox(width: Space.s),
+                              Expanded(
+                                child: Text(
+                                  catalog.locations[location]?.displayName(
+                                        lang,
+                                      ) ??
+                                      location.value,
+                                  style: textTheme.titleSmall,
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right),
+                            ],
+                          ),
+                          for (final e in list)
+                            Padding(
+                              padding: const EdgeInsets.only(top: Space.s),
+                              child: EncounterDetails(
+                                encounter: e,
+                                showArea:
+                                    catalog.locationAreas[e.area]?.name(lang) !=
+                                    catalog.locations[location]?.displayName(
+                                      lang,
+                                    ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+        ],
+        if (national && eventOnly)
           Padding(
-            padding: const EdgeInsets.only(bottom: Space.s),
+            padding: const EdgeInsets.only(top: Space.s),
             child: _Notice(
               icon: Icons.card_giftcard,
               text: l10n.acquireByEvent,
               color: scheme.primary,
             ),
           ),
-        if (!hasData && !eventOnly)
-          _Notice(
-            icon: Icons.construction_outlined,
-            text: l10n.noEncounterData(gameName),
-            color: scheme.tertiary,
-          )
-        else if (byLocation.isEmpty && !eventOnly)
-          Text(l10n.noEncountersForForm(gameName))
-        else
-          for (final MapEntry(key: location, value: list) in byLocation.entries)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Space.s),
-              child: Card.outlined(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => context.push(
-                    '/dex/location/${Uri.encodeComponent(location.value)}',
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Space.m),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.place_outlined, size: 18),
-                            const SizedBox(width: Space.s),
-                            Expanded(
-                              child: Text(
-                                catalog.locations[location]?.name(lang) ??
-                                    location.value,
-                                style: textTheme.titleSmall,
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right),
-                          ],
-                        ),
-                        for (final e in list)
-                          Padding(
-                            padding: const EdgeInsets.only(top: Space.s),
-                            child: EncounterDetails(
-                              encounter: e,
-                              showArea:
-                                  catalog.locationAreas[e.area]?.name(lang) !=
-                                  catalog.locations[location]?.name(lang),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
         if (tradeFrom.isNotEmpty)
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -176,4 +196,67 @@ class _Notice extends StatelessWidget {
       Expanded(child: Text(text)),
     ],
   );
+}
+
+/// International Pokédex: the games in which the Pokémon can be found.
+/// Tapping one switches to that game (with undo), where the locations show.
+class _EncounterGames extends ConsumerWidget {
+  const _EncounterGames({required this.form});
+
+  final FormId form;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final catalog = ref.watch(readyCatalogProvider);
+    final details = ref.watch(catalogDetailsProvider);
+    final lang = dataLanguageOf(context, ref);
+    final versions = [
+      for (final id in details.encounterVersionsOf(form).reversed)
+        ?catalog.versionById(id),
+    ];
+    if (versions.isEmpty) return Text(l10n.noEncounterGames);
+
+    void open(GameVersion v) {
+      final settings = ref.read(settingsProvider.notifier);
+      final previous = ref.read(gameContextProvider).versionId;
+      settings.setGameVersion(v.id);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.switchedToGame(v.name(lang))),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => settings.setGameVersion(previous),
+            ),
+          ),
+        );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.encounterGames),
+        const SizedBox(height: Space.m),
+        Wrap(
+          spacing: Space.s,
+          runSpacing: Space.s,
+          children: [
+            for (final v in versions)
+              ActionChip(
+                avatar: CircleAvatar(
+                  radius: 6,
+                  backgroundColor: generationColor(
+                    catalog.versionGroups[v.versionGroupId]!.generation,
+                  ),
+                ),
+                label: Text(v.name(lang)),
+                onPressed: () => open(v),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
 }

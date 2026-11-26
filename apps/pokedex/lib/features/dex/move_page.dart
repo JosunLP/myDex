@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/dex_decor.dart';
 import '../../widgets/game_context_selector.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/type_badge.dart';
+import 'detail_sections.dart';
 
 /// A move in the selected game, its history and who learns it.
 class MovePage extends ConsumerWidget {
@@ -21,9 +25,11 @@ class MovePage extends ConsumerWidget {
     final catalog = ref.watch(readyCatalogProvider);
     final details = ref.watch(catalogDetailsProvider);
     final ctx = ref.watch(gameContextProvider);
+    final national = NationalDex.isNational(ctx.versionId);
     final lang = dataLanguageOf(context, ref);
     final move = catalog.moves[moveId];
     final textTheme = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
     final wide = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final gameName = ctx.version.name(lang);
 
@@ -45,100 +51,128 @@ class MovePage extends ConsumerWidget {
             : a.form.value.compareTo(b.form.value);
       });
     String num(int? v) => v?.toString() ?? l10n.valueNone;
-
-    Widget section(String title, Widget child) => Padding(
-      padding: const EdgeInsets.only(top: Space.xl),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(title, style: textTheme.titleMedium),
-          ),
-          const SizedBox(height: Space.s),
-          child,
-        ],
-      ),
-    );
+    final tint = profile == null ? scheme.primary : typeColor(profile.type);
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.lerp(scheme.surface, tint, 0.5),
         actions: const [
-          GameContextSelector(),
+          Flexible(child: GameContextSelector()),
           SizedBox(width: Space.s),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(Space.l),
-        children: [
-          Semantics(
-            header: true,
-            child: Text(move.name(lang), style: textTheme.headlineMedium),
-          ),
-          const SizedBox(height: Space.m),
-          if (profile == null)
-            Text(l10n.moveNotInGame(gameName))
-          else
-            Wrap(
-              spacing: Space.xl,
-              runSpacing: Space.m,
-              children: [
-                _Fact(l10n.moveType, TypeBadge(profile.type)),
-                _Fact(
-                  l10n.moveCategory,
-                  Text(l10n.damageClass(profile.damageClass.name)),
+      body: EntranceScope(
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: Space.xxxl),
+          children: [
+            TintBackdrop(
+              tint: tint,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(Radii.xl),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Space.l,
+                  Space.s,
+                  Space.l,
+                  Space.xl,
                 ),
-                _Fact(l10n.movePower, Text(num(profile.power))),
-                _Fact(l10n.moveAccuracy, Text(num(profile.accuracy))),
-                _Fact(l10n.movePp, Text(num(profile.pp))),
-                _Fact(l10n.movePriority, Text('${profile.priority}')),
-              ],
-            ),
-          if (history.length > 1)
-            section(
-              l10n.moveHistory,
-              Column(
-                children: [
-                  for (final (from, to, p) in history)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
-                      title: Text(
-                        from == to
-                            ? catalog.versionGroups[from]!.name(lang)
-                            : '${catalog.versionGroups[from]!.name(lang)} – ${catalog.versionGroups[to]!.name(lang)}',
-                      ),
-                      subtitle: Text(
-                        '${l10n.typeName(p.type.key)} · ${l10n.damageClass(p.damageClass.name)} · '
-                        '${l10n.movePower} ${num(p.power)} · ${l10n.moveAccuracy} ${num(p.accuracy)} · '
-                        '${l10n.movePp} ${num(p.pp)}',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        move.name(lang),
+                        style: textTheme.headlineMedium,
                       ),
                     ),
+                    const SizedBox(height: Space.m),
+                    if (profile == null)
+                      Text(l10n.moveNotInGame(gameName))
+                    else
+                      Wrap(
+                        spacing: Space.s,
+                        runSpacing: Space.s,
+                        children: [
+                          _Fact(l10n.moveType, TypeBadge(profile.type)),
+                          _Fact(
+                            l10n.moveCategory,
+                            Text(l10n.damageClass(profile.damageClass.name)),
+                          ),
+                          _Fact(l10n.movePower, Text(num(profile.power))),
+                          _Fact(l10n.moveAccuracy, Text(num(profile.accuracy))),
+                          _Fact(l10n.movePp, Text(num(profile.pp))),
+                          _Fact(l10n.movePriority, Text('${profile.priority}')),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Space.l),
+              child: Column(
+                children: [
+                  if (history.length > 1)
+                    DetailSection(
+                      index: 0,
+                      title: l10n.moveHistory,
+                      icon: Icons.history_rounded,
+                      child: Column(
+                        children: [
+                          for (final (from, to, p) in history)
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: TypeBadge(p.type, dense: true),
+                              title: Text(
+                                from == to
+                                    ? catalog.versionGroups[from]!.name(lang)
+                                    : '${catalog.versionGroups[from]!.name(lang)} – ${catalog.versionGroups[to]!.name(lang)}',
+                              ),
+                              subtitle: Text(
+                                '${l10n.typeName(p.type.key)} · ${l10n.damageClass(p.damageClass.name)} · '
+                                '${l10n.movePower} ${num(p.power)} · ${l10n.moveAccuracy} ${num(p.accuracy)} · '
+                                '${l10n.movePp} ${num(p.pp)}',
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  DetailSection(
+                    index: 1,
+                    title: national
+                        ? l10n.moveLearnersNational
+                        : l10n.moveLearners(gameName),
+                    icon: Icons.catching_pokemon,
+                    child: learners.isEmpty
+                        ? Text(l10n.noLearners)
+                        : Wrap(
+                            spacing: Space.s,
+                            runSpacing: Space.s,
+                            children: [
+                              for (final learner in learners)
+                                ActionChip(
+                                  avatar: DexThumb(learner.form, size: 24),
+                                  label: Text(
+                                    catalog.displayName(
+                                      catalog.forms[learner.form]!,
+                                    )(lang),
+                                  ),
+                                  onPressed: () => openPokemon(
+                                    context,
+                                    learner.form,
+                                    wide: wide,
+                                  ),
+                                ),
+                            ],
+                          ),
+                  ),
                 ],
               ),
             ),
-          section(
-            l10n.moveLearners(gameName),
-            learners.isEmpty
-                ? Text(l10n.noLearners)
-                : Wrap(
-                    spacing: Space.s,
-                    runSpacing: Space.s,
-                    children: [
-                      for (final learner in learners)
-                        ActionChip(
-                          label: Text(
-                            catalog.displayName(catalog.forms[learner.form]!)(
-                              lang,
-                            ),
-                          ),
-                          onPressed: () =>
-                              openPokemon(context, learner.form, wide: wide),
-                        ),
-                    ],
-                  ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -159,23 +193,45 @@ class MovePage extends ConsumerWidget {
   }
 }
 
+/// A labelled value as a small tile.
 class _Fact extends StatelessWidget {
   const _Fact(this.label, this.value);
   final String label;
   final Widget value;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: Theme.of(context).textTheme.labelMedium),
-      const SizedBox(height: Space.xs),
-      DefaultTextStyle.merge(
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontFeatures: tabularFigures),
-        child: value,
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 96),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Space.m,
+        vertical: Space.s + 2,
       ),
-    ],
-  );
+      decoration: BoxDecoration(
+        color: scheme.surface.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(Radii.m),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: Space.xs),
+          DefaultTextStyle.merge(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontFeatures: tabularFigures,
+              fontWeight: FontWeight.w800,
+            ),
+            child: value,
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -20,7 +21,16 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(const [
       'PokeAPI/sprites (images)',
     ], await rootBundle.loadString('assets/licenses/sprites.txt'));
+    yield LicenseEntryWithLineBreaks(const [
+      'Plus Jakarta Sans (typeface)',
+    ], await rootBundle.loadString('assets/licenses/plus_jakarta_sans.txt'));
+    yield LicenseEntryWithLineBreaks(const [
+      'JetBrains Mono (typeface)',
+    ], await rootBundle.loadString('assets/licenses/jetbrains_mono.txt'));
   });
+  // Draw behind the system bars (edge to edge); the app keeps content clear
+  // of them with safe areas.
+  unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
   final dir = Directory(
     '${(await getApplicationSupportDirectory()).path}/mydex',
   );

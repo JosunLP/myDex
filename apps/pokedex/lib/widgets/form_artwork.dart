@@ -32,9 +32,12 @@ class FormArtwork extends ConsumerWidget {
       bytes,
       width: size,
       height: size,
+      // Decode only as large as shown: keeps grids of artworks light.
+      cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).ceil(),
       fit: BoxFit.contain,
       filterQuality: FilterQuality.medium,
       gaplessPlayback: true,
+      frameBuilder: fadeInFrame,
       semanticLabel: semanticLabel,
       excludeFromSemantics: semanticLabel == null,
     );
