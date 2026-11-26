@@ -8,7 +8,8 @@ import 'catalog_snapshot.dart';
 ///
 /// It is derived from the game data instead of being stored, so a catalog
 /// update automatically moves it to the newest state. Every value comes from
-/// a real game; [profileSource] and [learnsetSource] name which one.
+/// a real game; [profileSource] names which one (for learnsets:
+/// `NationalCatalogDetails.learnsetSource`).
 @immutable
 class NationalDex {
   NationalDex._({

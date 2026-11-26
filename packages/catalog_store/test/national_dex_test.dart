@@ -212,6 +212,23 @@ void main() {
       expect(learners.map((l) => l.form), contains(const FormId('pikachu')));
     });
 
+    test('moves take the newest confirmed values, never data gaps', () {
+      for (final move in catalog.moves.keys) {
+        final history = details.moveHistory(move);
+        final confirmed = history.where(
+          (e) => e.$2.availability == DataAvailability.confirmedAvailable,
+        );
+        if (confirmed.isEmpty) continue;
+        final newest = details.moveProfile(move, national.versionGroupId)!;
+        expect(
+          newest.availability,
+          DataAvailability.confirmedAvailable,
+          reason: move.value,
+        );
+        expect(newest.sameValuesAs(confirmed.last.$2), isTrue);
+      }
+    });
+
     test('locations of all games, encounters per game', () {
       expect(details.hasEncounterData(national.versionId), isTrue);
       final all = details.locationsWithEncounters(national.versionId).toSet();

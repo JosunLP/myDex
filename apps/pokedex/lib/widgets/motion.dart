@@ -238,23 +238,3 @@ class _PressScaleState extends State<PressScale> {
     ),
   );
 }
-
-/// A number that counts up to [value] (progress, totals).
-class CountUpText extends StatelessWidget {
-  const CountUpText(this.value, {super.key, this.style, this.format});
-
-  final int value;
-  final TextStyle? style;
-  final String Function(int)? format;
-
-  @override
-  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
-    tween: Tween(begin: 0, end: value.toDouble()),
-    duration: Motion.of(context, Motion.reveal),
-    curve: Motion.enter,
-    builder: (context, v, _) {
-      final n = v.round();
-      return Text(format?.call(n) ?? '$n', style: style);
-    },
-  );
-}

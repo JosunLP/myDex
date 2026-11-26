@@ -16,6 +16,7 @@ import 'package:mydex_app/app/settings.dart';
 import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_app/app/sync_config.dart';
 import 'package:mydex_app/app/sync_controller.dart';
+import 'package:mydex_app/features/dex/detail_sections.dart';
 import 'package:mydex_app/features/dex/pokemon_detail_page.dart';
 import 'package:mydex_app/widgets/game_context_selector.dart';
 import 'package:mydex_app/widgets/form_artwork.dart';
@@ -825,6 +826,33 @@ void main() {
     );
     expect(
       find.textContaining('konnte nicht installiert werden'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('evolution tiles open the other Pokémon on the same page', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    final raichu = find.descendant(
+      of: find.byType(EvolutionChain),
+      matching: find.bySemanticsLabel('Raichu'),
+    );
+    await tester.scrollUntilVisible(
+      raichu,
+      300,
+      scrollable: _detailScrollable(),
+    );
+    await tester.tap(raichu);
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(PokemonHeader),
+        matching: find.text('Raichu'),
+      ),
       findsOneWidget,
     );
   });

@@ -7,8 +7,9 @@ import 'national_dex.dart';
 /// Answers detail queries for the International Pokédex (ADR 0016) and
 /// passes everything else to the game data.
 ///
-/// - Learnsets: the newest game with a learnset for the form.
-/// - Moves: the newest known values.
+/// - Learnsets: the newest core-series learnset (with level-up moves),
+///   otherwise the newest game with any learnset.
+/// - Moves: the newest confirmed values.
 /// - Locations: locations are game-specific; the International Pokédex
 ///   lists all of them, encounters are read per game
 ///   ([encounterVersionsOf], [encounterVersionsAt]).
@@ -47,10 +48,16 @@ class NationalCatalogDetails implements CatalogDetails {
   @override
   MoveGameProfile? moveProfile(MoveId move, VersionGroupId group) {
     if (!_isNationalGroup(group)) return inner.moveProfile(move, group);
-    return _newestMoves.putIfAbsent(
-      move,
-      () => inner.moveHistory(move).lastOrNull?.$2,
-    );
+    return _newestMoves.putIfAbsent(move, () {
+      // Newest confirmed values; gaps only when nothing is confirmed.
+      final history = inner.moveHistory(move);
+      for (final (_, profile) in history.reversed) {
+        if (profile.availability == DataAvailability.confirmedAvailable) {
+          return profile;
+        }
+      }
+      return history.lastOrNull?.$2;
+    });
   }
 
   @override

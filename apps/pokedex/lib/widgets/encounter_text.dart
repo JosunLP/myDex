@@ -49,6 +49,11 @@ String? translateEncounterCondition(
   return _parameterized(id.value, l10n, catalog, lang);
 }
 
+/// Compiled once per pattern (descriptions run for every encounter row).
+final _patterns = <String, RegExp>{};
+RegExp _pattern(String pattern) =>
+    _patterns.putIfAbsent(pattern, () => RegExp('^$pattern\$'));
+
 /// `other-correct-password` → "Other correct password" (never "?").
 String _readable(String id) {
   final text = id.replaceAll('-', ' ');
@@ -61,7 +66,7 @@ String? _parameterized(
   CatalogSnapshot catalog,
   String lang,
 ) {
-  RegExpMatch? match(String pattern) => RegExp('^$pattern\$').firstMatch(v);
+  RegExpMatch? match(String pattern) => _pattern(pattern).firstMatch(v);
   String? pokemon(String key) => switch (catalog.forms[FormId(key)]) {
     final form? => catalog.displayName(form)(lang),
     null => catalog.species[SpeciesId(key)]?.name(lang),

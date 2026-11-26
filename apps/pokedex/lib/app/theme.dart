@@ -333,8 +333,9 @@ ThemeData buildTheme(Brightness brightness) {
       contentTextStyle: text.bodyMedium?.copyWith(
         color: scheme.onInverseSurface,
       ),
+      // On the inverse surface: ≥ 4.5:1 in both themes.
       actionTextColor: brightness == Brightness.dark
-          ? DexColors.red
+          ? DexColors.redDark
           : DexColors.redLight,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(Radii.m)),
