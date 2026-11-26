@@ -107,6 +107,8 @@ class FormTile extends ConsumerWidget {
       button: !isCurrent,
       selected: isCurrent,
       label: label,
+      // Replaces the excluded InkWell's action for screen readers.
+      onTap: isCurrent ? null : () => openPokemon(context, form.id, wide: wide),
       excludeSemantics: true,
       child: PressScale(
         child: Material(

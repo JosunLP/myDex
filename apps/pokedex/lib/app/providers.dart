@@ -163,6 +163,8 @@ class SettingsController extends Notifier<AppSettings> {
     _update(
       state.copyWith(
         gameVersion: () => national ? null : id.value,
+        // An explicit choice: the 1.0 migration must not override it.
+        schema: AppSettings.currentSchema,
         recentGames: national
             ? null
             : [
@@ -179,6 +181,7 @@ class SettingsController extends Notifier<AppSettings> {
     state.copyWith(
       gameVersion: () => previous.gameVersion,
       recentGames: previous.recentGames,
+      schema: AppSettings.currentSchema,
     ),
   );
 

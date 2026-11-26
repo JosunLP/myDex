@@ -600,6 +600,27 @@ void main() {
     expect(find.textContaining('15.1.2026'), findsOneWidget);
   });
 
+  testWidgets('teams for unknown games keep their game in the editor', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(500, 1600));
+    await h.teams.save(
+      Team(
+        id: 't1',
+        name: 'Zukunft',
+        version: const GameVersionId('legends-z-a'),
+        updatedAt: DateTime.utc(2026, 2, 1),
+      ),
+    );
+    await tester.tap(find.text('Teams'));
+    await tester.pumpAndSettle();
+    expect(find.text('Spiel: legends-z-a'), findsOneWidget);
+    await tester.tap(find.text('Zukunft'));
+    await tester.pumpAndSettle();
+    expect(find.text('Spiel: legends-z-a'), findsOneWidget);
+    expect(find.textContaining('Pokédex: '), findsNothing);
+  });
+
   testWidgets('export and import (merge) via a file', (tester) async {
     final h = await _pump(tester, const Size(500, 1600));
     final at = DateTime.utc(2026, 2, 1);
@@ -858,6 +879,50 @@ void main() {
     );
   });
 
+  testWidgets('screen readers can open the game picker and evolution tiles', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _pump(tester, const Size(500, 2400));
+    // Like a double-tap in TalkBack/VoiceOver: the semantics tap action.
+    void activate(Pattern label) {
+      final node = find.semantics.byLabel(label);
+      expect(
+        node.evaluate().single,
+        isSemantics(isButton: true, hasTapAction: true),
+      );
+      tester.semantics.tap(node);
+    }
+
+    activate(RegExp(r'^Spiel: '));
+    await tester.pumpAndSettle();
+    expect(find.byKey(gamePickerKey), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.descendant(
+        of: find.byType(EvolutionChain),
+        matching: find.bySemanticsLabel('Raichu'),
+      ),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    activate('Raichu');
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(PokemonHeader),
+        matching: find.text('Raichu'),
+      ),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
+
   testWidgets('the International list counts all Pokémon, in any game', (
     tester,
   ) async {
@@ -1088,6 +1153,41 @@ void main() {
         const GameVersionId('champions'),
       );
       expect(container.read(settingsProvider).schema, 2);
+    });
+
+    testWidgets('a 1.0 backup restored while the app runs is migrated', (
+      tester,
+    ) async {
+      await start(tester, marks: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      final settings = container.read(settingsProvider.notifier);
+      settings.setGameVersion(NationalDex.versionId);
+      await tester.pumpAndSettle();
+      settings.replaceAll(AppSettings.fromJson(const {'themeMode': 'dark'}));
+      await tester.pumpAndSettle();
+      expect(
+        container.read(gameContextProvider).versionId,
+        const GameVersionId('champions'),
+      );
+      expect(container.read(settingsProvider).schema, 2);
+    });
+
+    testWidgets('an explicit choice during the upgrade is kept', (
+      tester,
+    ) async {
+      await start(tester, marks: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      final settings = container.read(settingsProvider.notifier);
+      // Restored 1.0 settings, then the International Pokédex is chosen
+      // before the migration has run.
+      settings.replaceAll(AppSettings.fromJson(const {'themeMode': 'dark'}));
+      settings.setGameVersion(NationalDex.versionId);
+      await tester.pumpAndSettle();
+      expect(container.read(isNationalProvider), isTrue);
     });
 
     testWidgets('marks under an older "newest" game keep that game', (

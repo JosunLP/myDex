@@ -71,6 +71,8 @@ class GameContextSelector extends ConsumerWidget {
       child: Semantics(
         button: true,
         label: '${l10n.selectGame}: $name',
+        // Replaces the excluded InkWell's action for screen readers.
+        onTap: () => showGamePicker(context),
         excludeSemantics: true,
         child: ConstrainedBox(
           constraints: BoxConstraints(

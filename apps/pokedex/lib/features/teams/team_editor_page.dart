@@ -68,6 +68,8 @@ class _TeamEditorPageState extends ConsumerState<TeamEditorPage> {
     final lang = dataLanguageOf(context, ref);
     final evaluator = evaluatorFor(ref, team);
     final ctx = evaluator.context;
+    final gameName =
+        catalog.versionById(team.version)?.name(lang) ?? team.version.value;
     final check = evaluator.check(team);
     final textTheme = Theme.of(context).textTheme;
     String subjectName(String id) =>
@@ -125,9 +127,11 @@ class _TeamEditorPageState extends ConsumerState<TeamEditorPage> {
           ),
           const SizedBox(height: Space.s),
           Text(
-            NationalDex.isNational(ctx.versionId)
-                ? l10n.teamNational(ctx.version.name(lang))
-                : l10n.teamGame(ctx.version.name(lang)),
+            // The team's own game, even when it is checked against the
+            // International Pokédex because the catalog doesn't know it.
+            NationalDex.isNational(team.version)
+                ? l10n.teamNational(gameName)
+                : l10n.teamGame(gameName),
           ),
           const SizedBox(height: Space.m),
           CheckStatusIcon(check.status, showLabel: true),
