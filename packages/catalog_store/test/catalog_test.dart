@@ -56,6 +56,17 @@ void main() {
       expect(validateCatalog(catalog), isEmpty, reason: 'derived, not stored');
     });
 
+    test('every game has a distinct name in every language', () {
+      for (final lang in ['de', 'en', 'fr', 'es', 'it']) {
+        final names = [for (final v in catalog.versions) v.name(lang)];
+        expect(names.toSet().length, names.length, reason: lang);
+      }
+      final red = catalog.versions.firstWhere(
+        (v) => v.id == const GameVersionId('red-japan'),
+      );
+      expect(red.name('de'), 'Rot (JP)');
+    });
+
     test('names in all core languages', () {
       final name = catalog.species[const SpeciesId('charizard')]!.name;
       expect(name('de'), 'Glurak');

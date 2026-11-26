@@ -54,6 +54,8 @@ Upgrade notes:
   the previous one.
 - Locations and encounter conditions without a name in the data showed “?”; they now show a
   readable name.
+- The Japanese first editions had the same names as Red and Blue (“Red” twice in the game
+  picker); they are now marked “(JP)”.
 - A team for a game the catalog does not know (e.g. from a backup of a newer version) no longer
   breaks the team list; it is checked against the International Pokédex instead.
 

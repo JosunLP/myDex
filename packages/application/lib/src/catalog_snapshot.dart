@@ -29,7 +29,7 @@ class CatalogSnapshot {
   }) : rulesets = {for (final r in rulesets) r.id: r},
        versionGroups = {for (final g in versionGroups) g.id: g},
        versions = List.unmodifiable(
-         <GameVersion>[...versions]..sort(
+         <GameVersion>[..._distinctNames(versions)]..sort(
            (a, b) => _groupOrder(
              versionGroups,
              a.versionGroupId,
@@ -43,6 +43,24 @@ class CatalogSnapshot {
 
   static int _groupOrder(List<VersionGroup> groups, VersionGroupId id) =>
       groups.firstWhere((g) => g.id == id).order;
+
+  /// The Japanese first editions carry the same names as the international
+  /// ones in every language ("Red" and "Red"). They get a "(JP)" suffix so
+  /// that pickers and labels stay unambiguous.
+  static List<GameVersion> _distinctNames(List<GameVersion> versions) => [
+    for (final v in versions)
+      if (v.id.value.endsWith('-japan'))
+        GameVersion(
+          id: v.id,
+          versionGroupId: v.versionGroupId,
+          name: LocalizedText({
+            for (final MapEntry(:key, :value) in v.name.values.entries)
+              key: value.endsWith('(JP)') ? value : '$value (JP)',
+          }),
+        )
+      else
+        v,
+  ];
 
   final String revision;
   final int schemaVersion;
