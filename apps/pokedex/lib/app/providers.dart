@@ -118,6 +118,16 @@ final catalogProvider = FutureProvider<LoadedCatalog>((ref) async {
   return loaded;
 }, retry: (_, _) => null);
 
+/// Why a newer bundled catalog could not be installed (the previous one is
+/// used then); `null` when everything is up to date.
+final catalogInstallErrorProvider = Provider<Object?>((ref) {
+  ref.watch(catalogProvider);
+  final repository = ref.watch(catalogRepositoryProvider);
+  return repository is BundledCatalogRepository
+      ? repository.installError
+      : null;
+});
+
 /// Only use inside [CatalogGate], where the catalog is loaded.
 final readyCatalogProvider = Provider<CatalogSnapshot>(
   (ref) => ref.watch(catalogProvider).requireValue.snapshot,

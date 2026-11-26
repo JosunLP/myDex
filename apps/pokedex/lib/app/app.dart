@@ -81,16 +81,40 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
 /// Shows the animated brand screen (or an error) until the local catalog is
 /// ready, then fades into the app. It continues the native splash screen
 /// seamlessly: same colour, same mark.
-class CatalogGate extends ConsumerWidget {
+class CatalogGate extends ConsumerStatefulWidget {
   const CatalogGate({super.key, required this.child});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CatalogGate> createState() => _CatalogGateState();
+}
+
+class _CatalogGateState extends ConsumerState<CatalogGate> {
+  /// The install error already reported (each one is shown once).
+  Object? _reported;
+
+  @override
+  Widget build(BuildContext context) {
     final catalog = ref.watch(catalogProvider);
     final l10n = AppLocalizations.of(context);
     ref.read(appStorageProvider).conflictLabel = l10n.syncConflictLabel;
+    // A newer catalog that could not be installed is reported once; the app
+    // keeps working with the previous one.
+    final installError = ref.watch(catalogInstallErrorProvider);
+    if (installError != null && !identical(installError, _reported)) {
+      _reported = installError;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(
+            content: Text(l10n.installFallback),
+            duration: const Duration(seconds: 8),
+          ),
+        );
+      });
+    }
+    final child = widget.child;
     final Widget content = switch (catalog) {
       AsyncData() => KeyedSubtree(key: const ValueKey('app'), child: child),
       AsyncError(:final error) => _LoadError(

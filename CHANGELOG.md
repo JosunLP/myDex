@@ -47,7 +47,13 @@ Upgrade notes:
 - macOS: the app bundle is now called `myDex.app`.
 
 ### Fixed
-- Locations without a name in the data showed “?”; they now show a readable name.
+- Encounter methods and conditions (e.g. “Super Rod”, “Morning”, “Helix Fossil in the Bag”)
+  now appear in all five app languages; before, most of them were English (all in Spanish and
+  Italian, three quarters in German) because the source data lacks translations.
+- A newer catalog that could not be installed is now reported; before, the app silently kept
+  the previous one.
+- Locations and encounter conditions without a name in the data showed “?”; they now show a
+  readable name.
 - A team for a game the catalog does not know (e.g. from a backup of a newer version) no longer
   breaks the team list; it is checked against the International Pokédex instead.
 

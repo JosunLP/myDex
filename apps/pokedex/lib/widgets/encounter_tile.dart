@@ -5,6 +5,7 @@ import 'package:mydex_domain/mydex_domain.dart';
 import '../app/providers.dart';
 import '../app/theme.dart';
 import '../l10n/generated/app_localizations.dart';
+import 'encounter_text.dart';
 
 /// Describes an encounter: method, level, rate, conditions.
 class EncounterDetails extends ConsumerWidget {
@@ -25,8 +26,7 @@ class EncounterDetails extends ConsumerWidget {
     final catalog = ref.watch(readyCatalogProvider);
     final lang = dataLanguageOf(context, ref);
     final e = encounter;
-    final method =
-        catalog.encounterMethods[e.method]?.name(lang) ?? e.method.value;
+    final method = describeEncounterMethod(e.method, l10n, catalog, lang);
     final levels = e.minLevel == e.maxLevel
         ? '${e.minLevel}'
         : '${e.minLevel}–${e.maxLevel}';
@@ -53,7 +53,7 @@ class EncounterDetails extends ConsumerWidget {
                     visualDensity: VisualDensity.compact,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     label: Text(
-                      catalog.encounterConditionNames[c]?.call(lang) ?? c.value,
+                      describeEncounterCondition(c, l10n, catalog, lang),
                       style: textTheme.labelSmall,
                     ),
                   ),

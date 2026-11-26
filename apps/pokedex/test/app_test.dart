@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mydex_app/app/app.dart';
 import 'package:mydex_app/app/backup_files.dart';
@@ -82,9 +83,11 @@ class _Harness {
   final updateKeys = <String>[];
   CatalogUpdateSource updateSource = _FakeUpdateSource(null, const []);
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
+  final extraOverrides = <Override>[];
 
   Widget build() => ProviderScope(
     overrides: [
+      ...extraOverrides,
       catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
       mediaLoaderProvider.overrideWithValue(_FixtureMedia()),
       backupFilesProvider.overrideWithValue(files),
@@ -175,13 +178,17 @@ class _MemoryFiles implements BackupFiles {
   Future<Uint8List?> open() async => stored;
 }
 
-Future<_Harness> _pump(WidgetTester tester, Size size) async {
+Future<_Harness> _pump(
+  WidgetTester tester,
+  Size size, {
+  List<Override> overrides = const [],
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   tester.platformDispatcher.localesTestValue = const [Locale('de')];
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  final h = _Harness();
+  final h = _Harness()..extraOverrides.addAll(overrides);
   addTearDown(() => h.dir.deleteSync(recursive: true));
   await tester.pumpWidget(h.build());
   await tester.pumpAndSettle();
@@ -801,6 +808,24 @@ void main() {
     expect(
       MediaQuery.disableAnimationsOf(tester.element(find.text('Mehr').first)),
       isTrue,
+    );
+  });
+
+  testWidgets('a catalog that could not be installed is reported once', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const Size(500, 1200),
+      overrides: [
+        catalogInstallErrorProvider.overrideWithValue(
+          StateError('checksum mismatch'),
+        ),
+      ],
+    );
+    expect(
+      find.textContaining('konnte nicht installiert werden'),
+      findsOneWidget,
     );
   });
 
