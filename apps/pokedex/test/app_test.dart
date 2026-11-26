@@ -12,6 +12,7 @@ import 'package:mydex_app/app/backup_files.dart';
 import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/catalog_update.dart';
 import 'package:mydex_app/app/providers.dart';
+import 'package:mydex_app/app/router.dart';
 import 'package:mydex_app/app/settings.dart';
 import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_app/app/sync_config.dart';
@@ -880,6 +881,111 @@ void main() {
         .length;
     expect(all, greaterThan(red));
     expect(find.text('0 von $all gefangen'), findsOneWidget);
+  });
+
+  testWidgets('after a swipe, links page back to Pokémon of the list', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu').first);
+    await tester.pumpAndSettle();
+    // Swipe to the next result (another Pikachu form).
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
+    String headerName() => tester
+        .widget<Text>(
+          find.descendant(
+            of: find.byType(PokemonHeader),
+            matching: find.byWidgetPredicate(
+              (w) => w is Text && w.style?.fontSize == 28,
+            ),
+          ),
+        )
+        .data!;
+    expect(headerName(), isNot('Pikachu'));
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    // A link to Pikachu (the form the page was opened with) pages back.
+    openPokemon(
+      tester.element(find.byType(PokemonDetailView).first),
+      const FormId('pikachu'),
+      wide: false,
+    );
+    await tester.pumpAndSettle();
+    expect(headerName(), 'Pikachu');
+    expect(container.read(isNationalProvider), isTrue);
+  });
+
+  testWidgets('large system text: the pinned search field is not clipped', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, const Size(500, 1400));
+    final field = tester.renderObject<RenderBox>(
+      find.descendant(
+        of: find.byType(SearchField).first,
+        matching: find.byType(InputDecorator),
+      ),
+    );
+    // The decorator gets the height it needs (not squeezed by the header).
+    expect(
+      field.size.height,
+      greaterThanOrEqualTo(field.getMinIntrinsicHeight(field.size.width)),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('game picker: search finds the International Pokédex', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await tester.tap(find.byTooltip('Spiel').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(gamePickerKey),
+        matching: find.byType(TextField),
+      ),
+      'Inter',
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byKey(gamePickerKey),
+        matching: find.text('Internationaler Pokédex'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Keine Treffer'), findsNothing);
+  });
+
+  testWidgets('undo after switching to a game restores recent games', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Fundorte in diesen Spielen'),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    final red = find.widgetWithText(ActionChip, 'Rot').first;
+    await tester.ensureVisible(red);
+    await tester.pumpAndSettle();
+    await tester.tap(red);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rückgängig'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    expect(container.read(isNationalProvider), isTrue);
+    expect(container.read(settingsProvider).recentGames, isEmpty);
   });
 
   testWidgets('switch the app language and open the help', (tester) async {

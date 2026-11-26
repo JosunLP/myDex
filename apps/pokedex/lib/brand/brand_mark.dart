@@ -413,7 +413,6 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
       if (!_controller.isAnimating) _controller.repeat();
     } else {
       _controller.stop();
-      _controller.value = 0.999;
     }
   }
 
@@ -424,7 +423,15 @@ class _AnimatedBrandMarkState extends State<AnimatedBrandMark>
   }
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
+  Widget build(BuildContext context) {
+    // Reduced motion (or stopped): the static mark with all LEDs lit.
+    if (!widget.running || Motion.reduced(context)) {
+      return BrandMark(size: widget.size);
+    }
+    return _animated();
+  }
+
+  Widget _animated() => ExcludeSemantics(
     child: AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {

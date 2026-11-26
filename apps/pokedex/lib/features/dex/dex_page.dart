@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -268,8 +270,16 @@ class _DexBrowser extends ConsumerWidget {
         SliverPersistentHeader(
           pinned: true,
           delegate: _SearchHeader(
+            // Grows with the system text size so the field is never clipped.
+            extent:
+                Space.s +
+                math.max(
+                  56,
+                  36 + MediaQuery.textScalerOf(context).scale(16) * 1.5,
+                ),
             child: Container(
               color: scheme.surface,
+              alignment: Alignment.center,
               padding: const EdgeInsets.fromLTRB(
                 Space.l,
                 Space.xs,
@@ -458,21 +468,25 @@ class SliverEntranceScope extends StatelessWidget {
 }
 
 class _SearchHeader extends SliverPersistentHeaderDelegate {
-  const _SearchHeader({required this.child});
+  const _SearchHeader({required this.extent, required this.child});
+
+  final double extent;
 
   final Widget child;
 
   @override
-  double get minExtent => 64;
+  double get minExtent => extent;
 
   @override
-  double get maxExtent => 64;
+  double get maxExtent => extent;
 
   @override
-  Widget build(BuildContext context, double shrink, bool overlaps) => child;
+  Widget build(BuildContext context, double shrink, bool overlaps) =>
+      SizedBox(height: extent, child: child);
 
   @override
-  bool shouldRebuild(_SearchHeader old) => old.child != child;
+  bool shouldRebuild(_SearchHeader old) =>
+      old.child != child || old.extent != extent;
 }
 
 /// A Pokémon in the list: thumbnail, number, name and types.

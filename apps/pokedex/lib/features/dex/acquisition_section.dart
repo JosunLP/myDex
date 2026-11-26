@@ -219,7 +219,8 @@ class _EncounterGames extends ConsumerWidget {
 
     void open(GameVersion v) {
       final settings = ref.read(settingsProvider.notifier);
-      final previous = ref.read(gameContextProvider).versionId;
+      // Undo restores everything, including the recently used games.
+      final previous = ref.read(settingsProvider);
       settings.setGameVersion(v.id);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -228,7 +229,7 @@ class _EncounterGames extends ConsumerWidget {
             content: Text(l10n.switchedToGame(v.name(lang))),
             action: SnackBarAction(
               label: l10n.undo,
-              onPressed: () => settings.setGameVersion(previous),
+              onPressed: () => settings.replaceAll(previous),
             ),
           ),
         );

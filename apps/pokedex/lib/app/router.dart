@@ -142,6 +142,8 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
 
 /// Opens a Pokémon according to the current window width.
 void openPokemon(BuildContext context, FormId id, {required bool wide}) {
+  // Inside a swipeable detail page, Pokémon of its list are paged to.
+  if (!wide && DetailPager.tryShow(context, id)) return;
   if (wide) {
     context.go('/dex?form=${Uri.encodeQueryComponent(id.value)}');
   } else {

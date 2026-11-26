@@ -56,6 +56,22 @@ class _PokemonDetailPageState extends ConsumerState<PokemonDetailPage> {
     super.dispose();
   }
 
+  /// Links to a Pokémon of the swipe list move the pager there: the route
+  /// still names the form the page was opened with, so navigating to it
+  /// would do nothing after a swipe.
+  bool _show(FormId id) {
+    final i = _ids.indexOf(id);
+    if (i < 0) return false;
+    if (i != _index) {
+      if (Motion.reduced(context)) {
+        _pages.jumpToPage(i);
+      } else {
+        _pages.animateToPage(i, duration: Motion.long, curve: Motion.standard);
+      }
+    }
+    return true;
+  }
+
   bool _onScroll(ScrollNotification n) {
     if (n.metrics.axis != Axis.vertical) return false;
     final scrolled = n.metrics.pixels > 220;
@@ -88,18 +104,21 @@ class _PokemonDetailPageState extends ConsumerState<PokemonDetailPage> {
       ),
       body: NotificationListener<ScrollNotification>(
         onNotification: _onScroll,
-        child: PageView.builder(
-          controller: _pages,
-          itemCount: _ids.length,
-          onPageChanged: (i) {
-            HapticFeedback.selectionClick();
-            setState(() {
-              _index = i;
-              _scrolled = false;
-            });
-          },
-          itemBuilder: (context, i) =>
-              PokemonDetailView(formId: _ids[i], standalone: true),
+        child: DetailPager(
+          show: _show,
+          child: PageView.builder(
+            controller: _pages,
+            itemCount: _ids.length,
+            onPageChanged: (i) {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _index = i;
+                _scrolled = false;
+              });
+            },
+            itemBuilder: (context, i) =>
+                PokemonDetailView(formId: _ids[i], standalone: true),
+          ),
         ),
       ),
     );
@@ -462,4 +481,19 @@ class _NeighbourButtons extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Lets links inside a detail page move its pager instead of navigating.
+class DetailPager extends InheritedWidget {
+  const DetailPager({super.key, required this.show, required super.child});
+
+  /// Shows [FormId] if it is part of the pager; `false` otherwise.
+  final bool Function(FormId) show;
+
+  /// Shows [id] in the enclosing pager, if there is one and it contains it.
+  static bool tryShow(BuildContext context, FormId id) =>
+      context.getInheritedWidgetOfExactType<DetailPager>()?.show(id) ?? false;
+
+  @override
+  bool updateShouldNotify(DetailPager old) => false;
 }

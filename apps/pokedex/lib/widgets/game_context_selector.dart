@@ -201,7 +201,8 @@ class _GamePickerState extends ConsumerState<_GamePicker> {
           ),
         ),
       ),
-      if (q.isEmpty) ...[
+      if (q.isEmpty ||
+          normalizeSearchText(national.name(lang)).contains(q)) ...[
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(Space.l, Space.l, Space.l, 0),
@@ -213,7 +214,7 @@ class _GamePickerState extends ConsumerState<_GamePicker> {
             ),
           ),
         ),
-        if (recentVersions.isNotEmpty) ...[
+        if (q.isEmpty && recentVersions.isNotEmpty) ...[
           SliverToBoxAdapter(child: header(l10n.recentGames)),
           SliverToBoxAdapter(
             child: Padding(
@@ -281,7 +282,9 @@ class _GamePickerState extends ConsumerState<_GamePicker> {
           },
         ),
       ],
-      if (q.isNotEmpty && byGeneration.isEmpty)
+      if (q.isNotEmpty &&
+          byGeneration.isEmpty &&
+          !normalizeSearchText(national.name(lang)).contains(q))
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(Space.xl),

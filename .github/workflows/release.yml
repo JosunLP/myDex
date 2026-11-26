@@ -35,7 +35,8 @@ jobs:
             echo "::error::Tag $name does not match apps/pokedex/pubspec.yaml ($declared)."
             exit 1
           fi
-          if ! grep -q "^## \[$name\] – " CHANGELOG.md; then
+          # Dots escaped: the version must match literally.
+          if ! grep -q "^## \[${name//./\\.}\] – " CHANGELOG.md; then
             echo "::error::CHANGELOG.md has no section for $name."
             exit 1
           fi
