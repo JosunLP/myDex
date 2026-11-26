@@ -76,19 +76,21 @@ class StatBars extends StatelessWidget {
     }
 
     final valueWidth = widthOf('8' * '$total'.length, valueStyle);
-    final labelWidth = math.max(
-      104.0,
-      [
-        for (final (label, _) in rows) label,
-        l10n.statTotal,
-      ].map((l) => widthOf(l, labelStyle)).reduce(math.max),
+    final totalStyle = textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w700,
     );
+    final labelWidth = [
+      104.0,
+      for (final (label, _) in rows) widthOf(label, labelStyle),
+      widthOf(l10n.statTotal, totalStyle),
+    ].reduce(math.max);
     return LayoutBuilder(
       builder: (context, constraints) => _table(
         context,
         rows,
         total,
         labelStyle: labelStyle,
+        totalStyle: totalStyle,
         valueStyle: valueStyle,
         // Labels wrap only when they would leave no room for the bars.
         labelWidth: math.min(labelWidth, constraints.maxWidth * 0.4),
@@ -102,12 +104,12 @@ class StatBars extends StatelessWidget {
     List<(String, int)> rows,
     int total, {
     required TextStyle? labelStyle,
+    required TextStyle? totalStyle,
     required TextStyle? valueStyle,
     required double labelWidth,
     required double valueWidth,
   }) {
     final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     final duration = Motion.of(context, Motion.reveal);
     return Column(
@@ -160,12 +162,7 @@ class StatBars extends StatelessWidget {
           children: [
             SizedBox(
               width: labelWidth,
-              child: Text(
-                l10n.statTotal,
-                style: textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              child: Text(l10n.statTotal, style: totalStyle),
             ),
             SizedBox(
               width: valueWidth,

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:mydex_domain/mydex_domain.dart';
@@ -407,9 +409,24 @@ Color typeColor(PokemonType type) => switch (type) {
   PokemonType.fairy => const Color(0xFFD685AD),
 };
 
-/// Readable text colour on a type colour.
-Color onTypeColor(Color background) => background.computeLuminance() > 0.35
-    ? const Color(0xFF1B1B1F)
-    : Colors.white;
+/// Lighter top stop of a type colour's gradient (badges).
+Color typeHighlight(Color color) => Color.lerp(color, Colors.white, 0.08)!;
+
+/// Readable text colour on a type colour (and its [typeHighlight]): white
+/// or near-black, whichever has the higher contrast on both (≥ 4.5:1 for
+/// every type).
+Color onTypeColor(Color background) {
+  const dark = Color(0xFF1B1B1F);
+  double contrast(Color a, Color b) {
+    final la = a.computeLuminance(), lb = b.computeLuminance();
+    return (math.max(la, lb) + 0.05) / (math.min(la, lb) + 0.05);
+  }
+
+  double worst(Color text) => math.min(
+    contrast(text, background),
+    contrast(text, typeHighlight(background)),
+  );
+  return worst(Colors.white) >= worst(dark) ? Colors.white : dark;
+}
 
 const tabularFigures = [FontFeature.tabularFigures()];

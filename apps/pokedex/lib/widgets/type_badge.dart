@@ -37,7 +37,7 @@ class TypeBadge extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color.lerp(color, Colors.white, 0.12)!, color],
+          colors: [typeHighlight(color), color],
         ),
       ),
       child: Row(
