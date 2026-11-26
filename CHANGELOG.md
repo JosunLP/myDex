@@ -6,6 +6,19 @@ version; the release workflow takes that section as release notes.
 
 ## [Unreleased]
 
+## [1.1.0] – 2026-11-26
+
+The International Pokédex and a new look: myDex now opens on every Pokémon with its newest data,
+independent of a single game, and has been redesigned from the ground up – with its own logo,
+app icons, motion and a faster, clearer flow.
+
+Upgrade notes:
+- Without a chosen game the app now opens on the International Pokédex; a game you chose before
+  stays selected.
+- Collection, teams, filter presets, settings and backups of 1.0 carry over unchanged.
+- With sync, update all devices: teams created for the International Pokédex need 1.1.
+- On macOS the app is now called `myDex.app`.
+
 ### Added
 - **International Pokédex** as the new default: every Pokémon with its newest data, independent
   of a single game – types, base stats and abilities from the newest game that confirms the
@@ -32,6 +45,15 @@ version; the release workflow takes that section as release notes.
 - Without a chosen game the app now opens on the International Pokédex instead of the newest
   game; an explicitly chosen game stays selected.
 - macOS: the app bundle is now called `myDex.app`.
+
+### Fixed
+- Locations without a name in the data showed “?”; they now show a readable name.
+- A team for a game the catalog does not know (e.g. from a backup of a newer version) no longer
+  breaks the team list; it is checked against the International Pokédex instead.
+
+### Security and privacy
+- No new permissions; the offline flavor still has no internet permission. Typefaces are bundled
+  with the app – nothing is loaded from the internet.
 
 ## [1.0.0] – 2026-10-27
 

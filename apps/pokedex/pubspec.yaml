@@ -3,7 +3,7 @@ description: >-
   myDex – the private, offline-first Pokémon encyclopedia: the International
   Pokédex with the newest data plus every game, collection and teams.
 publish_to: none
-version: 1.0.0+100000
+version: 1.1.0+101000
 resolution: workspace
 
 environment:

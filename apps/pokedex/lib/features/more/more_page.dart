@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../app/version.dart';
 import '../../brand/brand_mark.dart';
 import '../../widgets/dex_decor.dart';
 import '../../widgets/motion.dart';
@@ -131,7 +132,8 @@ class MorePage extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: Space.xs),
                                     Text(
-                                      l10n.aboutCatalog(catalog.revision),
+                                      '${l10n.aboutVersion(appVersion)} · '
+                                      '${l10n.aboutCatalog(catalog.revision)}',
                                       style: textTheme.bodySmall?.copyWith(
                                         color: scheme.onSurfaceVariant,
                                       ),
@@ -224,6 +226,7 @@ class MorePage extends ConsumerWidget {
                         onTap: () => showLicensePage(
                           context: context,
                           applicationName: l10n.appTitle,
+                          applicationVersion: appVersion,
                           applicationIcon: const Padding(
                             padding: EdgeInsets.all(Space.s),
                             child: AppIconArt(size: 56),
