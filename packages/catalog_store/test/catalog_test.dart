@@ -43,13 +43,17 @@ void main() {
       expect(details.source.source, 'PokéAPI');
     });
 
-    test('default context is always the newest game', () {
-      final group =
-          catalog.versionGroups[catalog.defaultContext.versionGroupId]!;
+    test('default context is the International Pokédex', () {
+      final ctx = catalog.defaultContext;
+      expect(ctx.versionId, NationalDex.versionId);
       expect(
-        catalog.versionGroups.values.every((g) => g.order <= group.order),
+        catalog.versionGroups.values.every(
+          (g) => g.order < ctx.versionGroup.order,
+        ),
         isTrue,
+        reason: 'newer than every game',
       );
+      expect(validateCatalog(catalog), isEmpty, reason: 'derived, not stored');
     });
 
     test('names in all core languages', () {

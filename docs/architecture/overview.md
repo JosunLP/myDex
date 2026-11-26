@@ -28,6 +28,8 @@ iOS, Windows, macOS, Linux.
 13. Sprites as a separate media pack shipped with the app (ADR 0013).
 14. Sync end-to-end encrypted with a sync passphrase (ADR 0014).
 15. Signed catalog updates via your own sync server (ADR 0015).
+16. The version-independent International Pokédex is the default context, derived from the
+    newest game data (ADR 0016).
 
 ## Layers
 

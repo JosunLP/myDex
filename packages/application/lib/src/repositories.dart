@@ -2,10 +2,15 @@ import 'package:mydex_domain/mydex_domain.dart';
 
 import 'catalog_details.dart';
 import 'catalog_snapshot.dart';
+import 'national_details.dart';
 
 /// A loaded catalog: core data in memory, large tables on demand.
+/// The details also answer for the International Pokédex (ADR 0016).
 class LoadedCatalog {
-  const LoadedCatalog(this.snapshot, this.details);
+  LoadedCatalog(this.snapshot, CatalogDetails details)
+    : details = details is NationalCatalogDetails
+          ? details
+          : NationalCatalogDetails(details, snapshot);
   final CatalogSnapshot snapshot;
   final CatalogDetails details;
 }

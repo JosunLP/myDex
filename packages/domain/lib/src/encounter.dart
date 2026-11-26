@@ -39,6 +39,16 @@ class Location {
   final LocationId id;
   final LocalizedText name;
   final RegionId? region;
+
+  /// Name in [language]; without any name the ID in readable form
+  /// (e.g. `unova-route-4` → "Unova Route 4") instead of a placeholder.
+  String displayName(String language) {
+    if (name.values.isNotEmpty) return name(language);
+    return [
+      for (final part in id.value.split('-'))
+        if (part.isNotEmpty) part[0].toUpperCase() + part.substring(1),
+    ].join(' ');
+  }
 }
 
 /// Encounter of a form in a game version, aggregated over slots.

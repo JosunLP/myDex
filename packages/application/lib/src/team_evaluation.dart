@@ -118,9 +118,10 @@ class TeamEvaluator {
     return result;
   }
 
-  FormGameProfile profileOf(TeamMember m) =>
-      catalog.forms[m.form]?.profileFor(context.versionGroupId) ??
-      FormGameProfile.notResearched;
+  FormGameProfile profileOf(TeamMember m) => switch (catalog.forms[m.form]) {
+    final form? => catalog.profileOf(form, context.versionGroupId),
+    null => FormGameProfile.notResearched,
+  };
 
   TeamCheck check(Team team) => TeamCheck(
     [for (final m in team.members) checkMember(m)],
