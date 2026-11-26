@@ -857,6 +857,31 @@ void main() {
     );
   });
 
+  testWidgets('the International list counts all Pokémon, in any game', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await _selectGame(tester, 'Rot');
+    await tester.tap(find.text('Sammlung').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('International'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    final catalog = container.read(readyCatalogProvider);
+    final all = container
+        .read(queriesProvider)
+        .list(catalog.nationalContext)
+        .length;
+    final red = container
+        .read(queriesProvider)
+        .list(container.read(gameContextProvider))
+        .length;
+    expect(all, greaterThan(red));
+    expect(find.text('0 von $all gefangen'), findsOneWidget);
+  });
+
   testWidgets('switch the app language and open the help', (tester) async {
     await _pump(tester, const Size(500, 1600));
     await tester.tap(find.text('Mehr'));

@@ -137,7 +137,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         },
       );
     } else {
-      final items = ref.watch(queriesProvider).list(ctx);
+      // The International list always covers every Pokémon, whichever game
+      // is selected.
+      final items = ref
+          .watch(queriesProvider)
+          .list(view == _View.global ? catalog.nationalContext : ctx);
       final scope = view == _View.global
           ? const GlobalScope()
           : collectionScopeOf(ctx);
