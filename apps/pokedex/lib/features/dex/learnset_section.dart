@@ -62,8 +62,10 @@ class LearnsetSection extends ConsumerWidget {
     // Moves of pre-evolutions are kept on evolution.
     final own = {for (final e in entries) e.move};
     final inherited = <MoveId, FormId>{};
+    // From the same game as the form's own moves (International Pokédex).
+    final group = learnsetGroupOf(form, ctx, details);
     for (final pre in preEvolutionsOf(catalog, form, ctx.versionGroupId)) {
-      for (final e in details.learnset(pre, ctx.versionGroupId)) {
+      for (final e in details.learnset(pre, group)) {
         if (!own.contains(e.move)) inherited.putIfAbsent(e.move, () => pre);
       }
     }

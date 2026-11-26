@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mydex_application/mydex_application.dart';
 
 import '../brand/brand_mark.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -45,11 +46,7 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
       themeMode: themeMode,
       themeAnimationDuration:
           reduceMotion ||
-              WidgetsBinding
-                  .instance
-                  .platformDispatcher
-                  .accessibilityFeatures
-                  .disableAnimations
+              (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
           ? Duration.zero
           : Motion.medium,
       themeAnimationCurve: Motion.standard,
@@ -102,6 +99,17 @@ class _CatalogGateState extends ConsumerState<CatalogGate> {
   /// The install error already reported (each one is shown once).
   Object? _reported;
 
+  bool _migrated = false;
+
+  /// Once the catalog and the collection are loaded, upgrade 1.0 settings.
+  Future<void> _migrate(CatalogSnapshot catalog) async {
+    final collection = await ref.read(collectionProvider.future);
+    if (!mounted) return;
+    ref
+        .read(settingsProvider.notifier)
+        .migrateLegacyDefault(catalog, collection);
+  }
+
   @override
   Widget build(BuildContext context) {
     final catalog = ref.watch(catalogProvider);
@@ -121,6 +129,12 @@ class _CatalogGateState extends ConsumerState<CatalogGate> {
           ),
         );
       });
+    }
+    if (!_migrated) {
+      if (catalog case AsyncData(:final value)) {
+        _migrated = true;
+        _migrate(value.snapshot).ignore();
+      }
     }
     final child = widget.child;
     final Widget content = switch (catalog) {

@@ -1039,6 +1039,65 @@ void main() {
     }
   });
 
+  group('upgrade from 1.0 settings (no game chosen)', () {
+    Future<_Harness> start(WidgetTester tester, {required bool marks}) async {
+      final h = _Harness();
+      if (marks) {
+        final at = DateTime.utc(2026, 9, 1);
+        await h.collection.put(
+          CollectionEntry(
+            key: const CollectionKey(
+              scope: GameScope(GameVersionId('champions')),
+              form: FormId('pikachu'),
+            ),
+            updatedAt: at,
+          ).withCaught(true, at),
+        );
+      }
+      tester.view.physicalSize = const Size(500, 1200);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.localesTestValue = const [Locale('de')];
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+      addTearDown(() => h.dir.deleteSync(recursive: true));
+      h.extraOverrides.add(
+        initialSettingsProvider.overrideWithValue(
+          AppSettings.fromJson(const {'themeMode': 'system'}),
+        ),
+      );
+      await tester.pumpWidget(h.build());
+      await tester.pumpAndSettle();
+      return h;
+    }
+
+    testWidgets('users with marks keep the game they marked in', (
+      tester,
+    ) async {
+      await start(tester, marks: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      final catalog = container.read(readyCatalogProvider);
+      expect(catalog.versions.last.id, const GameVersionId('champions'));
+      expect(
+        container.read(gameContextProvider).versionId,
+        const GameVersionId('champions'),
+      );
+      expect(container.read(settingsProvider).schema, 2);
+    });
+
+    testWidgets('users without marks get the International Pokédex', (
+      tester,
+    ) async {
+      await start(tester, marks: false);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      expect(container.read(isNationalProvider), isTrue);
+      expect(container.read(settingsProvider).schema, 2);
+    });
+  });
+
   testWidgets('switch the app language and open the help', (tester) async {
     await _pump(tester, const Size(500, 1600));
     await tester.tap(find.text('Mehr'));

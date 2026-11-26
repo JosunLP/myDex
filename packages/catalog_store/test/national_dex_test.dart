@@ -131,13 +131,42 @@ void main() {
       for (final f in catalog.forms.values) {
         final p = profile(f.id.value);
         if (p.availability != DataAvailability.confirmedAvailable) continue;
-        expect(
-          p.types.length,
-          inInclusiveRange(1, 2),
-          reason: '${f.id.value}: 1–2 types',
-        );
+        expect(p.types.length, inInclusiveRange(1, 2), reason: f.id.value);
+        if (p.abilities.isEmpty) continue;
+        final ids = [for (final a in p.abilities) a.abilityId];
+        final fromGameWithAbilities = catalog.versionGroups.values.any((g) {
+          final game = f.profileFor(g.id);
+          return (catalog.rulesets[g.rulesetId]?.hasAbilities ?? false) &&
+              game.abilities.length == ids.length &&
+              [
+                for (final (i, a) in game.abilities.indexed)
+                  a.abilityId == ids[i],
+              ].every((x) => x);
+        });
+        expect(fromGameWithAbilities, isTrue, reason: f.id.value);
       }
       expect(profile('pikachu').abilities, isNotEmpty);
+    });
+
+    test('inherited moves come from the same game as the own ones', () {
+      final evaluator = TeamEvaluator(catalog, details, national);
+      var checked = 0;
+      for (final f in catalog.forms.values) {
+        final pre = preEvolutionsOf(catalog, f.id, national.versionGroupId);
+        final source = details.newestLearnsetGroups()[f.id];
+        if (pre.isEmpty || source == null) continue;
+        final sameGame = {
+          for (final x in [f.id, ...pre])
+            for (final e in details.learnset(x, source)) e.move,
+        };
+        expect(
+          evaluator.learnable(f.id).keys.toSet().difference(sameGame),
+          isEmpty,
+          reason: '${f.id.value}: all from ${source.value}',
+        );
+        checked++;
+      }
+      expect(checked, greaterThan(0));
     });
 
     test('detail and evolutions with the newest conditions', () {

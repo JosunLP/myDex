@@ -4,6 +4,7 @@ import 'package:mydex_game_rules/mydex_game_rules.dart';
 
 import 'catalog_details.dart';
 import 'catalog_snapshot.dart';
+import 'national_details.dart';
 import 'pokemon_queries.dart';
 
 /// Result of a check. Order = severity (highest last).
@@ -107,11 +108,13 @@ class TeamEvaluator {
   /// or the pre-evolution the move comes from).
   Map<MoveId, FormId> learnable(FormId form) {
     final result = <MoveId, FormId>{};
+    // All from one game, also in the International Pokédex.
+    final group = learnsetGroupOf(form, context, details);
     for (final source in [
       form,
       ...preEvolutionsOf(catalog, form, context.versionGroupId),
     ]) {
-      for (final e in details.learnset(source, context.versionGroupId)) {
+      for (final e in details.learnset(source, group)) {
         result.putIfAbsent(e.move, () => source);
       }
     }

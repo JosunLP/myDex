@@ -142,3 +142,14 @@ class NationalCatalogDetails implements CatalogDetails {
   @override
   void close() => inner.close();
 }
+
+/// Version group whose learnsets apply to [form] in [context]: the game
+/// itself, or – in the International Pokédex – the form's source game, so
+/// that moves inherited from pre-evolutions come from the same game.
+VersionGroupId learnsetGroupOf(
+  FormId form,
+  GameContext context,
+  CatalogDetails details,
+) => NationalDex.isNational(context.versionId)
+    ? details.newestLearnsetGroups()[form] ?? context.versionGroupId
+    : context.versionGroupId;

@@ -36,7 +36,7 @@ class EncounterDetails extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showArea && area != null)
-          Text(area.name(lang), style: textTheme.labelLarge),
+          Text(area.displayName(lang), style: textTheme.labelLarge),
         Text(
           l10n.encounterLine(method, levels, e.chance),
           style: textTheme.bodyMedium?.copyWith(fontFeatures: tabularFigures),

@@ -125,7 +125,9 @@ class AcquisitionSection extends ConsumerWidget {
                               child: EncounterDetails(
                                 encounter: e,
                                 showArea:
-                                    catalog.locationAreas[e.area]?.name(lang) !=
+                                    catalog.locationAreas[e.area]?.displayName(
+                                      lang,
+                                    ) !=
                                     catalog.locations[location]?.displayName(
                                       lang,
                                     ),

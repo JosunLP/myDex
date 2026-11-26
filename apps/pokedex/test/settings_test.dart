@@ -20,6 +20,9 @@ void main() {
     expect(settings.dexLayout, DexLayout.list);
     // Without a chosen game: the International Pokédex (null).
     expect(AppSettings.fromJson({'themeMode': 'system'}).gameVersion, isNull);
+    // 1.0 wrote no schema: it is migrated once the catalog is loaded.
+    expect(settings.schema, 1);
+    expect(const AppSettings().toJson()['schema'], AppSettings.currentSchema);
   });
 
   test('new settings survive a round trip and tolerate bad values', () {

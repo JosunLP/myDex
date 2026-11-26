@@ -182,6 +182,29 @@ class SettingsController extends Notifier<AppSettings> {
     ),
   );
 
+  /// Upgrade from 1.0 settings: there, no chosen game meant the newest
+  /// game, and the marks of users who never chose one are stored for it.
+  /// Such users keep that game; everyone else gets the International
+  /// Pokédex (ADR 0016).
+  void migrateLegacyDefault(
+    CatalogSnapshot catalog,
+    Map<CollectionKey, CollectionEntry> collection,
+  ) {
+    if (state.schema >= AppSettings.currentSchema) return;
+    final newest = catalog.versions.lastOrNull?.id;
+    final hasMarks =
+        newest != null &&
+        collection.keys.any((k) => k.scope == GameScope(newest));
+    _update(
+      state.copyWith(
+        gameVersion: state.gameVersion == null && hasMarks
+            ? () => newest.value
+            : null,
+        schema: AppSettings.currentSchema,
+      ),
+    );
+  }
+
   void setReduceMotion(bool value) =>
       _update(state.copyWith(reduceMotion: value));
 

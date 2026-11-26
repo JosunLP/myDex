@@ -14,6 +14,7 @@ class AppSettings {
     this.reduceMotion = false,
     this.recentGames = const [],
     this.dexLayout = DexLayout.list,
+    this.schema = currentSchema,
   });
 
   factory AppSettings.fromJson(Map<String, Object?> j) => AppSettings(
@@ -33,7 +34,13 @@ class AppSettings {
       (l) => l.name == j['dexLayout'],
       orElse: () => DexLayout.list,
     ),
+    // 1.0 wrote no schema.
+    schema: (j['schema'] as int?) ?? 1,
   );
+
+  /// Schema of the stored settings. 2 (1.1): `gameVersion == null` means
+  /// the International Pokédex; in 1 (1.0) it meant the newest game.
+  static const currentSchema = 2;
 
   /// How many recently used games the game picker offers.
   static const maxRecentGames = 4;
@@ -57,6 +64,9 @@ class AppSettings {
 
   final DexLayout dexLayout;
 
+  /// See [currentSchema].
+  final int schema;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     String? Function()? gameVersion,
@@ -65,6 +75,7 @@ class AppSettings {
     bool? reduceMotion,
     List<String>? recentGames,
     DexLayout? dexLayout,
+    int? schema,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     gameVersion: gameVersion == null ? this.gameVersion : gameVersion(),
@@ -73,6 +84,7 @@ class AppSettings {
     reduceMotion: reduceMotion ?? this.reduceMotion,
     recentGames: recentGames ?? this.recentGames,
     dexLayout: dexLayout ?? this.dexLayout,
+    schema: schema ?? this.schema,
   );
 
   Map<String, Object?> toJson() => {
@@ -83,5 +95,6 @@ class AppSettings {
     if (reduceMotion) 'reduceMotion': true,
     if (recentGames.isNotEmpty) 'recentGames': recentGames,
     if (dexLayout != DexLayout.list) 'dexLayout': dexLayout.name,
+    'schema': currentSchema,
   };
 }

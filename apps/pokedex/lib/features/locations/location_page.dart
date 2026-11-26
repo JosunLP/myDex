@@ -127,7 +127,8 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                   child: Semantics(
                     header: true,
                     child: Text(
-                      catalog.locationAreas[area]?.name(lang) ?? area.value,
+                      catalog.locationAreas[area]?.displayName(lang) ??
+                          area.value,
                       style: textTheme.titleMedium,
                     ),
                   ),

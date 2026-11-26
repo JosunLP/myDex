@@ -13,8 +13,9 @@ independent of a single game, and has been redesigned from the ground up – wit
 app icons, motion and a faster, clearer flow.
 
 Upgrade notes:
-- Without a chosen game the app now opens on the International Pokédex; a game you chose before
-  stays selected.
+- Without a chosen game the app now opens on the International Pokédex. A game you chose before
+  stays selected; if you never chose one but marked Pokémon in the newest game, that game stays
+  selected so your marks remain in view.
 - Collection, teams, filter presets, settings and backups of 1.0 carry over unchanged.
 - With sync, update all devices: teams created for the International Pokédex need 1.1.
 - On macOS the app is now called `myDex.app`.
