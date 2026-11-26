@@ -94,6 +94,19 @@ abstract interface class CatalogDetails {
   /// Whether there is any location data for this game version.
   bool hasEncounterData(GameVersionId version);
 
+  /// Game versions in which [form] has encounters, chronologically.
+  List<GameVersionId> encounterVersionsOf(FormId form);
+
+  /// Game versions with encounters at [location], chronologically.
+  List<GameVersionId> encounterVersionsAt(LocationId location);
+
+  /// Per form the newest version group with a core-series learnset (with
+  /// level-up moves), otherwise the newest with any learnset data.
+  Map<FormId, VersionGroupId> newestLearnsetGroups();
+
+  /// Who learns a move, for every version group at once.
+  Map<VersionGroupId, List<MoveLearner>> learnersByGroup(MoveId move);
+
   /// Full-text search over moves, abilities and items.
   List<EntityHit> searchEntities(String query, {int limit = 30});
 

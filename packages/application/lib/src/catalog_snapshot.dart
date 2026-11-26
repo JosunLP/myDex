@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
+import 'national_dex.dart';
+
 /// Immutable, fully loaded catalog state.
 @immutable
 class CatalogSnapshot {
@@ -27,7 +29,7 @@ class CatalogSnapshot {
   }) : rulesets = {for (final r in rulesets) r.id: r},
        versionGroups = {for (final g in versionGroups) g.id: g},
        versions = List.unmodifiable(
-         <GameVersion>[...versions]..sort(
+         <GameVersion>[..._distinctNames(versions)]..sort(
            (a, b) => _groupOrder(
              versionGroups,
              a.versionGroupId,
@@ -41,6 +43,24 @@ class CatalogSnapshot {
 
   static int _groupOrder(List<VersionGroup> groups, VersionGroupId id) =>
       groups.firstWhere((g) => g.id == id).order;
+
+  /// The Japanese first editions carry the same names as the international
+  /// ones in every language ("Red" and "Red"). They get a "(JP)" suffix so
+  /// that pickers and labels stay unambiguous.
+  static List<GameVersion> _distinctNames(List<GameVersion> versions) => [
+    for (final v in versions)
+      if (v.id.value.endsWith('-japan'))
+        GameVersion(
+          id: v.id,
+          versionGroupId: v.versionGroupId,
+          name: LocalizedText({
+            for (final MapEntry(:key, :value) in v.name.values.entries)
+              key: value.endsWith('(JP)') ? value : '$value (JP)',
+          }),
+        )
+      else
+        v,
+  ];
 
   final String revision;
   final int schemaVersion;
@@ -64,7 +84,12 @@ class CatalogSnapshot {
   final Map<ItemId, ItemInfo> items;
   final List<EvolutionEdge> evolutions;
 
+  /// The International Pokédex derived from this catalog (ADR 0016).
+  late final NationalDex national = NationalDex.derive(this);
+
+  /// Context of a game version or of the International Pokédex.
   GameContext contextFor(GameVersionId id) {
+    if (NationalDex.isNational(id)) return nationalContext;
     final version = versions.firstWhere(
       (v) => v.id == id,
       orElse: () => throw ArgumentError('Unknown game version: ${id.value}'),
@@ -78,9 +103,44 @@ class CatalogSnapshot {
     );
   }
 
-  /// The chronologically newest game is always the default context – even
-  /// if data is still missing for it (gaps are shown then).
-  GameContext get defaultContext => contextFor(versions.last.id);
+  /// Version-independent context with the newest data of every form.
+  late final GameContext nationalContext = GameContext(
+    version: national.version,
+    versionGroup: national.versionGroup,
+    ruleset: national.ruleset,
+    contentRevision: revision,
+  );
+
+  /// The International Pokédex is the default context: it shows every
+  /// Pokémon with its newest data, independent of a single game.
+  GameContext get defaultContext => nationalContext;
+
+  /// Whether [id] names a game version or the International Pokédex.
+  bool hasVersion(GameVersionId id) =>
+      NationalDex.isNational(id) || versions.any((v) => v.id == id);
+
+  /// A game version or the International Pokédex; `null` if unknown.
+  GameVersion? versionById(GameVersionId id) => NationalDex.isNational(id)
+      ? national.version
+      : versions.where((v) => v.id == id).firstOrNull;
+
+  /// Profile of [form] in a version group, including the International
+  /// Pokédex. Use this instead of [PokemonForm.profileFor] for contexts.
+  FormGameProfile profileOf(PokemonForm form, VersionGroupId group) =>
+      group == NationalDex.versionGroupId
+      ? national.profileOf(form.id)
+      : form.profileFor(group);
+
+  /// Evolutions valid in a version group (or the International Pokédex).
+  List<EvolutionEdge> evolutionsIn(VersionGroupId group) =>
+      group == NationalDex.versionGroupId
+      ? national.evolutions
+      : (_evolutionsByGroup[group] ??= [
+          for (final e in evolutions)
+            if (e.versionGroups.contains(group)) e,
+        ]);
+
+  final Map<VersionGroupId, List<EvolutionEdge>> _evolutionsByGroup = {};
 
   LocalizedText displayName(PokemonForm form) =>
       form.name ?? species[form.speciesId]!.name;

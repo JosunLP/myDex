@@ -34,7 +34,8 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
     final locations = [
       for (final id in details.locationsWithEncounters(ctx.versionId))
         if (catalog.locations[id] case final location?)
-          if (q.isEmpty || normalizeSearchText(location.name(lang)).contains(q))
+          if (q.isEmpty ||
+              normalizeSearchText(location.displayName(lang)).contains(q))
             location,
     ];
     final byRegion = <RegionId?, List<Location>>{};
@@ -42,7 +43,7 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
       byRegion.putIfAbsent(l.region, () => []).add(l);
     }
     for (final list in byRegion.values) {
-      list.sort((a, b) => a.name(lang).compareTo(b.name(lang)));
+      list.sort((a, b) => a.displayName(lang).compareTo(b.displayName(lang)));
     }
     final textTheme = Theme.of(context).textTheme;
 
@@ -50,7 +51,7 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
       appBar: AppBar(
         title: Text(l10n.navLocations),
         actions: const [
-          GameContextSelector(),
+          Flexible(child: GameContextSelector()),
           SizedBox(width: Space.s),
         ],
       ),
@@ -99,14 +100,33 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
                                   ? l10n.otherRegion
                                   : catalog.regionNames[region]?.call(lang) ??
                                         region.value,
-                              style: textTheme.titleSmall,
+                              style: textTheme.titleMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ),
                         ),
                         for (final location in list)
                           ListTile(
-                            leading: const Icon(Icons.place_outlined),
-                            title: Text(location.name(lang)),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: Space.l,
+                            ),
+                            leading: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(Radii.s),
+                              ),
+                              child: Icon(
+                                Icons.place_outlined,
+                                size: 20,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            title: Text(location.displayName(lang)),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () => context.go(
                               '/locations/${Uri.encodeComponent(location.id.value)}',

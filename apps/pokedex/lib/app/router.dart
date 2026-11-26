@@ -23,8 +23,12 @@ import 'shell.dart';
 GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
   initialLocation: initialLocation,
   routes: [
-    StatefulShellRoute.indexedStack(
+    StatefulShellRoute(
       builder: (context, state, shell) => AppShell(shell: shell),
+      // Sections keep their state (like an IndexedStack) and fade through
+      // when switching.
+      navigatorContainerBuilder: (context, shell, children) =>
+          AnimatedBranches(index: shell.currentIndex, children: children),
       branches: [
         StatefulShellBranch(
           routes: [
@@ -37,9 +41,15 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
               routes: [
                 GoRoute(
                   path: 'pokemon/:formId',
-                  builder: (context, state) => PokemonDetailPage(
-                    formId: FormId(state.pathParameters['formId']!),
-                  ),
+                  // go_router keys pages by the route pattern: a new key per
+                  // form gives a new page state when opening another form.
+                  builder: (context, state) {
+                    final formId = FormId(state.pathParameters['formId']!);
+                    return PokemonDetailPage(
+                      key: ValueKey(formId),
+                      formId: formId,
+                    );
+                  },
                 ),
                 GoRoute(
                   path: 'move/:moveId',
@@ -132,6 +142,8 @@ GoRouter buildRouter({String initialLocation = '/dex'}) => GoRouter(
 
 /// Opens a Pokémon according to the current window width.
 void openPokemon(BuildContext context, FormId id, {required bool wide}) {
+  // Inside a swipeable detail page, Pokémon of its list are paged to.
+  if (!wide && DetailPager.tryShow(context, id)) return;
   if (wide) {
     context.go('/dex?form=${Uri.encodeQueryComponent(id.value)}');
   } else {

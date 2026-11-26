@@ -2,10 +2,20 @@
 
 For the first release see `first-release.md` (step by step).
 
+For the release being prepared see the checklist `X.Y.Z.md` in this folder (currently
+`1.1.0.md`).
+
 ## Process
 1. `main` is green (CI including the APK permission check and accessibility tests).
-2. In `CHANGELOG.md` rename “Unreleased” to `## [X.Y.Z] – YYYY-MM-DD` and merge.
-3. Create the tag: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+2. Prepare the release in a pull request and merge it:
+   - `CHANGELOG.md`: rename “Unreleased” to `## [X.Y.Z] – YYYY-MM-DD` (summary and upgrade notes
+     first – the section becomes the release notes) and add a new empty “Unreleased”.
+   - `apps/pokedex/pubspec.yaml`: `version: X.Y.Z+<versionCode>`.
+   - `apps/pokedex/lib/app/version.dart`: `appVersion` (shown under “More”).
+   - `apps/pokedex/linux/packaging/metainfo/*.metainfo.xml`: a `<release>` with the same date.
+   - `apps/pokedex/test/version_test.dart` checks that these agree.
+3. Create the tag: `git tag vX.Y.Z && git push origin vX.Y.Z`. The workflow refuses tags that do
+   not match `pubspec.yaml` or have no CHANGELOG section.
 4. The “Release” workflow builds everything and creates a **draft release**:
    - `mydex-X.Y.Z-android.apk` (flavor “offline”, no permissions)
    - `mydex-sync-X.Y.Z-android.apk` (flavor “sync”, internet only)

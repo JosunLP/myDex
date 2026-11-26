@@ -18,8 +18,13 @@ UI texts are quoted in English; the app follows the system language.
 |---|---|---|
 | 1 | Install via `adb install` or a file manager | Installs without a hint about missing services |
 | 2 | App info → Permissions | No permissions; “Network” not present |
-| 3 | First start in airplane mode | Catalog is installed, Dex usable |
+| 3 | First start in airplane mode | Red splash with the myDex mark, then the Dex on the “International Pokédex” |
 | 4 | Search Pikachu, set the game to Red and to Scarlet | Types/stats change, no error |
+| 4a | Search Clefairy in the International Pokédex, open it | Type Fairy, “Data as of …” shows the source game |
+| 4b | On Pikachu tap a game under “Locations and how to obtain”, then “Undo” | Switches to the game with its locations, undo returns |
+| 4c | Swipe sideways on a Pokémon page, then use the back gesture | Next Pokémon; predictive back shows the list behind |
+| 4d | Home screen with themed icons on, long-press the icon | Monochrome myDex icon; round/adaptive shape without clipping |
+| 4e | “More” → “Reduce motion” | Transitions and entrances switch off immediately |
 | 5 | Mark Pikachu as caught, close the app, restart | The mark is kept |
 | 6 | Create a team, pick Pokémon and moves | Validation and type analysis appear |
 | 7 | Export a backup with a password (choose a location) and import it again | Preview, import succeeds, no storage permission requested |

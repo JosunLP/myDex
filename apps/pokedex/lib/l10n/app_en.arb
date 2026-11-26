@@ -25,14 +25,6 @@
       }
     }
   },
-  "statusGame": "Game: {game}",
-  "@statusGame": {
-    "placeholders": {
-      "game": {
-        "type": "String"
-      }
-    }
-  },
   "typeName": "{type, select, normal{Normal} fire{Fire} water{Water} electric{Electric} grass{Grass} ice{Ice} fighting{Fighting} poison{Poison} ground{Ground} flying{Flying} psychic{Psychic} bug{Bug} rock{Rock} ghost{Ghost} dragon{Dragon} dark{Dark} steel{Steel} fairy{Fairy} other{?}}",
   "@typeName": {
     "placeholders": {
@@ -202,7 +194,7 @@
     }
   },
   "scopeThisGame": "This game",
-  "scopeGlobal": "All games",
+  "scopeGlobal": "International",
   "collectionShinyToggle": "Shiny collection",
   "teamsTitle": "Teams",
   "detailEmpty": "Select a Pokémon from the list.",
@@ -448,7 +440,7 @@
     }
   },
   "coverageNoEncounters": "no location data",
-  "teamsEmpty": "No teams yet. Create one for the selected game.",
+  "teamsEmpty": "Teams belong to the selected Pokédex or game – with stats, validation and type analysis.",
   "newTeam": "New team",
   "defaultTeamName": "Team {number}",
   "@defaultTeamName": {
@@ -621,7 +613,7 @@
   "typeMatchAny": "Any of these",
   "typeMatchAll": "All of these",
   "filterGenerations": "Generation",
-  "filterCollection": "Collection (this game)",
+  "filterCollection": "Collection (current Pokédex)",
   "collectionFilterAll": "All",
   "collectionFilterCaught": "Caught",
   "collectionFilterMissing": "Missing",
@@ -651,7 +643,7 @@
       }
     }
   },
-  "ownChecklist": "own list",
+  "ownChecklist": "International Pokédex",
   "backupTitle": "Backup",
   "backupExplanation": "Collection, teams, filter presets and settings as a file. The catalog is not included.",
   "exportBackup": "Export",
@@ -780,7 +772,7 @@
   "helpTitle": "Help",
   "helpSubtitle": "How myDex works – available offline",
   "helpGameTitle": "Game selection",
-  "helpGameBody": "Almost everything depends on the selected game: types, base stats, abilities, moves, locations and team checks. Switch the game at the top of the Dex; the newest game is preselected. Example: Clefairy is Normal up to Generation 5 and Fairy from X/Y on.",
+  "helpGameBody": "Preselected is the International Pokédex: every Pokémon with its newest data, independent of any game. Choose a game at the top to see exactly its values – types, base stats, abilities, moves, locations and team checks then follow that game. Example: Clefairy is Normal up to Generation 5 and Fairy from X/Y on.",
   "helpAvailabilityTitle": "Data gaps and availability",
   "helpAvailabilityBody": "myDex distinguishes \"confirmed not in the game\" from \"not researched yet\". A data gap never means a Pokémon is missing. \"Data & coverage\" shows how complete the data is for each game.",
   "helpSearchTitle": "Search",
@@ -916,6 +908,267 @@
         "type": "String"
       },
       "revision": {
+        "type": "String"
+      }
+    }
+  },
+  "nationalDexSubtitle": "Every Pokémon with the newest data from all games",
+  "gamePickerTitle": "Choose Pokédex",
+  "gamePickerSearch": "Search games",
+  "recentGames": "Recently used",
+  "dataAsOf": "Data as of {game}",
+  "@dataAsOf": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "dataAsOfHint": "The International Pokédex shows the newest data of every Pokémon. Choose a game for its exact values.",
+  "learnsetAsOf": "Moves as in {game}",
+  "@learnsetAsOf": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "encounterGames": "Found in these games – tap one to switch to it",
+  "noEncounterGames": "No game lists locations for this Pokémon.",
+  "switchedToGame": "Switched to {game}",
+  "@switchedToGame": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Undo",
+  "locationNationalHint": "Choose a game to see its encounters here.",
+  "reduceMotion": "Reduce motion",
+  "reduceMotionHint": "Turns animations off, in addition to the system setting",
+  "layoutList": "List view",
+  "layoutGrid": "Grid view",
+  "previousPokemon": "Previous Pokémon",
+  "nextPokemon": "Next Pokémon",
+  "pokemonCount": "{count, plural, =1{1 Pokémon} other{{count} Pokémon}}",
+  "@pokemonCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadingCatalog": "Preparing your Pokédex…",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appTagline": "Your offline Pokédex for every game",
+  "teamsEmptyTitle": "Build your first team",
+  "sectionMatchups": "Type matchups",
+  "matchupWeak": "Weak to",
+  "matchupResist": "Resists",
+  "matchupImmune": "Immune to",
+  "matchupHint": "Damage taken from attacks of each type.",
+  "matchupNeutral": "No weaknesses or resistances.",
+  "moveLearnersNational": "Pokémon that learn it (newest data)",
+  "abilityHoldersNational": "Pokémon with this ability",
+  "teamNational": "Pokédex: {name}",
+  "@teamNational": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "encounterMethod": "{method, select, walk{Grass or cave} grass_spots{Rustling grass} cave_spots{Dust clouds} bridge_spots{Bridge shadows} dark_grass{Dark grass} yellow_flowers{Yellow flowers} purple_flowers{Purple flowers} red_flowers{Red flowers} rough_terrain{Rough terrain} old_rod{Old Rod} good_rod{Good Rod} super_rod{Super Rod} super_rod_spots{Fishing in dark spots} surf{Surfing} surf_spots{Surfing in dark spots} rock_smash{Rock Smash} headbutt{Headbutt on trees} gift{Gift} gift_egg{Egg as a gift} static{Fixed encounter} pokeflute{Poké Flute} headbutt_low{Headbutt (low-rate tree)} headbutt_normal{Headbutt (normal-rate tree)} headbutt_high{Headbutt (high-rate tree)} squirt_bottle{Squirt Bottle on Sudowoodo} wailmer_pail{Wailmer Pail on Sudowoodo} seaweed{Diving in seaweed} roaming_grass{Roaming in grass} roaming_water{Roaming on water} devon_scope{Devon Scope} feebas_tile_fishing{Fishing on a Feebas tile} island_scan{Island Scan} sos{SOS battle} bubbling_spots{Fishing at bubbling spots} berry_trees{Berry tree} npc_trade{Trade with a character} sos_from_bubbling_spot{SOS battle at bubbling spots} overworld{In the overworld} overworld_water{On the water (overworld)} overworld_flying{In the sky (overworld)} overworld_special{Rare spawn in grass (lure or catch combo)} overworld_flying_special{Rare spawn in the sky (lure or catch combo)} overworld_water_special{Rare spawn on the water (lure or catch combo)} horde{Horde encounter} colosseum_bonus_disc_us{Colosseum bonus disc (USA)} colosseum_bonus_disc_jpn{Colosseum bonus disc (Japan)} pokemon_channel_pal{Pokémon Channel (PAL)} pokemon_ranger{Pokémon Ranger} pokemon_battle_revolution{Pokémon Battle Revolution} new_york_pokecenter_wish_eggs{Egg from the Pokémon Center New York} snag{Snagging from a trainer} snag_rematch{Snagging after a failed attempt} pokespot{Poké Spot} hidden_grotto{Hidden Grotto} honey_tree{Honey tree} overworld_dirt{From the ground or swamp (overworld)} wanderer{Fixed spot (overworld)} wanderer_water{Fixed spot on the water} chase_water{Chased in the water} dynamax_adventure{Dynamax Adventure} max_raid{Max Raid battle} trash_can_ambush{Ambush from a trash can} rustling_bush_ambush{Ambush from a rustling bush} ceiling_ambush{Ambush from a cave ceiling} ground_ambush{Ambush from the ground} sky_ambush{Ambush from the sky} other{}}",
+  "encounterCondition": "{condition, select, time_morning{Morning} time_day{Day} time_evening{Evening} time_night{Night} season_spring{Spring} season_summer{Summer} season_autumn{Autumn} season_winter{Winter} weather_normal{Normal weather} weather_overcast{Overcast} weather_raining{Rain} weather_thunderstorm{Thunderstorm} weather_snowing{Snow} weather_snowstorm{Snowstorm} weather_intense_sun{Intense sun} weather_sandstorm{Sandstorm} weather_fog{Fog} swarm_yes{During a swarm} swarm_no{Not during a swarm} radar_on{Using the Poké Radar} radar_off{Without the Poké Radar} radio_off{Radio off} radio_hoenn{Hoenn Sound on the radio} radio_sinnoh{Sinnoh Sound on the radio} slot2_none{No game in slot 2} bug_catching_contest_yes{During the Bug-Catching Contest} bug_catching_contest_no{Not during the Bug-Catching Contest} story_progress_hall_of_fame{After the Hall of Fame} story_progress_before_hall_of_fame{Before the Hall of Fame} story_progress_national_dex{With the National Pokédex} story_progress_before_national_dex{Before the National Pokédex} story_progress_beat_red{After defeating Red} max_den_rarity_common{Max Raid: red light (common)} max_den_rarity_rare{Max Raid: purple light (rare)} max_den_rarity_special{Max Raid: event (after Wild Area News)} johto_safari_blocks_inactive{Without Safari Zone blocks} great_marsh_daily_slot_none{Great Marsh: not today} trade_any_pokemon{Trade away any Pokémon} trash_can_type_daily{Shaking trash can (daily)} other{}}",
+  "conditionItem": "{item} in the Bag",
+  "conditionTrade": "Trade away {pokemon}",
+  "conditionStarter": "{pokemon} as starter",
+  "conditionCoins": "At least {count} coins",
+  "conditionSafariBlocks": "At least {count} {kind, select, forest{forest} water{water} plains{plains} peak{peak} other{}} block points",
+  "conditionGreatMarsh": "Great Marsh daily chance: {count} in 32",
+  "conditionMaxRaidStars": "Max Raid {stars}★",
+  "conditionFriendSafari": "Friend Safari slot {slot}",
+  "conditionDiglett": "{count} Alolan Diglett found",
+  "conditionSlot2": "{game} in slot 2",
+  "conditionSaveData": "Save data from {game}",
+  "conditionMinutes": "Minute {from}–{to}",
+  "conditionTimeRange": "{from}–{to}",
+  "conditionHoneyTree": "Honey tree group {group}",
+  "conditionHeadbuttTree": "Headbutt tree ({kind, select, common{common} rare{rare} secret{secret} other{?}})",
+  "conditionBerryTree": "{color, select, red{Red} blue{Blue} purple{Purple} green{Green} yellow{Yellow} pink{Pink} other{?}} berry tree",
+  "conditionTrashCan": "Shaking trash can ({day})",
+  "weekdayName": "{day, select, monday{Monday} tuesday{Tuesday} wednesday{Wednesday} thursday{Thursday} friday{Friday} saturday{Saturday} sunday{Sunday} other{?}}",
+  "@encounterMethod": {
+    "description": "Encounter method by ID (hyphens as underscores); empty for unknown IDs, then the catalog name is used.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "@encounterCondition": {
+    "description": "Fixed encounter conditions by ID (hyphens as underscores); empty for others.",
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionItem": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionTrade": {
+    "placeholders": {
+      "pokemon": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionStarter": {
+    "placeholders": {
+      "pokemon": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionCoins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@conditionSafariBlocks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionGreatMarsh": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@conditionMaxRaidStars": {
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
+  },
+  "@conditionFriendSafari": {
+    "placeholders": {
+      "slot": {
+        "type": "int"
+      }
+    }
+  },
+  "@conditionDiglett": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@conditionSlot2": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionSaveData": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionMinutes": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionTimeRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionHoneyTree": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionHeadbuttTree": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionBerryTree": {
+    "placeholders": {
+      "color": {
+        "type": "String"
+      }
+    }
+  },
+  "@conditionTrashCan": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@weekdayName": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "conditionCaught": "After catching {pokemon}",
+  "@conditionCaught": {
+    "placeholders": {
+      "pokemon": {
+        "type": "String"
+      }
+    }
+  },
+  "conditionInParty": "{pokemon} in the party",
+  "@conditionInParty": {
+    "placeholders": {
+      "pokemon": {
         "type": "String"
       }
     }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand red of the Pokédex casing (lib/app/theme.dart: DexColors.red). -->
+    <color name="splash_background">#CF3634</color>
+</resources>

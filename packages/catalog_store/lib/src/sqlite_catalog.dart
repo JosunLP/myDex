@@ -348,6 +348,7 @@ class SqliteCatalogDetails implements CatalogDetails {
     }
     for (final r in _db.select('SELECT rid, id FROM version')) {
       _versionRid[r['id'] as String] = r['rid'] as int;
+      _versionId[r['rid'] as int] = r['id'] as String;
     }
     for (final r in _db.select('SELECT rid, id FROM location')) {
       _locationRid[r['id'] as String] = r['rid'] as int;
@@ -390,6 +391,7 @@ class SqliteCatalogDetails implements CatalogDetails {
   final _groupId = <int, String>{};
   final _moveRid = <String, int>{};
   final _versionRid = <String, int>{};
+  final _versionId = <int, String>{};
   final _locationRid = <String, int>{};
   final _locationId = <int, String>{};
   final _areaId = <int, String>{};
@@ -559,6 +561,85 @@ class SqliteCatalogDetails implements CatalogDetails {
     return _db.select('SELECT 1 FROM encounter WHERE version = ? LIMIT 1', [
       v,
     ]).isNotEmpty;
+  }
+
+  @override
+  List<GameVersionId> encounterVersionsOf(FormId form) {
+    final f = _formRid[form.value];
+    if (f == null) return const [];
+    return [
+      for (final r in _db.select(
+        '''SELECT DISTINCT e.version FROM encounter e
+           JOIN version v ON v.rid = e.version
+           JOIN version_group g ON g.rid = v.version_group
+           WHERE e.form = ? ORDER BY g.sort, v.rid''',
+        [f],
+      ))
+        GameVersionId(_versionId[r['version'] as int]!),
+    ];
+  }
+
+  @override
+  List<GameVersionId> encounterVersionsAt(LocationId location) {
+    final l = _locationRid[location.value];
+    if (l == null) return const [];
+    return [
+      for (final r in _db.select(
+        '''SELECT DISTINCT e.version FROM encounter e
+           JOIN location_area a ON a.rid = e.area
+           JOIN version v ON v.rid = e.version
+           JOIN version_group g ON g.rid = v.version_group
+           WHERE a.location = ? ORDER BY g.sort, v.rid''',
+        [l],
+      ))
+        GameVersionId(_versionId[r['version'] as int]!),
+    ];
+  }
+
+  @override
+  Map<FormId, VersionGroupId> newestLearnsetGroups() {
+    // SQLite returns the row of the maximum for bare columns.
+    Map<FormId, VersionGroupId> newest(String where) => {
+      for (final r in _db.select(
+        '''SELECT l.form, l.version_group, max(g.sort) FROM learnset l
+           JOIN version_group g ON g.rid = l.version_group
+           $where GROUP BY l.form''',
+      ))
+        FormId(_formId[r['form'] as int]!): VersionGroupId(
+          _groupId[r['version_group'] as int]!,
+        ),
+    };
+    // Prefer a core-series learnset (with level-up moves) over spin-offs
+    // that only list trainable moves; otherwise the newest of any kind.
+    return {
+      ...newest(''),
+      ...newest('WHERE l.method = ${LearnMethodCode.levelUp}'),
+    };
+  }
+
+  @override
+  Map<VersionGroupId, List<MoveLearner>> learnersByGroup(MoveId move) {
+    final m = _moveRid[move.value];
+    if (m == null) return const {};
+    final byGroup = <int, Map<int, Set<LearnMethod>>>{};
+    for (final r in _db.select(
+      '''SELECT l.form, l.version_group, l.method FROM learnset l
+         JOIN version_group g ON g.rid = l.version_group
+         WHERE l.move = ? ORDER BY g.sort''',
+      [m],
+    )) {
+      byGroup
+          .putIfAbsent(r['version_group'] as int, () => {})
+          .putIfAbsent(r['form'] as int, () => {})
+          .add(_method(r['method'] as int));
+    }
+    return {
+      for (final MapEntry(key: g, value: forms) in byGroup.entries)
+        VersionGroupId(_groupId[g]!): [
+          for (final e in forms.entries)
+            MoveLearner(FormId(_formId[e.key]!), e.value),
+        ],
+    };
   }
 
   @override

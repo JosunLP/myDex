@@ -68,6 +68,8 @@ class _TeamEditorPageState extends ConsumerState<TeamEditorPage> {
     final lang = dataLanguageOf(context, ref);
     final evaluator = evaluatorFor(ref, team);
     final ctx = evaluator.context;
+    final gameName =
+        catalog.versionById(team.version)?.name(lang) ?? team.version.value;
     final check = evaluator.check(team);
     final textTheme = Theme.of(context).textTheme;
     String subjectName(String id) =>
@@ -124,7 +126,13 @@ class _TeamEditorPageState extends ConsumerState<TeamEditorPage> {
             onChanged: (v) => _rename(team, v),
           ),
           const SizedBox(height: Space.s),
-          Text(l10n.teamGame(ctx.version.name(lang))),
+          Text(
+            // The team's own game, even when it is checked against the
+            // International Pokédex because the catalog doesn't know it.
+            NationalDex.isNational(team.version)
+                ? l10n.teamNational(gameName)
+                : l10n.teamGame(gameName),
+          ),
           const SizedBox(height: Space.m),
           CheckStatusIcon(check.status, showLabel: true),
           for (final issue in check.teamIssues)
@@ -213,7 +221,10 @@ TeamMember defaultMember(
 ) {
   const level = 50;
   final ctx = evaluator.context;
-  final profile = evaluator.catalog.forms[form]!.profileFor(ctx.versionGroupId);
+  final profile = evaluator.catalog.profileOf(
+    evaluator.catalog.forms[form]!,
+    ctx.versionGroupId,
+  );
   final levelMoves = <MoveId>[];
   for (final e in details.learnset(form, ctx.versionGroupId)) {
     if (e.method == LearnMethod.levelUp && (e.level ?? 0) <= level) {

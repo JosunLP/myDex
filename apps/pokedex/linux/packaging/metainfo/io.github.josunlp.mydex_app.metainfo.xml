@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.josunlp.mydex_app</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>myDex</name>
+  <summary>Offline Pokémon encyclopedia for every game</summary>
+  <summary xml:lang="de">Offline-Pokémon-Lexikon für alle Spiele</summary>
+  <developer id="io.github.josunlp">
+    <name>The myDex authors</name>
+  </developer>
+  <description>
+    <p>
+      myDex is a fast, private Pokémon encyclopedia that works completely offline.
+      It opens on the International Pokédex – every Pokémon with its newest data –
+      and switches to any game with one tap.
+    </p>
+    <ul>
+      <li>Types, base stats, abilities, evolutions and moves per game</li>
+      <li>Locations and ways to obtain each Pokémon</li>
+      <li>Collection with shiny tracking and a cross-game checklist</li>
+      <li>Teams with validation, stat calculation and type analysis</li>
+      <li>No account, no ads, no tracking; optional self-hosted sync</li>
+    </ul>
+    <p>
+      Unofficial fan project. Pokémon and all related names are trademarks of their
+      respective owners.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.josunlp.mydex_app.desktop</launchable>
+  <url type="homepage">https://github.com/JosunLP/myDex</url>
+  <url type="bugtracker">https://github.com/JosunLP/myDex/issues</url>
+  <categories>
+    <category>Education</category>
+    <category>Game</category>
+  </categories>
+  <content_rating type="oars-1.1" />
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <releases>
+    <release version="1.1.0" date="2026-11-26">
+      <description>
+        <p>
+          The International Pokédex and a new look: every Pokémon with its newest data,
+          independent of a single game, a searchable game picker, list and grid view, type
+          matchups, an evolution chain with pictures, motion throughout and a new logo.
+        </p>
+      </description>
+    </release>
+    <release version="1.0.0" date="2026-10-27" />
+  </releases>
+</component>

@@ -20,12 +20,24 @@ jobs:
       name: ${{ steps.v.outputs.name }}
       number: ${{ steps.v.outputs.number }}
     steps:
+      - uses: actions/checkout@v4
       - id: v
         shell: bash
         run: |
           name="${GITHUB_REF_NAME#v}"
           if [[ ! "$name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Tag must be vX.Y.Z, but is $GITHUB_REF_NAME"
+            exit 1
+          fi
+          # The tag must match the prepared release (docs/release/README.md).
+          declared="$(sed -n 's/^version: \([0-9.]*\)+.*/\1/p' apps/pokedex/pubspec.yaml)"
+          if [[ "$declared" != "$name" ]]; then
+            echo "::error::Tag $name does not match apps/pokedex/pubspec.yaml ($declared)."
+            exit 1
+          fi
+          # Dots escaped: the version must match literally.
+          if ! grep -q "^## \[${name//./\\.}\] – " CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for $name."
             exit 1
           fi
           IFS=. read -r major minor patch <<< "$name"

@@ -29,7 +29,18 @@ class LocationArea {
   final LocationAreaId id;
   final LocationId location;
   final LocalizedText name;
+
+  /// Name in [language]; without any name the ID in readable form instead
+  /// of a placeholder (like [Location.displayName]).
+  String displayName(String language) =>
+      name.values.isNotEmpty ? name(language) : _readableId(id.value);
 }
+
+/// `unova-route-4` → "Unova Route 4".
+String _readableId(String id) => [
+  for (final part in id.split('-'))
+    if (part.isNotEmpty) part[0].toUpperCase() + part.substring(1),
+].join(' ');
 
 /// Location with its region.
 @immutable
@@ -39,6 +50,13 @@ class Location {
   final LocationId id;
   final LocalizedText name;
   final RegionId? region;
+
+  /// Name in [language]; without any name the ID in readable form
+  /// (e.g. `unova-route-4` → "Unova Route 4") instead of a placeholder.
+  String displayName(String language) {
+    if (name.values.isNotEmpty) return name(language);
+    return _readableId(id.value);
+  }
 }
 
 /// Encounter of a form in a game version, aggregated over slots.

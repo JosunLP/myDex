@@ -1,25 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
 import '../../app/providers.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../widgets/dex_decor.dart';
 import '../../widgets/encounter_tile.dart';
 import '../../widgets/game_context_selector.dart';
 import '../../widgets/type_badge.dart';
 
-/// A location: which Pokémon occur there in the selected version.
-class LocationPage extends ConsumerWidget {
+/// A location: which Pokémon occur there in the selected version. In the
+/// International Pokédex the game is chosen on the page.
+class LocationPage extends ConsumerStatefulWidget {
   const LocationPage({super.key, required this.locationId});
 
   final LocationId locationId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LocationPage> createState() => _LocationPageState();
+}
+
+class _LocationPageState extends ConsumerState<LocationPage> {
+  /// Game chosen on this page (International Pokédex only).
+  GameVersionId? _version;
+
+  LocationId get locationId => widget.locationId;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final ctx = ref.watch(gameContextProvider);
+    final global = ref.watch(gameContextProvider);
     final catalog = ref.watch(readyCatalogProvider);
     final details = ref.watch(catalogDetailsProvider);
     final lang = dataLanguageOf(context, ref);
@@ -32,6 +45,17 @@ class LocationPage extends ConsumerWidget {
         body: Center(child: Text(l10n.noResults(locationId.value))),
       );
     }
+    final national = NationalDex.isNational(global.versionId);
+    final versions = national
+        ? [
+            for (final id in details.encounterVersionsAt(locationId).reversed)
+              ?catalog.versionById(id),
+          ]
+        : const <GameVersion>[];
+    final chosen =
+        versions.where((v) => v.id == _version).firstOrNull ??
+        versions.firstOrNull;
+    final ctx = chosen == null ? global : catalog.contextFor(chosen.id);
     final gameName = ctx.version.name(lang);
     final encounters = details.encountersAt(locationId, ctx.versionId);
     final byArea = <LocationAreaId, List<Encounter>>{};
@@ -42,7 +66,7 @@ class LocationPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         actions: const [
-          GameContextSelector(),
+          Flexible(child: GameContextSelector()),
           SizedBox(width: Space.s),
         ],
       ),
@@ -51,14 +75,43 @@ class LocationPage extends ConsumerWidget {
         children: [
           Semantics(
             header: true,
-            child: Text(location.name(lang), style: textTheme.headlineMedium),
+            child: Text(
+              location.displayName(lang),
+              style: textTheme.headlineMedium,
+            ),
           ),
           if (location.region case final region?)
             Text(
               catalog.regionNames[region]?.call(lang) ?? region.value,
-              style: textTheme.bodyMedium,
+              style: textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           const SizedBox(height: Space.l),
+          if (national && versions.isNotEmpty) ...[
+            Text(l10n.locationNationalHint, style: textTheme.bodyMedium),
+            const SizedBox(height: Space.s),
+            Wrap(
+              spacing: Space.s,
+              runSpacing: Space.s,
+              children: [
+                for (final v in versions)
+                  ChoiceChip(
+                    showCheckmark: false,
+                    avatar: CircleAvatar(
+                      radius: 6,
+                      backgroundColor: generationColor(
+                        catalog.versionGroups[v.versionGroupId]!.generation,
+                      ),
+                    ),
+                    label: Text(v.name(lang)),
+                    selected: v.id == chosen?.id,
+                    onSelected: (_) => setState(() => _version = v.id),
+                  ),
+              ],
+            ),
+            const SizedBox(height: Space.l),
+          ],
           if (!details.hasEncounterData(ctx.versionId))
             Text(l10n.noLocationData(gameName))
           else if (encounters.isEmpty)
@@ -74,7 +127,8 @@ class LocationPage extends ConsumerWidget {
                   child: Semantics(
                     header: true,
                     child: Text(
-                      catalog.locationAreas[area]?.name(lang) ?? area.value,
+                      catalog.locationAreas[area]?.displayName(lang) ??
+                          area.value,
                       style: textTheme.titleMedium,
                     ),
                   ),
@@ -82,7 +136,14 @@ class LocationPage extends ConsumerWidget {
               for (final e in list)
                 if (catalog.forms[e.form] case final form?)
                   ListTile(
-                    contentPadding: EdgeInsets.zero,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: Space.xs,
+                    ),
+                    leading: DexThumb(
+                      form.id,
+                      size: 48,
+                      version: ctx.versionId,
+                    ),
                     onTap: () => openPokemon(context, form.id, wide: wide),
                     title: Wrap(
                       spacing: Space.s,
@@ -90,7 +151,7 @@ class LocationPage extends ConsumerWidget {
                       children: [
                         Text(catalog.displayName(form)(lang)),
                         TypeBadges(
-                          form.profileFor(ctx.versionGroupId).types,
+                          catalog.profileOf(form, ctx.versionGroupId).types,
                           dense: true,
                         ),
                       ],

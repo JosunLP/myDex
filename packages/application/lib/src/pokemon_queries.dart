@@ -73,11 +73,13 @@ class PokemonQueries {
     final items = <PokemonListItem>[
       for (final form in catalog.forms.values)
         if (includeUnavailable ||
-            !_excluded(form.profileFor(ctx.versionGroupId).availability))
+            !_excluded(
+              catalog.profileOf(form, ctx.versionGroupId).availability,
+            ))
           PokemonListItem(
             form: form,
             species: catalog.species[form.speciesId]!,
-            profile: form.profileFor(ctx.versionGroupId),
+            profile: catalog.profileOf(form, ctx.versionGroupId),
           ),
     ];
     items.sort((a, b) {
@@ -98,7 +100,7 @@ class PokemonQueries {
   PokemonDetail detail(FormId id, GameContext ctx) {
     final form = catalog.forms[id];
     if (form == null) throw ArgumentError('Unknown form: ${id.value}');
-    final profile = form.profileFor(ctx.versionGroupId);
+    final profile = catalog.profileOf(form, ctx.versionGroupId);
     return PokemonDetail(
       context: ctx,
       form: form,
@@ -120,10 +122,7 @@ class PokemonQueries {
   }
 
   List<ResolvedEvolution> _family(PokemonForm form, VersionGroupId group) {
-    final edges = [
-      for (final e in catalog.evolutions)
-        if (e.versionGroups.contains(group)) e,
-    ];
+    final edges = catalog.evolutionsIn(group);
     // Walk to the root of the family, then collect all reachable edges.
     var root = form.id;
     final visited = <FormId>{root};
@@ -162,8 +161,9 @@ List<FormId> preEvolutionsOf(
   final result = <FormId>[];
   var current = form;
   while (true) {
-    final edge = catalog.evolutions
-        .where((e) => e.to == current && e.versionGroups.contains(group))
+    final edge = catalog
+        .evolutionsIn(group)
+        .where((e) => e.to == current)
         .firstOrNull;
     if (edge == null || edge.from == form || result.contains(edge.from)) break;
     result.add(edge.from);

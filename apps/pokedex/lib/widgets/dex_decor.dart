@@ -13,6 +13,21 @@ Color? artworkTint(WidgetRef ref, FormId form) =>
       null => null,
     };
 
+/// Colour of a Pokémon: its artwork, otherwise its first type, otherwise
+/// the brand colour.
+Color pokemonTint(
+  WidgetRef ref,
+  FormId form,
+  List<PokemonType> types,
+  ColorScheme scheme,
+) =>
+    artworkTint(ref, form) ??
+    (types.isEmpty ? scheme.primary : typeColor(types.first));
+
+/// Hero tag shared by list thumbnails and the detail artwork, so the image
+/// flies from the list into the detail page.
+Object pokemonHeroTag(FormId form) => 'pokemon-art:${form.value}';
+
 /// Thumbnail in lists: the in-game image on a small screen in the Pokémon's
 /// colour – like the large Pokédex screen. Purely decorative.
 class DexThumb extends ConsumerWidget {
@@ -22,6 +37,7 @@ class DexThumb extends ConsumerWidget {
     this.size = 48,
     this.shiny = false,
     this.version,
+    this.hero = false,
   });
 
   final FormId form;
@@ -29,113 +45,40 @@ class DexThumb extends ConsumerWidget {
   final bool shiny;
   final GameVersionId? version;
 
+  /// Takes part in the hero flight into the detail page.
+  final bool hero;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final tint = artworkTint(ref, form);
     final base = scheme.surfaceContainerHighest;
+    Widget sprite = FormSprite(
+      form,
+      size: size,
+      shiny: shiny,
+      version: version,
+    );
+    if (hero) sprite = Hero(tag: pokemonHeroTag(form), child: sprite);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: tint == null ? base : Color.lerp(base, tint, dark ? 0.4 : 0.55),
-        borderRadius: BorderRadius.circular(size * 0.22),
-      ),
-      child: FormSprite(form, size: size, shiny: shiny, version: version),
-    );
-  }
-}
-
-/// The blue lens with the three signal LEDs of the Pokédex casing.
-/// Purely decorative.
-class PokedexLens extends StatelessWidget {
-  const PokedexLens({super.key, this.size = 36});
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final led = size * 0.28;
-    Widget dot(Color color) => Container(
-      width: led,
-      height: led,
-      margin: EdgeInsets.only(left: size * 0.12),
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(color: DexColors.hinge, width: 1),
-      ),
-    );
-    return ExcludeSemantics(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: DexColors.lensRim,
-              border: Border.all(color: DexColors.hinge, width: 1.5),
-            ),
-            padding: EdgeInsets.all(size * 0.12),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  center: const Alignment(-0.35, -0.35),
-                  radius: 0.9,
-                  colors: [
-                    Color.lerp(DexColors.lens, Colors.white, 0.6)!,
-                    DexColors.lens,
-                    Color.lerp(DexColors.lens, DexColors.hinge, 0.4)!,
-                  ],
-                ),
+        gradient: tint == null
+            ? null
+            : LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.lerp(base, tint, dark ? 0.45 : 0.42)!,
+                  Color.lerp(base, tint, dark ? 0.25 : 0.2)!,
+                ],
               ),
-            ),
-          ),
-          dot(DexColors.ledRed),
-          dot(DexColors.ledYellow),
-          dot(DexColors.ledGreen),
-        ],
+        color: tint == null ? base : null,
+        borderRadius: BorderRadius.circular(size * 0.28),
       ),
-    );
-  }
-}
-
-/// Screen of the Pokédex: dark frame, inside a display area in the Pokémon's
-/// colour (derived from the artwork).
-class DexScreen extends StatelessWidget {
-  const DexScreen({super.key, required this.tint, required this.child});
-
-  final Color tint;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final base = dark ? const Color(0xFF2A2D2E) : const Color(0xFFF4F6F2);
-    return Container(
-      padding: const EdgeInsets.all(Space.s),
-      decoration: BoxDecoration(
-        color: DexColors.hinge,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.lerp(base, tint, dark ? 0.55 : 0.8)!,
-              Color.lerp(base, tint, dark ? 0.3 : 0.45)!,
-            ],
-          ),
-        ),
-        child: child,
-      ),
+      child: sprite,
     );
   }
 }
@@ -147,27 +90,103 @@ class DexNumber extends StatelessWidget {
   final int number;
   final bool dense;
 
+  static String format(int number) => '#${number.toString().padLeft(4, '0')}';
+
   @override
   Widget build(BuildContext context) => Container(
     padding: EdgeInsets.symmetric(
       horizontal: dense ? Space.xs + 2 : Space.s,
-      vertical: dense ? 1 : 2,
+      vertical: dense ? 1 : 3,
     ),
     decoration: BoxDecoration(
       color: DexColors.hinge,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(dense ? 6 : 8),
     ),
     child: Text(
-      '#${number.toString().padLeft(4, '0')}',
+      format(number),
       style: TextStyle(
-        color: const Color(0xFF86E09C),
-        fontFamily: 'monospace',
-        fontFamilyFallback: const ['Courier New', 'Courier'],
-        fontSize: dense ? 12 : 15,
+        color: DexColors.display,
+        fontFamily: AppFonts.mono,
+        fontFamilyFallback: const ['monospace', 'Courier New'],
+        fontSize: dense ? 11.5 : 14,
         fontWeight: FontWeight.w700,
-        letterSpacing: 1,
+        letterSpacing: 0.6,
+        height: 1.25,
         fontFeatures: tabularFigures,
       ),
     ),
   );
+}
+
+/// Soft, artwork-coloured backdrop for headers and cards: a gradient with a
+/// large, faint lens ring – the Pokédex screen, reduced to its essence.
+class TintBackdrop extends StatelessWidget {
+  const TintBackdrop({
+    super.key,
+    required this.tint,
+    required this.child,
+    this.borderRadius = BorderRadius.zero,
+    this.strength = 1,
+  });
+
+  final Color tint;
+  final Widget child;
+  final BorderRadius borderRadius;
+
+  /// 0–1: how strongly the tint shows.
+  final double strength;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final base = scheme.surface;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color.lerp(base, tint, (dark ? 0.42 : 0.5) * strength)!,
+            Color.lerp(base, tint, (dark ? 0.18 : 0.16) * strength)!,
+          ],
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: CustomPaint(
+          painter: _RingPainter(
+            Color.lerp(
+              tint,
+              dark ? Colors.white : Colors.white,
+              0.5,
+            )!.withValues(alpha: (dark ? 0.08 : 0.28) * strength),
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  const _RingPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.shortestSide * 0.62;
+    final c = Offset(size.width * 0.82, size.height * 0.34);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.16;
+    canvas.drawCircle(c, r, paint);
+    canvas.drawCircle(c, r * 0.45, paint..strokeWidth = r * 0.06);
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.color != color;
 }

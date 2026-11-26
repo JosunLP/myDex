@@ -71,14 +71,14 @@ class AcquisitionQueries {
   List<GameVersion> tradeSources(FormId form, GameContext ctx) {
     final f = catalog.forms[form];
     if (f == null) return const [];
-    if (f.profileFor(ctx.versionGroupId).availability ==
+    if (catalog.profileOf(f, ctx.versionGroupId).availability ==
         DataAvailability.confirmedUnavailable) {
       return const [];
     }
     return [
       for (final partner in tradePartners(ctx.versionId))
         if (details.hasEncounterData(partner.id) &&
-            f.profileFor(partner.versionGroupId).availability !=
+            catalog.profileOf(f, partner.versionGroupId).availability !=
                 DataAvailability.confirmedUnavailable &&
             details.encountersOf(form, partner.id).isNotEmpty)
           partner,
@@ -91,7 +91,7 @@ class AcquisitionQueries {
     if (f == null) return false;
     final species = catalog.species[f.speciesId];
     return (species?.mythical ?? false) &&
-        f.profileFor(ctx.versionGroupId).availability !=
+        catalog.profileOf(f, ctx.versionGroupId).availability !=
             DataAvailability.confirmedUnavailable;
   }
 }

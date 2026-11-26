@@ -10,3 +10,5 @@ is not sufficient context.
 ## Consequences
 Detail pages only show data of the selected game. Switching games updates all sections
 consistently because all providers depend on the same context.
+
+Extended by 0016: the default context is the version-independent International Pokédex.

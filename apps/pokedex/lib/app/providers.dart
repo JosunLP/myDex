@@ -118,6 +118,16 @@ final catalogProvider = FutureProvider<LoadedCatalog>((ref) async {
   return loaded;
 }, retry: (_, _) => null);
 
+/// Why a newer bundled catalog could not be installed (the previous one is
+/// used then); `null` when everything is up to date.
+final catalogInstallErrorProvider = Provider<Object?>((ref) {
+  ref.watch(catalogProvider);
+  final repository = ref.watch(catalogRepositoryProvider);
+  return repository is BundledCatalogRepository
+      ? repository.installError
+      : null;
+});
+
 /// Only use inside [CatalogGate], where the catalog is loaded.
 final readyCatalogProvider = Provider<CatalogSnapshot>(
   (ref) => ref.watch(catalogProvider).requireValue.snapshot,
@@ -147,8 +157,68 @@ class SettingsController extends Notifier<AppSettings> {
 
   void setThemeMode(ThemeMode mode) => _update(state.copyWith(themeMode: mode));
 
-  void setGameVersion(GameVersionId id) =>
-      _update(state.copyWith(gameVersion: id.value));
+  /// Selects a game or the International Pokédex and remembers recent games.
+  void setGameVersion(GameVersionId id) {
+    final national = NationalDex.isNational(id);
+    _update(
+      state.copyWith(
+        gameVersion: () => national ? null : id.value,
+        // An explicit choice: the 1.0 migration must not override it.
+        schema: AppSettings.currentSchema,
+        recentGames: national
+            ? null
+            : [
+                id.value,
+                ...state.recentGames.where((g) => g != id.value),
+              ].take(AppSettings.maxRecentGames).toList(),
+      ),
+    );
+  }
+
+  /// Undoes a game switch: the game and the recent games of [previous],
+  /// everything else stays as it is now.
+  void restoreGame(AppSettings previous) => _update(
+    state.copyWith(
+      gameVersion: () => previous.gameVersion,
+      recentGames: previous.recentGames,
+      schema: AppSettings.currentSchema,
+    ),
+  );
+
+  /// Upgrade from 1.0 settings: there, no chosen game meant the newest
+  /// game, and the marks of users who never chose one are stored for it.
+  /// Such users keep that game; everyone else gets the International
+  /// Pokédex (ADR 0016).
+  void migrateLegacyDefault(
+    CatalogSnapshot catalog,
+    Map<CollectionKey, CollectionEntry> collection,
+  ) {
+    if (state.schema >= AppSettings.currentSchema) return;
+    // The default followed the catalog of its time: the newest game that
+    // actually has marks is the one the user saw.
+    final marked = {
+      for (final k in collection.keys)
+        if (k.scope case GameScope(:final game)) game,
+    };
+    final newest = catalog.versions.reversed
+        .where((v) => marked.contains(v.id))
+        .firstOrNull
+        ?.id;
+    _update(
+      state.copyWith(
+        gameVersion: state.gameVersion == null && newest != null
+            ? () => newest.value
+            : null,
+        schema: AppSettings.currentSchema,
+      ),
+    );
+  }
+
+  void setReduceMotion(bool value) =>
+      _update(state.copyWith(reduceMotion: value));
+
+  void setDexLayout(DexLayout layout) =>
+      _update(state.copyWith(dexLayout: layout));
 
   void setDataLanguage(String? language) =>
       _update(state.copyWith(dataLanguage: () => language));
@@ -169,12 +239,24 @@ final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
 final gameContextProvider = Provider<GameContext>((ref) {
   final catalog = ref.watch(readyCatalogProvider);
   final selected = ref.watch(settingsProvider.select((s) => s.gameVersion));
-  if (selected != null &&
-      catalog.versions.any((v) => v.id == GameVersionId(selected))) {
+  if (selected != null && catalog.hasVersion(GameVersionId(selected))) {
     return catalog.contextFor(GameVersionId(selected));
   }
+  // No game chosen (or one that no longer exists): International Pokédex.
   return catalog.defaultContext;
 });
+
+/// Whether the International Pokédex is selected.
+final isNationalProvider = Provider<bool>(
+  (ref) => NationalDex.isNational(ref.watch(gameContextProvider).versionId),
+);
+
+/// Collection marks in a context: per game, or – in the International
+/// Pokédex – the global, game-independent list (ADR 0016).
+CollectionScope collectionScopeOf(GameContext ctx) =>
+    NationalDex.isNational(ctx.versionId)
+    ? const GlobalScope()
+    : GameScope(ctx.versionId);
 
 /// Language of the game data: setting or app language.
 String dataLanguageOf(BuildContext context, WidgetRef ref) =>
@@ -270,13 +352,17 @@ final teamsProvider = AsyncNotifierProvider<TeamsController, List<Team>>(
   TeamsController.new,
 );
 
-/// Validation and analysis in the context of the team's game (not the global one).
+/// Validation and analysis in the context of the team's game (not the global
+/// one). A game this catalog does not know (e.g. from a backup or another
+/// device) falls back to the International Pokédex instead of failing.
 TeamEvaluator evaluatorFor(WidgetRef ref, Team team) {
   final catalog = ref.watch(readyCatalogProvider);
   return TeamEvaluator(
     catalog,
     ref.watch(catalogDetailsProvider),
-    catalog.contextFor(team.version),
+    catalog.hasVersion(team.version)
+        ? catalog.contextFor(team.version)
+        : catalog.defaultContext,
   );
 }
 

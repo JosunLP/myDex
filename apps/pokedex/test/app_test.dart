@@ -5,18 +5,26 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mydex_app/app/app.dart';
 import 'package:mydex_app/app/backup_files.dart';
 import 'package:mydex_app/app/catalog_loader.dart';
 import 'package:mydex_app/app/catalog_update.dart';
 import 'package:mydex_app/app/providers.dart';
+import 'package:mydex_app/app/router.dart';
+import 'package:mydex_app/app/settings.dart';
 import 'package:mydex_app/app/speech.dart';
 import 'package:mydex_app/app/sync_config.dart';
 import 'package:mydex_app/app/sync_controller.dart';
-import 'package:mydex_app/widgets/dex_decor.dart';
+import 'package:mydex_app/features/dex/detail_sections.dart';
+import 'package:mydex_app/features/dex/pokemon_detail_page.dart';
+import 'package:mydex_app/widgets/game_context_selector.dart';
 import 'package:mydex_app/widgets/form_artwork.dart';
+import 'package:mydex_app/widgets/motion.dart';
+import 'package:mydex_app/widgets/collection_toggles.dart';
 import 'package:mydex_app/widgets/search_field.dart';
+import 'package:mydex_app/widgets/type_badge.dart';
 import 'package:mydex_application/mydex_application.dart';
 import 'package:mydex_catalog_store/mydex_catalog_store.dart';
 import 'package:mydex_domain/mydex_domain.dart';
@@ -79,9 +87,11 @@ class _Harness {
   final updateKeys = <String>[];
   CatalogUpdateSource updateSource = _FakeUpdateSource(null, const []);
   final dir = Directory.systemTemp.createTempSync('mydex_app_test');
+  final extraOverrides = <Override>[];
 
   Widget build() => ProviderScope(
     overrides: [
+      ...extraOverrides,
       catalogRepositoryProvider.overrideWithValue(_FixtureRepository()),
       mediaLoaderProvider.overrideWithValue(_FixtureMedia()),
       backupFilesProvider.overrideWithValue(files),
@@ -172,13 +182,17 @@ class _MemoryFiles implements BackupFiles {
   Future<Uint8List?> open() async => stored;
 }
 
-Future<_Harness> _pump(WidgetTester tester, Size size) async {
+Future<_Harness> _pump(
+  WidgetTester tester,
+  Size size, {
+  List<Override> overrides = const [],
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   tester.platformDispatcher.localesTestValue = const [Locale('de')];
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  final h = _Harness();
+  final h = _Harness()..extraOverrides.addAll(overrides);
   addTearDown(() => h.dir.deleteSync(recursive: true));
   await tester.pumpWidget(h.build());
   await tester.pumpAndSettle();
@@ -188,23 +202,36 @@ Future<_Harness> _pump(WidgetTester tester, Size size) async {
 Future<void> _selectGame(WidgetTester tester, String name) async {
   await tester.tap(find.byTooltip('Spiel').first);
   await tester.pumpAndSettle();
-  // The menu is long (newest games on top) and may need scrolling.
-  // Newest first: for versions with the same name (e.g. Japanese editions)
-  // the first match is the intended one.
-  final entry = find
-      .descendant(
-        of: find.byWidgetPredicate((w) => w is PopupMenuItem<String>),
-        matching: find.text(name),
-      )
-      .first;
-  await tester.scrollUntilVisible(
-    entry,
-    300,
-    scrollable: find.byType(Scrollable).last,
+  // The picker filters its games by the search text; newest games come
+  // first, so for versions with the same name (e.g. Japanese editions) the
+  // first match is the intended one.
+  final picker = find.byKey(gamePickerKey);
+  await tester.enterText(
+    find.descendant(of: picker, matching: find.byType(TextField)),
+    name,
   );
-  await tester.tap(entry);
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find
+        .descendant(
+          of: picker,
+          matching: find.ancestor(
+            of: find.text(name),
+            matching: find.byType(ListTile),
+          ),
+        )
+        .first,
+  );
   await tester.pumpAndSettle();
 }
+
+/// The vertical scroll view of the visible Pokémon detail.
+Finder _detailScrollable() => find
+    .descendant(
+      of: find.byType(PokemonDetailView),
+      matching: find.byType(Scrollable),
+    )
+    .first;
 
 Future<void> _search(WidgetTester tester, String query) async {
   await tester.enterText(find.byType(SearchField), query);
@@ -278,12 +305,10 @@ void main() {
     final container = ProviderScope.containerOf(
       tester.element(find.byType(Scaffold).first),
     );
-    final version = container.read(gameContextProvider).versionId;
+    // The app opens on the International Pokédex: its marks are global.
+    expect(container.read(isNationalProvider), isTrue);
     final entries = await h.collection.loadAll();
-    final key = CollectionKey(
-      scope: GameScope(version),
-      form: const FormId('charizard'),
-    );
+    const key = CollectionKey(scope: GlobalScope(), form: FormId('charizard'));
     expect(entries[key]?.caught, isTrue);
     expect(entries[key]?.seen, isTrue);
   });
@@ -320,12 +345,7 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
 
-    final scrollable = find
-        .descendant(
-          of: find.byType(ListView).last,
-          matching: find.byType(Scrollable),
-        )
-        .first;
+    final scrollable = _detailScrollable();
     await tester.scrollUntilVisible(
       find.text('Donnerschock'),
       300,
@@ -372,12 +392,12 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Evoli'));
     await tester.pumpAndSettle();
     // Pokédex screen with artwork and number in the detail next to the list.
-    expect(find.byType(DexScreen), findsOneWidget);
+    expect(find.byType(PokemonHeader), findsOneWidget);
     expect(find.text('#0133'), findsWidgets);
     await tester.scrollUntilVisible(
       find.text('Entwicklung'),
       300,
-      scrollable: find.byType(Scrollable).last,
+      scrollable: _detailScrollable(),
     );
     expect(
       find.text('Entwicklung'),
@@ -391,6 +411,8 @@ void main() {
   testWidgets('data status shows source and coverage', (tester) async {
     await _pump(tester, const Size(500, 1200));
     await tester.tap(find.text('Mehr'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Datenstand und Abdeckung'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Datenstand und Abdeckung'));
     await tester.pumpAndSettle();
@@ -407,12 +429,7 @@ void main() {
     await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
     await tester.pumpAndSettle();
 
-    final scrollable = find
-        .descendant(
-          of: find.byType(ListView).last,
-          matching: find.byType(Scrollable),
-        )
-        .first;
+    final scrollable = _detailScrollable();
     await tester.scrollUntilVisible(
       find.text('Vertania-Wald'),
       300,
@@ -456,10 +473,7 @@ void main() {
     await _selectGame(tester, 'Rot');
     await tester.tap(find.text('Teams').last);
     await tester.pumpAndSettle();
-    expect(
-      find.text('Noch keine Teams. Lege eins für das gewählte Spiel an.'),
-      findsOneWidget,
-    );
+    expect(find.text('Stelle dein erstes Team zusammen'), findsOneWidget);
 
     await tester.tap(find.text('Neues Team'));
     await tester.pumpAndSettle();
@@ -588,6 +602,27 @@ void main() {
     expect(find.textContaining('15.1.2026'), findsOneWidget);
   });
 
+  testWidgets('teams for unknown games keep their game in the editor', (
+    tester,
+  ) async {
+    final h = await _pump(tester, const Size(500, 1600));
+    await h.teams.save(
+      Team(
+        id: 't1',
+        name: 'Zukunft',
+        version: const GameVersionId('legends-z-a'),
+        updatedAt: DateTime.utc(2026, 2, 1),
+      ),
+    );
+    await tester.tap(find.text('Teams'));
+    await tester.pumpAndSettle();
+    expect(find.text('Spiel: legends-z-a'), findsOneWidget);
+    await tester.tap(find.text('Zukunft'));
+    await tester.pumpAndSettle();
+    expect(find.text('Spiel: legends-z-a'), findsOneWidget);
+    expect(find.textContaining('Pokédex: '), findsNothing);
+  });
+
   testWidgets('export and import (merge) via a file', (tester) async {
     final h = await _pump(tester, const Size(500, 1600));
     final at = DateTime.utc(2026, 2, 1);
@@ -694,6 +729,548 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('Vorlesen'), findsOneWidget);
     expect(h.speaker.spoken, hasLength(2));
+  });
+
+  testWidgets('International Pokédex: default, newest data, picker', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1600));
+    // The app opens on the International Pokédex.
+    expect(find.text('Internationaler Pokédex'), findsWidgets);
+    await _search(tester, 'Piepi');
+    await tester.tap(find.widgetWithText(ListTile, 'Piepi'));
+    await tester.pumpAndSettle();
+    // Newest data (Fairy since Gen 6) with the game it comes from.
+    expect(find.widgetWithText(TypeBadge, 'Fee'), findsOneWidget);
+    expect(find.textContaining('Datenstand:'), findsOneWidget);
+
+    await _selectGame(tester, 'Rot');
+    expect(find.widgetWithText(TypeBadge, 'Normal'), findsOneWidget);
+    expect(find.textContaining('Datenstand:'), findsNothing);
+
+    // Back to the International Pokédex via its card in the picker.
+    await tester.tap(find.byTooltip('Spiel').first);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byKey(gamePickerKey),
+            matching: find.text('Internationaler Pokédex'),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TypeBadge, 'Fee'), findsOneWidget);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    expect(container.read(isNationalProvider), isTrue);
+    // The picker remembers the game that was used.
+    expect(container.read(settingsProvider).recentGames, ['red']);
+    expect(container.read(settingsProvider).gameVersion, isNull);
+  });
+
+  testWidgets('International Pokédex: locations per game, switch with undo', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Fundorte in diesen Spielen'),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    final red = find.widgetWithText(ActionChip, 'Rot').first;
+    await tester.ensureVisible(red);
+    await tester.pumpAndSettle();
+    await tester.tap(red);
+    await tester.pumpAndSettle();
+    expect(find.text('Zu Rot gewechselt'), findsOneWidget);
+    // Now the locations of Red show directly.
+    await tester.scrollUntilVisible(
+      find.text('Vertania-Wald'),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    expect(find.text('Vertania-Wald'), findsOneWidget);
+
+    await tester.tap(find.text('Rückgängig'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    expect(container.read(isNationalProvider), isTrue);
+  });
+
+  testWidgets('collection in the International Pokédex uses its own list', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await tester.tap(find.text('Sammlung').last);
+    await tester.pumpAndSettle();
+    expect(find.text('International'), findsOneWidget);
+    expect(find.text('Dieses Spiel'), findsNothing);
+    expect(find.text('Alle Spiele zusammen'), findsOneWidget);
+  });
+
+  testWidgets('grid view and reduced motion are remembered', (tester) async {
+    await _pump(tester, const Size(500, 1400));
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    await tester.tap(find.byTooltip('Rasteransicht'));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).dexLayout, DexLayout.grid);
+    expect(find.byTooltip('Listenansicht'), findsOneWidget);
+
+    await tester.tap(find.text('Mehr'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bewegung reduzieren'));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).reduceMotion, isTrue);
+    expect(
+      MediaQuery.disableAnimationsOf(tester.element(find.text('Mehr').first)),
+      isTrue,
+    );
+  });
+
+  testWidgets('a catalog that could not be installed is reported once', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const Size(500, 1200),
+      overrides: [
+        catalogInstallErrorProvider.overrideWithValue(
+          StateError('checksum mismatch'),
+        ),
+      ],
+    );
+    expect(
+      find.textContaining('konnte nicht installiert werden'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('switching the game never plays the caught pop', (tester) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    await container
+        .read(collectionProvider.notifier)
+        .setCaught(
+          const CollectionKey(
+            scope: GameScope(GameVersionId('scarlet')),
+            form: FormId('pikachu'),
+          ),
+          true,
+        );
+    await tester.pumpAndSettle();
+    container
+        .read(settingsProvider.notifier)
+        .setGameVersion(const GameVersionId('scarlet'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+    final scales = find.descendant(
+      of: find.descendant(
+        of: find.byType(CollectionToggles),
+        matching: find.byType(PopOnActivate),
+      ),
+      matching: find.byType(ScaleTransition),
+    );
+    expect(scales, findsWidgets);
+    for (final e in scales.evaluate()) {
+      expect((e.widget as ScaleTransition).scale.value, 1);
+    }
+  });
+
+  testWidgets('evolution tiles open the other Pokémon on the same page', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    final raichu = find.descendant(
+      of: find.byType(EvolutionChain),
+      matching: find.bySemanticsLabel('Raichu'),
+    );
+    await tester.scrollUntilVisible(
+      raichu,
+      300,
+      scrollable: _detailScrollable(),
+    );
+    await tester.tap(raichu);
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(PokemonHeader),
+        matching: find.text('Raichu'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('screen readers can open the game picker and evolution tiles', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _pump(tester, const Size(500, 2400));
+    // Like a double-tap in TalkBack/VoiceOver: the semantics tap action.
+    void activate(Pattern label) {
+      final node = find.semantics.byLabel(label);
+      expect(
+        node.evaluate().single,
+        isSemantics(isButton: true, hasTapAction: true),
+      );
+      tester.semantics.tap(node);
+    }
+
+    activate(RegExp(r'^Spiel: '));
+    await tester.pumpAndSettle();
+    expect(find.byKey(gamePickerKey), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.descendant(
+        of: find.byType(EvolutionChain),
+        matching: find.bySemanticsLabel('Raichu'),
+      ),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    activate('Raichu');
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(PokemonHeader),
+        matching: find.text('Raichu'),
+      ),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('the International list counts all Pokémon, in any game', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await _selectGame(tester, 'Rot');
+    await tester.tap(find.text('Sammlung').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('International'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    final catalog = container.read(readyCatalogProvider);
+    final all = container
+        .read(queriesProvider)
+        .list(catalog.nationalContext)
+        .length;
+    final red = container
+        .read(queriesProvider)
+        .list(container.read(gameContextProvider))
+        .length;
+    expect(all, greaterThan(red));
+    expect(find.text('0 von $all gefangen'), findsOneWidget);
+  });
+
+  testWidgets('after a swipe, links page back to Pokémon of the list', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu').first);
+    await tester.pumpAndSettle();
+    // Swipe to the next result (another Pikachu form).
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
+    String headerName() => tester
+        .widget<Text>(
+          find.descendant(
+            of: find.byType(PokemonHeader),
+            matching: find.byWidgetPredicate(
+              (w) => w is Text && w.style?.fontSize == 28,
+            ),
+          ),
+        )
+        .data!;
+    expect(headerName(), isNot('Pikachu'));
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    // A link to Pikachu (the form the page was opened with) pages back.
+    openPokemon(
+      tester.element(find.byType(PokemonDetailView).first),
+      const FormId('pikachu'),
+      wide: false,
+    );
+    await tester.pumpAndSettle();
+    expect(headerName(), 'Pikachu');
+    expect(container.read(isNationalProvider), isTrue);
+  });
+
+  testWidgets('large system text: the pinned search field is not clipped', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, const Size(500, 1400));
+    final field = tester.renderObject<RenderBox>(
+      find.descendant(
+        of: find.byType(SearchField).first,
+        matching: find.byType(InputDecorator),
+      ),
+    );
+    // The decorator gets the height it needs (not squeezed by the header).
+    expect(
+      field.size.height,
+      greaterThanOrEqualTo(field.getMinIntrinsicHeight(field.size.width)),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('game picker: search finds the International Pokédex', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 1400));
+    await tester.tap(find.byTooltip('Spiel').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(gamePickerKey),
+        matching: find.byType(TextField),
+      ),
+      'Inter',
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byKey(gamePickerKey),
+        matching: find.text('Internationaler Pokédex'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Keine Treffer'), findsNothing);
+  });
+
+  testWidgets('undo after switching to a game restores recent games', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Fundorte in diesen Spielen'),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    final red = find.widgetWithText(ActionChip, 'Rot').first;
+    await tester.ensureVisible(red);
+    await tester.pumpAndSettle();
+    await tester.tap(red);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rückgängig'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    expect(container.read(isNationalProvider), isTrue);
+    expect(container.read(settingsProvider).recentGames, isEmpty);
+  });
+
+  testWidgets('undo only reverts the game, not other settings', (tester) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Fundorte in diesen Spielen'),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    final red = find.widgetWithText(ActionChip, 'Rot').first;
+    await tester.ensureVisible(red);
+    await tester.pumpAndSettle();
+    await tester.tap(red);
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    // Changed while the snackbar is still visible.
+    container.read(settingsProvider.notifier).setThemeMode(ThemeMode.dark);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rückgängig'));
+    await tester.pumpAndSettle();
+    expect(container.read(isNationalProvider), isTrue);
+    expect(container.read(settingsProvider).themeMode, ThemeMode.dark);
+  });
+
+  testWidgets('desktop: "/" jumps to the search and can then be typed', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(1280, 900));
+    final search = find.descendant(
+      of: find.byType(SearchField).first,
+      matching: find.byType(EditableText),
+    );
+    bool searchFocused() =>
+        tester.widget<EditableText>(search).focusNode.hasFocus;
+    expect(searchFocused(), isFalse);
+    // Outside a text field the key is taken by the shortcut …
+    expect(await tester.sendKeyEvent(LogicalKeyboardKey.slash), isTrue);
+    await tester.pump();
+    expect(searchFocused(), isTrue);
+    // … inside it is passed on, so that the field receives the character.
+    expect(await tester.sendKeyEvent(LogicalKeyboardKey.slash), isFalse);
+  });
+
+  testWidgets('desktop: keyboard focus never enters hidden sections', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(1280, 900));
+    await tester.tap(find.text('Mehr').first);
+    await tester.pumpAndSettle();
+    bool inHiddenSection() {
+      final focus = FocusManager.instance.primaryFocus?.context;
+      if (focus == null) return false;
+      var hidden = false;
+      focus.visitAncestorElements((e) {
+        if (e.widget case Offstage(offstage: true)) hidden = true;
+        return !hidden;
+      });
+      return hidden;
+    }
+
+    for (var i = 0; i < 25; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(inHiddenSection(), isFalse, reason: 'after ${i + 1} × Tab');
+    }
+  });
+
+  group('upgrade from 1.0 settings (no game chosen)', () {
+    Future<_Harness> start(
+      WidgetTester tester, {
+      required bool marks,
+      String game = 'champions',
+    }) async {
+      final h = _Harness();
+      if (marks) {
+        final at = DateTime.utc(2026, 9, 1);
+        await h.collection.put(
+          CollectionEntry(
+            key: CollectionKey(
+              scope: GameScope(GameVersionId(game)),
+              form: const FormId('pikachu'),
+            ),
+            updatedAt: at,
+          ).withCaught(true, at),
+        );
+      }
+      tester.view.physicalSize = const Size(500, 1200);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.localesTestValue = const [Locale('de')];
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+      addTearDown(() => h.dir.deleteSync(recursive: true));
+      h.extraOverrides.add(
+        initialSettingsProvider.overrideWithValue(
+          AppSettings.fromJson(const {'themeMode': 'system'}),
+        ),
+      );
+      await tester.pumpWidget(h.build());
+      await tester.pumpAndSettle();
+      return h;
+    }
+
+    testWidgets('users with marks keep the game they marked in', (
+      tester,
+    ) async {
+      await start(tester, marks: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      final catalog = container.read(readyCatalogProvider);
+      expect(catalog.versions.last.id, const GameVersionId('champions'));
+      expect(
+        container.read(gameContextProvider).versionId,
+        const GameVersionId('champions'),
+      );
+      expect(container.read(settingsProvider).schema, 2);
+    });
+
+    testWidgets('a 1.0 backup restored while the app runs is migrated', (
+      tester,
+    ) async {
+      await start(tester, marks: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      final settings = container.read(settingsProvider.notifier);
+      settings.setGameVersion(NationalDex.versionId);
+      await tester.pumpAndSettle();
+      settings.replaceAll(AppSettings.fromJson(const {'themeMode': 'dark'}));
+      await tester.pumpAndSettle();
+      expect(
+        container.read(gameContextProvider).versionId,
+        const GameVersionId('champions'),
+      );
+      expect(container.read(settingsProvider).schema, 2);
+    });
+
+    testWidgets('an explicit choice during the upgrade is kept', (
+      tester,
+    ) async {
+      await start(tester, marks: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      final settings = container.read(settingsProvider.notifier);
+      // Restored 1.0 settings, then the International Pokédex is chosen
+      // before the migration has run.
+      settings.replaceAll(AppSettings.fromJson(const {'themeMode': 'dark'}));
+      settings.setGameVersion(NationalDex.versionId);
+      await tester.pumpAndSettle();
+      expect(container.read(isNationalProvider), isTrue);
+    });
+
+    testWidgets('marks under an older "newest" game keep that game', (
+      tester,
+    ) async {
+      // In 1.0 the default followed the catalog of its time.
+      await start(tester, marks: true, game: 'scarlet');
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      expect(
+        container.read(gameContextProvider).versionId,
+        const GameVersionId('scarlet'),
+      );
+    });
+
+    testWidgets('users without marks get the International Pokédex', (
+      tester,
+    ) async {
+      await start(tester, marks: false);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(Scaffold).first),
+      );
+      expect(container.read(isNationalProvider), isTrue);
+      expect(container.read(settingsProvider).schema, 2);
+    });
   });
 
   testWidgets('switch the app language and open the help', (tester) async {
@@ -847,7 +1424,7 @@ void main() {
     final rgb = SqliteMediaLibrary.open(_mediaPath);
     addTearDown(rgb.close);
     expect(
-      tester.widget<DexScreen>(find.byType(DexScreen)).tint,
+      tester.widget<PokemonHeader>(find.byType(PokemonHeader)).tint,
       Color(0xFF000000 | rgb.artworkColor(const FormId('pikachu'))!),
     );
 
@@ -866,7 +1443,7 @@ void main() {
     // Official artwork as the large image.
     expect(
       find.descendant(
-        of: find.byType(DexScreen),
+        of: find.byType(PokemonHeader),
         matching: find.byType(FormArtwork),
       ),
       findsOneWidget,
@@ -876,7 +1453,12 @@ void main() {
     await tester.scrollUntilVisible(
       find.text('Galerie'),
       300,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: _detailScrollable(),
+    );
+    await tester.scrollUntilVisible(
+      find.text('Rot / Blau'),
+      300,
+      scrollable: _detailScrollable(),
     );
     expect(find.text('Standard'), findsOneWidget);
     expect(find.text('Offizielles Artwork'), findsOneWidget);
@@ -891,7 +1473,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.text('#0025'),
       -300,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: _detailScrollable(),
     );
     expect(identical(headerBytes(), modern), isFalse);
   });
@@ -908,7 +1490,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.textContaining('Durch Tausch aus'),
       300,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: _detailScrollable(),
     );
     expect(find.textContaining('Durch Tausch aus Blau'), findsOneWidget);
 
@@ -920,7 +1502,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.textContaining('Event-Verteilungen'),
       300,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: _detailScrollable(),
     );
     expect(find.textContaining('Mysteriöses Pokémon'), findsOneWidget);
   });
