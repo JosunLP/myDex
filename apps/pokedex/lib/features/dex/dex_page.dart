@@ -89,6 +89,20 @@ class _DexPageState extends ConsumerState<DexPage> {
     super.dispose();
   }
 
+  /// "/" jumps to the search, unless a text field has focus: there the key
+  /// is passed on so that "/" can be typed.
+  KeyEventResult _focusSearchOnSlash(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent ||
+        event.logicalKey != LogicalKeyboardKey.slash) {
+      return KeyEventResult.ignored;
+    }
+    final typing = FocusManager.instance.primaryFocus?.context
+        ?.findAncestorWidgetOfExactType<EditableText>();
+    if (typing != null) return KeyEventResult.ignored;
+    _searchFocus.requestFocus();
+    return KeyEventResult.handled;
+  }
+
   void _setQuery(String value) {
     ref.read(dexQueryProvider.notifier).set(value);
     setState(() {});
@@ -113,12 +127,10 @@ class _DexPageState extends ConsumerState<DexPage> {
             _searchFocus.requestFocus,
         const SingleActivator(LogicalKeyboardKey.keyF, meta: true):
             _searchFocus.requestFocus,
-        const SingleActivator(LogicalKeyboardKey.slash): () {
-          if (!_searchFocus.hasFocus) _searchFocus.requestFocus();
-        },
       },
       child: Focus(
         autofocus: wide,
+        onKeyEvent: _focusSearchOnSlash,
         child: Scaffold(
           body: wide
               ? Row(

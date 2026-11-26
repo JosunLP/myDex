@@ -21,6 +21,8 @@ import 'package:mydex_app/features/dex/detail_sections.dart';
 import 'package:mydex_app/features/dex/pokemon_detail_page.dart';
 import 'package:mydex_app/widgets/game_context_selector.dart';
 import 'package:mydex_app/widgets/form_artwork.dart';
+import 'package:mydex_app/widgets/motion.dart';
+import 'package:mydex_app/widgets/collection_toggles.dart';
 import 'package:mydex_app/widgets/search_field.dart';
 import 'package:mydex_app/widgets/type_badge.dart';
 import 'package:mydex_application/mydex_application.dart';
@@ -852,6 +854,42 @@ void main() {
     );
   });
 
+  testWidgets('switching the game never plays the caught pop', (tester) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    await container
+        .read(collectionProvider.notifier)
+        .setCaught(
+          const CollectionKey(
+            scope: GameScope(GameVersionId('scarlet')),
+            form: FormId('pikachu'),
+          ),
+          true,
+        );
+    await tester.pumpAndSettle();
+    container
+        .read(settingsProvider.notifier)
+        .setGameVersion(const GameVersionId('scarlet'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+    final scales = find.descendant(
+      of: find.descendant(
+        of: find.byType(CollectionToggles),
+        matching: find.byType(PopOnActivate),
+      ),
+      matching: find.byType(ScaleTransition),
+    );
+    expect(scales, findsWidgets);
+    for (final e in scales.evaluate()) {
+      expect((e.widget as ScaleTransition).scale.value, 1);
+    }
+  });
+
   testWidgets('evolution tiles open the other Pokémon on the same page', (
     tester,
   ) async {
@@ -1078,6 +1116,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(isNationalProvider), isTrue);
     expect(container.read(settingsProvider).themeMode, ThemeMode.dark);
+  });
+
+  testWidgets('desktop: "/" jumps to the search and can then be typed', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(1280, 900));
+    final search = find.descendant(
+      of: find.byType(SearchField).first,
+      matching: find.byType(EditableText),
+    );
+    bool searchFocused() =>
+        tester.widget<EditableText>(search).focusNode.hasFocus;
+    expect(searchFocused(), isFalse);
+    // Outside a text field the key is taken by the shortcut …
+    expect(await tester.sendKeyEvent(LogicalKeyboardKey.slash), isTrue);
+    await tester.pump();
+    expect(searchFocused(), isTrue);
+    // … inside it is passed on, so that the field receives the character.
+    expect(await tester.sendKeyEvent(LogicalKeyboardKey.slash), isFalse);
   });
 
   testWidgets('desktop: keyboard focus never enters hidden sections', (

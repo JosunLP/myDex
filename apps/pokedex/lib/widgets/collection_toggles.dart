@@ -34,6 +34,8 @@ class CaughtButton extends ConsumerWidget {
       tooltip: l10n.markCaught,
       isSelected: caught,
       icon: PopOnActivate(
+        // Fresh per scope: switching the game never plays the pop.
+        key: ValueKey(key.scope),
         active: caught,
         child: AnimatedSwitcher(
           duration: Motion.of(context, Motion.short),
@@ -70,8 +72,9 @@ class CollectionToggles extends ConsumerWidget {
     final ctx = ref.watch(gameContextProvider);
     final entries = ref.watch(collectionProvider).value ?? const {};
     final controller = ref.read(collectionProvider.notifier);
+    final scope = collectionScopeOf(ctx);
     CollectionKey k(bool shiny) =>
-        CollectionKey(scope: collectionScopeOf(ctx), form: form, shiny: shiny);
+        CollectionKey(scope: scope, form: form, shiny: shiny);
     final normal = entries[k(false)];
     final shiny = entries[k(true)];
 
@@ -82,6 +85,8 @@ class CollectionToggles extends ConsumerWidget {
       required bool selected,
       required ValueChanged<bool> onSelected,
     }) => PopOnActivate(
+      // Fresh per scope: switching the game never plays the pop.
+      key: ValueKey((scope, label)),
       active: selected,
       child: FilterChip(
         showCheckmark: false,

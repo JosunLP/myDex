@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:mydex_domain/mydex_domain.dart';
 
@@ -48,8 +50,66 @@ class StatBars extends StatelessWidget {
     ];
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final duration = Motion.of(context, Motion.reveal);
     final total = stats.total(unifiedSpecial: unifiedSpecial);
+    final labelStyle = textTheme.bodyMedium?.copyWith(
+      color: scheme.onSurfaceVariant,
+      fontWeight: FontWeight.w600,
+    );
+    final valueStyle = textTheme.bodyMedium?.copyWith(
+      fontFeatures: tabularFigures,
+      fontWeight: FontWeight.w800,
+    );
+    // Columns as wide as their text at the current text size, so that
+    // values never wrap with large system text.
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    double widthOf(String text, TextStyle? style) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textScaler: scaler,
+        textDirection: direction,
+        maxLines: 1,
+      )..layout();
+      final width = painter.width.ceilToDouble() + 1;
+      painter.dispose();
+      return width;
+    }
+
+    final valueWidth = widthOf('8' * '$total'.length, valueStyle);
+    final labelWidth = math.max(
+      104.0,
+      [
+        for (final (label, _) in rows) label,
+        l10n.statTotal,
+      ].map((l) => widthOf(l, labelStyle)).reduce(math.max),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) => _table(
+        context,
+        rows,
+        total,
+        labelStyle: labelStyle,
+        valueStyle: valueStyle,
+        // Labels wrap only when they would leave no room for the bars.
+        labelWidth: math.min(labelWidth, constraints.maxWidth * 0.4),
+        valueWidth: valueWidth,
+      ),
+    );
+  }
+
+  Widget _table(
+    BuildContext context,
+    List<(String, int)> rows,
+    int total, {
+    required TextStyle? labelStyle,
+    required TextStyle? valueStyle,
+    required double labelWidth,
+    required double valueWidth,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final duration = Motion.of(context, Motion.reveal);
     return Column(
       children: [
         for (final (i, (label, value)) in rows.indexed)
@@ -61,24 +121,15 @@ class StatBars extends StatelessWidget {
               child: Row(
                 children: [
                   SizedBox(
-                    width: 104,
-                    child: Text(
-                      label,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    width: labelWidth,
+                    child: Text(label, style: labelStyle),
                   ),
                   SizedBox(
-                    width: 36,
+                    width: valueWidth,
                     child: Text(
                       '$value',
                       textAlign: TextAlign.end,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontFeatures: tabularFigures,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      style: valueStyle,
                     ),
                   ),
                   const SizedBox(width: Space.m),
@@ -108,7 +159,7 @@ class StatBars extends StatelessWidget {
         Row(
           children: [
             SizedBox(
-              width: 104,
+              width: labelWidth,
               child: Text(
                 l10n.statTotal,
                 style: textTheme.bodyMedium?.copyWith(
@@ -117,14 +168,11 @@ class StatBars extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 36,
+              width: valueWidth,
               child: Text(
                 '$total',
                 textAlign: TextAlign.end,
-                style: textTheme.bodyMedium?.copyWith(
-                  fontFeatures: tabularFigures,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: valueStyle,
               ),
             ),
           ],

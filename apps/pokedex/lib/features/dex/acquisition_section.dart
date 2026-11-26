@@ -221,7 +221,7 @@ class _EncounterGames extends ConsumerWidget {
 
     void open(GameVersion v) {
       final settings = ref.read(settingsProvider.notifier);
-      // Undo restores everything, including the recently used games.
+      // Undo restores the game and the recently used games.
       final previous = ref.read(settingsProvider);
       settings.setGameVersion(v.id);
       ScaffoldMessenger.of(context)
