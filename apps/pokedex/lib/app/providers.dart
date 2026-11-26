@@ -173,6 +173,15 @@ class SettingsController extends Notifier<AppSettings> {
     );
   }
 
+  /// Undoes a game switch: the game and the recent games of [previous],
+  /// everything else stays as it is now.
+  void restoreGame(AppSettings previous) => _update(
+    state.copyWith(
+      gameVersion: () => previous.gameVersion,
+      recentGames: previous.recentGames,
+    ),
+  );
+
   void setReduceMotion(bool value) =>
       _update(state.copyWith(reduceMotion: value));
 

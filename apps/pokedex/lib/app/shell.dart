@@ -235,13 +235,17 @@ class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) => Offstage(
     offstage: !widget.active,
-    child: TickerMode(
-      enabled: widget.active,
-      child: FadeTransition(
-        opacity: _curve,
-        child: ScaleTransition(
-          scale: Tween(begin: 0.985, end: 1.0).animate(_curve),
-          child: widget.child,
+    // Like IndexedStack: hidden sections take no keyboard focus.
+    child: ExcludeFocus(
+      excluding: !widget.active,
+      child: TickerMode(
+        enabled: widget.active,
+        child: FadeTransition(
+          opacity: _curve,
+          child: ScaleTransition(
+            scale: Tween(begin: 0.985, end: 1.0).animate(_curve),
+            child: widget.child,
+          ),
         ),
       ),
     ),

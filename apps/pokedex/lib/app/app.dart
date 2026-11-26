@@ -43,7 +43,15 @@ class _MyDexAppState extends ConsumerState<MyDexApp> {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       themeMode: themeMode,
-      themeAnimationDuration: Motion.medium,
+      themeAnimationDuration:
+          reduceMotion ||
+              WidgetsBinding
+                  .instance
+                  .platformDispatcher
+                  .accessibilityFeatures
+                  .disableAnimations
+          ? Duration.zero
+          : Motion.medium,
       themeAnimationCurve: Motion.standard,
       localizationsDelegates: const [
         AppLocalizations.delegate,

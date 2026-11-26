@@ -229,7 +229,7 @@ class _EncounterGames extends ConsumerWidget {
             content: Text(l10n.switchedToGame(v.name(lang))),
             action: SnackBarAction(
               label: l10n.undo,
-              onPressed: () => settings.replaceAll(previous),
+              onPressed: () => settings.restoreGame(previous),
             ),
           ),
         );

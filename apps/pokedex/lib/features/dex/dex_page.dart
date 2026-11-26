@@ -378,7 +378,10 @@ class _DexBrowser extends ConsumerWidget {
                 childAspectRatio: 0.78,
               ),
               itemCount: items.length,
+              // Keyed by form: row state (e.g. the caught pop) stays with
+              // its Pokémon when the list changes.
               itemBuilder: (context, i) => Entrance(
+                key: ValueKey(items[i].form.id),
                 index: i,
                 child: _PokemonCard(
                   item: items[i],
@@ -391,6 +394,7 @@ class _DexBrowser extends ConsumerWidget {
         : SliverList.builder(
             itemCount: items.length,
             itemBuilder: (context, i) => Entrance(
+              key: ValueKey(items[i].form.id),
               index: i,
               child: _PokemonRow(
                 item: items[i],

@@ -170,7 +170,9 @@ class _GamePickerState extends ConsumerState<_GamePicker> {
       byGeneration.putIfAbsent(gen, () => []).add(v);
     }
     final recentVersions = [
-      for (final id in recent) ?catalog.versionById(GameVersionId(id)),
+      for (final id in recent)
+        if (!NationalDex.isNational(GameVersionId(id)))
+          ?catalog.versionById(GameVersionId(id)),
     ];
 
     Widget header(String text) => Padding(

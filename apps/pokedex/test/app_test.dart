@@ -988,6 +988,57 @@ void main() {
     expect(container.read(settingsProvider).recentGames, isEmpty);
   });
 
+  testWidgets('undo only reverts the game, not other settings', (tester) async {
+    await _pump(tester, const Size(500, 2400));
+    await _search(tester, 'Pikachu');
+    await tester.tap(find.widgetWithText(ListTile, 'Pikachu'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Fundorte in diesen Spielen'),
+      300,
+      scrollable: _detailScrollable(),
+    );
+    final red = find.widgetWithText(ActionChip, 'Rot').first;
+    await tester.ensureVisible(red);
+    await tester.pumpAndSettle();
+    await tester.tap(red);
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(Scaffold).first),
+    );
+    // Changed while the snackbar is still visible.
+    container.read(settingsProvider.notifier).setThemeMode(ThemeMode.dark);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rückgängig'));
+    await tester.pumpAndSettle();
+    expect(container.read(isNationalProvider), isTrue);
+    expect(container.read(settingsProvider).themeMode, ThemeMode.dark);
+  });
+
+  testWidgets('desktop: keyboard focus never enters hidden sections', (
+    tester,
+  ) async {
+    await _pump(tester, const Size(1280, 900));
+    await tester.tap(find.text('Mehr').first);
+    await tester.pumpAndSettle();
+    bool inHiddenSection() {
+      final focus = FocusManager.instance.primaryFocus?.context;
+      if (focus == null) return false;
+      var hidden = false;
+      focus.visitAncestorElements((e) {
+        if (e.widget case Offstage(offstage: true)) hidden = true;
+        return !hidden;
+      });
+      return hidden;
+    }
+
+    for (var i = 0; i < 25; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(inHiddenSection(), isFalse, reason: 'after ${i + 1} × Tab');
+    }
+  });
+
   testWidgets('switch the app language and open the help', (tester) async {
     await _pump(tester, const Size(500, 1600));
     await tester.tap(find.text('Mehr'));

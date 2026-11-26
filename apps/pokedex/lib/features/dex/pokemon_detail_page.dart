@@ -63,7 +63,9 @@ class _PokemonDetailPageState extends ConsumerState<PokemonDetailPage> {
     final i = _ids.indexOf(id);
     if (i < 0) return false;
     if (i != _index) {
-      if (Motion.reduced(context)) {
+      // Only neighbours slide; anything further jumps (no burst of page
+      // changes and haptics on the way).
+      if (Motion.reduced(context) || (i - _index).abs() > 1) {
         _pages.jumpToPage(i);
       } else {
         _pages.animateToPage(i, duration: Motion.long, curve: Motion.standard);

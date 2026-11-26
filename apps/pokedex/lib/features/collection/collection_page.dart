@@ -319,7 +319,8 @@ class _ProgressCard extends StatelessWidget {
                   child: Center(
                     child: Text(
                       // One decimal while small, so early progress shows.
-                      '${NumberFormat(t < 0.1 ? '0.0' : '0', Localizations.localeOf(context).toLanguageTag()).format((t * 1000).floor() / 10)} %',
+                      // Floored, so 100 % only shows when complete.
+                      '${NumberFormat(t < 0.1 ? '0.0' : '0', Localizations.localeOf(context).toLanguageTag()).format(t < 0.1 ? (t * 1000).floor() / 10 : (t * 100).floor())} %',
                       style: textTheme.titleLarge?.copyWith(
                         fontFeatures: tabularFigures,
                       ),
