@@ -31,6 +31,22 @@ python3 tool/brand/finalize_icons.py                # Windows .ico, opaque iOS i
 | Windows | `windows/runner/resources/app_icon.ico` (16–256 px, each size drawn natively) |
 | Linux | `linux/packaging/icons/hicolor/*`, window icon `linux/runner/resources/app_icon.png` |
 
+### GitHub social preview
+
+<img src="social-preview.png" alt="myDex social preview" width="640">
+
+`social-preview.png` (1280 × 640, under 1 MB) is the repository's link preview: the app icon,
+the word mark, the tagline and the platforms on the dark hinge colour, drawn by the same
+`BrandPainter` with the bundled fonts. It deliberately contains no Pokémon artwork.
+
+```sh
+cd apps/pokedex
+flutter test tool/brand/social_preview_test.dart   # → docs/brand/social-preview.png
+```
+
+GitHub does not take it from the repository automatically: upload it under
+**Settings → General → Social preview**.
+
 ## Colour
 
 | Token | Value | Use |
